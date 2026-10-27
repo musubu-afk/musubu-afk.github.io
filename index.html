@@ -13,7 +13,7 @@
 .destination-story{margin-top:24px}.destination-story+.destination-story{border-top:1px solid #dbe8e2;padding-top:24px}.story-photo{display:block;width:100%;height:auto;border-radius:14px}.destination-story h3{font-size:22px;margin:16px 0 8px}.destination-story>p{margin:0;word-break:keep-all;overflow-wrap:anywhere}.audio-pending{font-weight:700;margin:8px 0}.lang-ja .destination-story>p{word-break:normal}
 </style>
 <link href="shops.css" rel="stylesheet"/>
-<link href="themes.css" rel="stylesheet"/><link rel="stylesheet" href="regions.css?v=1"/></head>
+<link href="themes.css" rel="stylesheet"/><link rel="stylesheet" href="regions.css?v=1"/><link rel="stylesheet" href="vendor/leaflet/leaflet.css"/><link rel="stylesheet" href="explore.css?v=1"/></head>
 <body>
 <div class="app">
 <header class="hero">
@@ -22,12 +22,17 @@
 <h1 data-i18n="heroTitle">지역민의 이야기를 듣고
 논산을 더 가까이 만나보세요.</h1>
 <p data-i18n="heroDescription">QR 하나로 주민 스토리 · 다국어 음성 · 주변 상점 · 후기 · 바우처를 체험하는 곳입니다.</p>
-<div class="flow"><a href="#story" data-i18n="flowStory">① 이야기 감상</a><a href="#shops" data-i18n="flowShops">② 주변 상점</a><a href="#review" data-i18n="flowReview">③ 후기 참여</a><a href="#voucher" data-i18n="flowVoucher">④ 바우처</a></div>
+<div class="flow"><a href="#story" data-i18n="flowStory">① 이야기 감상</a><a href="#shops" data-i18n="flowShops">② 주변 상점</a><a href="#review" data-i18n="flowReview">③ 후기 참여</a></div>
 <a class="qrbtn" data-i18n="qrButton" data-local-link="" href="qr.html">▦ QR 보기</a>
 </header>
 <main class="main" id="nonsanContent">
-<section class="card" id="story"><span class="tag" data-i18n="storyTag">STORY · 이야기 감상</span><h2 data-i18n="storyTitle">논산의 이야기를 만나보세요</h2><p data-i18n="storyDescription">사진과 소개글, 한국어·일본어 음성으로 돈암서원과 탑정호를 만나보세요.</p><article class="destination-story" id="story-donam" aria-labelledby="donam-title"><img class="story-photo" src="assets/donam-seowon.jpg" alt="눈 덮인 돈암서원의 전경" data-i18n-alt="donamAlt" loading="lazy" width="1200" height="800"/><h3 id="donam-title" data-i18n="donamTitle">돈암서원</h3><p data-i18n="donamText">돈암서원은 사계 김장생(1548~1631)의 강학 기반을 배경으로 건립된 서원이다. 황강 김계휘가 건립한 정회당과 김장생이 건립한 양성당에서 수학한 김장생의 제자들이 후에 스승을 추모하며 기리기 위하여 돈암서원을 건립하였다.</p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnDonam" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioDonam" preload="metadata" src="assets/audio/donam-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusDonam" role="status"></p></div></article><article class="destination-story" id="story-tapjeong" aria-labelledby="tapjeong-title"><img class="story-photo" src="assets/tapjeongho.jpg" alt="노을이 비치는 탑정호와 출렁다리" data-i18n-alt="tapjeongAlt" loading="lazy" width="1500" height="1000"/><h3 id="tapjeong-title" data-i18n="tapjeongTitle">탑정호</h3><p data-i18n="tapjeongText">탑정호는 고려시대의 역사와 전승이 남아 있는 ‘탑정리’ 일대에 1944년 농업용수 확보를 위해 조성된 저수지로, 이후 수변생태공원과 관광시설(출렁다리, 음악분수 등)이 조성되면서 농업용 저수지에서 논산을 대표하는 관광·휴양 공간으로 변화해 왔다.</p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnTapjeong" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioTapjeong" preload="metadata" src="assets/audio/tapjeong-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusTapjeong" role="status"></p></div></article></section>
-<section class="card" id="shops">
+<section class="card story-host" id="story"></section>
+<section class="card" id="shops"><section class="coupon-block" id="voucher">
+<span class="tag" data-i18n="voucherTag">VOUCHER · 바우처</span>
+<h2 data-i18n="voucherTitle">지역 상점 데모 바우처</h2>
+<div class="voucher locked" id="voucherBox"><div data-i18n="voucherLocked">후기 참여 완료 시 사용 가능</div><strong>₩1,000</strong><div>MUSUBU DEMO COUPON</div><button data-i18n="useVoucher" disabled="" id="useVoucher" type="button">사용 처리</button></div>
+<p class="notice" data-i18n="voucherNotice">발표용 모의 바우처이며 실제 결제에는 사용할 수 없습니다. 이 화면에서 저장한 후기만 발급 조건에 반영됩니다.</p>
+</section>
 <span class="tag" data-i18n="shopsTag">NEARBY · 주변 상점</span>
 <h2 data-i18n="shopsTitle">이야기와 가까운 지역 상점</h2>
 <div class="shops">
@@ -47,21 +52,14 @@
 <button class="submit" data-i18n="openReview" id="openReview" type="button">선택한 상점 후기 쓰기</button>
 <div class="notice" id="reviewMsg" role="status"></div>
 </section>
-<section class="card" id="voucher">
-<span class="tag" data-i18n="voucherTag">VOUCHER · 바우처</span>
-<h2 data-i18n="voucherTitle">지역 상점 데모 바우처</h2>
-<div class="voucher locked" id="voucherBox"><div data-i18n="voucherLocked">후기 참여 완료 시 사용 가능</div><strong>₩1,000</strong><div>MUSUBU DEMO VOUCHER</div><button data-i18n="useVoucher" disabled="" id="useVoucher" type="button">사용 처리</button></div>
-<p class="notice" data-i18n="voucherNotice">발표용 모의 바우처이며 실제 결제에는 사용할 수 없습니다. 이 화면에서 저장한 후기만 발급 조건에 반영됩니다.</p>
-</section>
+
 </main>
 <main class="main" id="fukuokaContent" hidden>
-<section class="card" id="fukuoka-story"><span class="tag" data-region-text="storyTag"></span><h2 data-region-text="storyTitle"></h2><p data-region-text="storyIntro"></p>
-<article class="destination-story" id="story-ohori" aria-labelledby="ohori-title"><img class="story-photo" src="assets/ohori.png" alt="" data-region-alt="ohoriAlt" loading="lazy" width="340" height="226"/><h3 id="ohori-title" data-region-text="ohoriTitle"></h3><span class="tag" data-region-text="ohoriLocation"></span><p data-region-text="ohoriText"></p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnOhori" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioOhori" preload="metadata" src="assets/audio/ohori-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusOhori" role="status"></p></div></article>
-<article class="destination-story" id="story-yufuin" aria-labelledby="yufuin-title"><img class="story-photo" src="assets/yufuin.png" alt="" data-region-alt="yufuinAlt" loading="lazy" width="695" height="512"/><h3 id="yufuin-title" data-region-text="yufuinTitle"></h3><span class="tag" data-region-text="yufuinLocation"></span><p data-region-text="yufuinText"></p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnYufuin" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioYufuin" preload="metadata" src="assets/audio/yufuin-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusYufuin" role="status"></p></div></article></section>
-<section class="card" id="fukuoka-shops"><span class="tag" data-region-text="shopsTag"></span><h2 data-region-text="shopsTitle"></h2><p data-region-text="shopsNote"></p><div class="shops">
+<section class="card story-host" id="fukuoka-story"></section>
+<section class="card" id="fukuoka-shops"><section class="coupon-block" id="fukuoka-voucher"><span class="tag" data-region-text="voucherTag"></span><h2 data-region-text="voucherTitle"></h2><div class="voucher locked"><strong data-region-text="coming"></strong><div>MUSUBU DEMO COUPON</div></div><p class="notice" data-region-text="voucherNote"></p></section><span class="tag" data-region-text="shopsTag"></span><h2 data-region-text="shopsTitle"></h2><p data-region-text="shopsNote"></p><div class="shops">
 <div class="shop"><b data-region-text="cafe"></b><small data-region-text="coming"></small></div><div class="shop"><b data-region-text="food"></b><small data-region-text="coming"></small></div><div class="shop"><b data-region-text="gift"></b><small data-region-text="coming"></small></div></div></section>
 <section class="card" id="fukuoka-review"><span class="tag" data-region-text="reviewTag"></span><h2 data-region-text="reviewTitle"></h2><p data-region-text="reviewNote"></p><button class="submit" disabled type="button" data-region-text="reviewPending"></button></section>
-<section class="card" id="fukuoka-voucher"><span class="tag" data-region-text="voucherTag"></span><h2 data-region-text="voucherTitle"></h2><div class="voucher locked"><strong data-region-text="coming"></strong><div>MUSUBU DEMO VOUCHER</div></div><p class="notice" data-region-text="voucherNote"></p></section>
+
 </main>
 <footer data-i18n="footer">むすぶ · 논산과 후쿠오카를 잇다</footer>
 </div>
@@ -99,10 +97,33 @@
 </div>
 </div>
 </dialog>
+
+<dialog id="placeDialog" class="place-dialog" aria-labelledby="placeDetailTitle">
+ <div class="place-head"><nav class="language-switch" data-i18n-aria="language"><button type="button" data-language="ko">한국어</button><span>|</span><button type="button" data-language="ja">日本語</button></nav><button type="button" data-close-place data-i18n="mapClose">닫기</button></div>
+ <div class="place-scroll"><h2 id="placeDetailTitle"></h2><div id="placeDetailMeta"></div><div id="officialStories"><article class="destination-story" id="story-donam" aria-labelledby="donam-title"><img class="story-photo" src="assets/donam-seowon.jpg" alt="눈 덮인 돈암서원의 전경" data-i18n-alt="donamAlt" loading="lazy" width="1200" height="800"/><h3 id="donam-title" data-i18n="donamTitle">돈암서원</h3><p data-i18n="donamText">돈암서원은 사계 김장생(1548~1631)의 강학 기반을 배경으로 건립된 서원이다. 황강 김계휘가 건립한 정회당과 김장생이 건립한 양성당에서 수학한 김장생의 제자들이 후에 스승을 추모하며 기리기 위하여 돈암서원을 건립하였다.</p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnDonam" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioDonam" preload="metadata" src="assets/audio/donam-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusDonam" role="status"></p></div></article><article class="destination-story" id="story-tapjeong" aria-labelledby="tapjeong-title"><img class="story-photo" src="assets/tapjeongho.jpg" alt="노을이 비치는 탑정호와 출렁다리" data-i18n-alt="tapjeongAlt" loading="lazy" width="1500" height="1000"/><h3 id="tapjeong-title" data-i18n="tapjeongTitle">탑정호</h3><p data-i18n="tapjeongText">탑정호는 고려시대의 역사와 전승이 남아 있는 ‘탑정리’ 일대에 1944년 농업용수 확보를 위해 조성된 저수지로, 이후 수변생태공원과 관광시설(출렁다리, 음악분수 등)이 조성되면서 농업용 저수지에서 논산을 대표하는 관광·휴양 공간으로 변화해 왔다.</p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnTapjeong" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioTapjeong" preload="metadata" src="assets/audio/tapjeong-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusTapjeong" role="status"></p></div></article><article class="destination-story" id="story-ohori" aria-labelledby="ohori-title"><img class="story-photo" src="assets/ohori.png" alt="" data-region-alt="ohoriAlt" loading="lazy" width="340" height="226"/><h3 id="ohori-title" data-region-text="ohoriTitle"></h3><span class="tag" data-region-text="ohoriLocation"></span><p data-region-text="ohoriText"></p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnOhori" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioOhori" preload="metadata" src="assets/audio/ohori-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusOhori" role="status"></p></div></article><article class="destination-story" id="story-yufuin" aria-labelledby="yufuin-title"><img class="story-photo" src="assets/yufuin.png" alt="" data-region-alt="yufuinAlt" loading="lazy" width="695" height="512"/><h3 id="yufuin-title" data-region-text="yufuinTitle"></h3><span class="tag" data-region-text="yufuinLocation"></span><p data-region-text="yufuinText"></p><div class="audioBox"><strong data-i18n="storyAudioTitle">음성 이야기</strong><p data-i18n="storyAudioAvailable">한국어·일본어 음성 안내</p><button class="listenBtn" data-i18n="play" id="playBtnYufuin" type="button">▶ 이야기 바로 듣기</button><audio controls id="storyAudioYufuin" preload="metadata" src="assets/audio/yufuin-ko.mp3"><span data-i18n="audioUnsupported"></span></audio><p class="status" id="audioStatusYufuin" role="status"></p></div></article></div>
+ <div id="communityStory"><p id="communityReason"></p><h3 data-i18n="mapTip">현지인 팁</h3><p id="communityTip"></p><p class="notice" data-i18n="mapNoAudio">이 장소의 음성은 아직 준비되지 않았습니다.</p></div>
+ <p id="placeExample" class="notice" data-i18n="mapExampleNotice"></p>
+ <button type="button" class="submit" id="detailLike"></button><p id="likeStatus" role="status"></p>
+ <button type="button" class="submit outline" id="placeToShops" data-i18n="mapToShops">쿠폰 · 주변 상점으로 →</button>
+ </div>
+</dialog>
+<dialog id="recommendDialog" class="place-dialog" aria-labelledby="recommendTitle">
+ <div class="place-head"><h2 id="recommendTitle" data-i18n="mapRecommend">나만 아는 장소 추천</h2><button type="button" id="closeRecommend" data-i18n="mapClose">닫기</button></div>
+ <form id="recommendForm" class="place-scroll">
+ <p id="chosenPoint"></p><p class="notice" data-i18n="mapModeration"></p>
+ <label for="placeName" data-i18n="mapName">장소 이름</label><input id="placeName" name="name" required minlength="2" maxlength="80"/>
+ <label for="placeCategory" data-i18n="mapCategory">장소 유형</label><select id="placeCategory" name="category"><option value="scenery" data-i18n="mapCategory_scenery"></option><option value="walk" data-i18n="mapCategory_walk"></option><option value="photo" data-i18n="mapCategory_photo"></option><option value="rest" data-i18n="mapCategory_rest"></option><option value="local" data-i18n="mapCategory_local"></option><option value="other" data-i18n="mapCategory_other"></option></select>
+ <label for="placeReason" data-i18n="mapReason">이 장소가 좋은 이유</label><textarea id="placeReason" name="reason" required minlength="10" maxlength="1200" data-i18n-placeholder="mapReasonHint"></textarea>
+ <label for="placeTip" data-i18n="mapTip">현지인 팁</label><textarea id="placeTip" name="tip" maxlength="300" data-i18n-placeholder="mapTipHint"></textarea>
+ <p class="notice" data-i18n="mapPhotoLater"></p>
+ <label class="consent"><input type="checkbox" required id="placeConsent"/><span data-i18n="mapConsent"></span></label>
+ <button type="submit" class="submit" id="sendPlace" data-i18n="mapSend"></button><p role="status" id="placeSubmitStatus"></p>
+ </form>
+</dialog>
 <script src="vendor/supabase.js"></script>
 <script src="shops.js"></script>
 <script src="app.js"></script>
 <script src="audio.js?v=20261006-japan"></script>
-<script src="regions.js?v=3"></script>
+<script src="map-config.js"></script><script src="regions.js?v=4"></script><script src="vendor/leaflet/leaflet.js"></script><script src="explore.js?v=1"></script>
 </body></html>
 

@@ -18,15 +18,16 @@ explorer.innerHTML=`<div class="explore-heading"><span class="tag">MUSUBU · LOC
 <div class="map-pick" id="mapPick" hidden><p data-i18n="mapPick"></p><div class="map-pick-actions"><button type="button" id="pickCenter" data-i18n="mapChooseCenter"></button><button type="button" id="cancelPick" data-i18n="mapCancel"></button></div></div>
 <div class="map-wrap"><div id="storyMap" class="map-canvas" role="region" tabindex="0" data-i18n-aria="mapStory"><span class="map-center" aria-hidden="true">＋</span></div></div>
 <p id="mapTileStatus" class="map-status" role="status"></p><p id="mapStatus" class="map-status" role="status"></p>
-<section class="map-preview" id="mapPreview" tabindex="-1" aria-labelledby="previewTitle" hidden><button type="button" class="preview-close" id="closePreview" data-i18n-aria="mapClose">✕</button><span class="tag" id="previewKind"></span><h3 id="previewTitle"></h3><p id="previewReason"></p><p id="previewLikes"></p><div class="preview-actions"><button type="button" id="listenPlace" data-i18n="mapListen"></button><button type="button" id="openPlace" data-i18n="mapDetails"></button></div></section>
+<section class="map-preview" id="mapPreview" tabindex="-1" aria-labelledby="previewTitle" hidden><button type="button" class="preview-close" id="closePreview" data-i18n-aria="mapClose">✕</button><span class="tag" id="previewKind"></span><h3 id="previewTitle"></h3><p id="previewReason"></p><p id="previewLikes"></p><div class="preview-actions"><button type="button" id="listenPlace" data-i18n="mapListen"></button><button type="button" id="openPlace" data-i18n="mapDetails"></button></div><small class="preview-attribution">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</small></section>
 <details class="map-list" open><summary data-i18n="mapList"></summary><div class="map-list-items" id="placeList"></div></details><button type="button" class="text-button" id="refreshPlaces" data-i18n="mapRefresh"></button>`;
 function mount(){ $(region()==='nonsan'?'story':'fukuoka-story').append(explorer); }
 mount();I.apply(explorer);
 function rememberLike(id){liked.add(id);try{localStorage.setItem('musubu.likes',JSON.stringify([...liked]));}catch{}}
 function kindLabel(p){return p.is_example?t('mapExample'):t(p.kind==='official'?'mapOfficial':p.kind==='walk'?'mapWalk':'mapResident');}
-function shownPlaces(){return places.filter(p=>p.region===region());}
+function shownPlaces(){return places.filter(p=>p.region===region()).sort((a,b)=>(a.kind==='official'?0:1)-(b.kind==='official'?0:1)||a.name.localeCompare(b.name));}
 function pin(p){return L.divIcon({className:'map-pin '+p.kind,html:'<span><b>'+(p.kind==='official'?'♪':p.kind==='walk'?'↝':'♥')+'</b></span>',iconSize:[36,36],iconAnchor:[18,36]});}
 function draw(){
+ document.querySelectorAll('.leaflet-control-zoom-in,.leaflet-control-zoom-out').forEach(el=>{const label=t(el.classList.contains('leaflet-control-zoom-in')?'mapZoomIn':'mapZoomOut');el.title=label;el.setAttribute('aria-label',label);});
  if(markers)markers.clearLayers(); $('placeList').replaceChildren();
  shownPlaces().forEach(p=>{
   const v=view(p), b=document.createElement('button');b.type='button';
@@ -49,7 +50,7 @@ function choose(p,pan=false){
 }
 function likeButton(){if(!selected)return;const count=counts.get(selected.id)??'—';text('detailLike',liked.has(selected.id)?'mapLiked':'mapLike',{count});$('detailLike').disabled=liking||!db||liked.has(selected.id);}
 function detail(){
- if(!selected)return;const p=selected,v=view(p);$('placeDetailTitle').textContent=v.name;$('placeDetailMeta').textContent=kindLabel(p);
+ if(!selected)return;const p=selected,v=view(p);$('placeDetailTitle').textContent=v.name;$('placeDetailMeta').textContent=kindLabel(p)+' · '+t('mapCategory_'+p.category);
  document.querySelectorAll('#officialStories .destination-story').forEach(a=>a.hidden=a.id!=='story-'+p.story_key);
  $('officialStories').hidden=!p.story_key;$('communityStory').hidden=!!p.story_key;
  $('communityReason').textContent=v.reason;$('communityReason').lang=p.language;

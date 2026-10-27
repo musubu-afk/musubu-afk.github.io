@@ -68,7 +68,7 @@ $('placeToShops').onclick=()=>{
 };
 async function loadCounts(){if(!db)return;const {data,error}=await db.rpc('place_like_counts');if(error)throw error;counts=new Map(places.map(p=>[p.id,0]));(data||[]).forEach(r=>counts.set(r.place_id,Number(r.like_count)));draw();preview();likeButton();}
 async function load(){
- const version=++loadVersion;text('mapStatus','statsLoading');$('refreshPlaces').disabled=true;
+ const version=++loadVersion;text('mapStatus','mapLoading');$('refreshPlaces').disabled=true;
  try{
   if(!db)throw Error('client');
   const [a,b]=await Promise.all([

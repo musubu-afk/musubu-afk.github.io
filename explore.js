@@ -7,7 +7,7 @@ try { visitor=localStorage.getItem('musubu.visitor'); if(!/^[0-9a-f-]{36}$/i.tes
 const db=window.supabase?.createClient('https://fzynbjgkictmlmuxfldl.supabase.co','sb_publishable_x08dJFDQ_zuP0IKJ83jFYg_1so-HCCN',{
  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'musubu-map'},global:{headers:{'x-musubu-visitor':visitor}}
 });
-let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false;
+let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false,addressRequest=null,addressVersion=0,addressEdited=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
 const view=p=>({...p,...(p.translations?.[I.lang]||{})});
@@ -91,12 +91,12 @@ function setPicking(value){picking=value;$('mapPick').hidden=!value;$('storyMap'
 $('recommendPlace').onclick=()=>{setPicking(true);$('mapPick').scrollIntoView({behavior:'smooth',block:'center'});};
 $('cancelPick').onclick=()=>{clearDraft();setPicking(false);};
 $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
-function clearDraft(){if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function clearDraft(){addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';$('continuePick').disabled=true;I.clear($('selectedAddress'));}
 function showAddress(){
  const el=$('selectedAddress');I.clear(el);el.textContent=pointAddress||t('mapAddressFallback');
  $('chosenPoint').textContent=t('mapSelected')+' · '+C.regions[formRegion]['name_'+I.lang];
 }
-function pick(latlng){
+function pick(latlng){addressVersion++;addressRequest?.abort();
  const r=currentRegion(),b=r.bounds;
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
  point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';
@@ -105,11 +105,21 @@ function pick(latlng){
  $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
  showAddress();
 }
-$('continuePick').onclick=()=>{
+$('placeAddress').addEventListener('input',()=>{addressEdited=true;});
+$('continuePick').onclick=async()=>{
  if(!point)return;
  $('recommendForm').reset();submissionId=crypto.randomUUID();I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
- showAddress();$('placeAddress').value=pointAddress;
+ showAddress();$('placeAddress').value=pointAddress;addressEdited=false;
  $('recommendDialog').showModal();document.body.classList.add('modal-open');
+ const version=++addressVersion;addressRequest?.abort();const controller=new AbortController();addressRequest=controller;
+ text('addressStatus','mapAddressLoading');const timer=setTimeout(()=>controller.abort(),10000);
+ try{
+  const address=await window.MUSUBU_GEOCODE({...point},I.lang,controller.signal);
+  if(version!==addressVersion||!$('recommendDialog').open)return;
+  pointAddress=address;showAddress();if(!addressEdited)$('placeAddress').value=address;
+  text('addressStatus','mapAddressFound');
+ }catch{if(version===addressVersion&&$('recommendDialog').open)text('addressStatus','mapAddressFailed');}
+ finally{clearTimeout(timer);}
 };
 $('deletePlaceForm').onsubmit=async e=>{
  e.preventDefault();if(deleting||!selected)return;
@@ -121,7 +131,7 @@ $('deletePlaceForm').onsubmit=async e=>{
 };
 $('closeRecommend').onclick=()=>{if(!sending)$('recommendDialog').close();};
 $('recommendDialog').addEventListener('cancel',e=>{if(sending)e.preventDefault();});
-$('recommendDialog').addEventListener('close',()=>document.body.classList.remove('modal-open'));
+$('recommendDialog').addEventListener('close',()=>{addressVersion++;addressRequest?.abort();document.body.classList.remove('modal-open');});
 $('recommendForm').onsubmit=async e=>{
  e.preventDefault();if(sending||!db||!point)return;
  if(!$('placeAddress').value.trim()){$('placeAddress').focus();return;}

@@ -94,12 +94,13 @@ async function renderRewards(){
  const legacy=$('voucherBox');legacy.closest('section').querySelectorAll(':scope > [data-i18n]').forEach(n=>n.hidden=true);legacy.hidden=legacy.classList.contains('locked');
  $('fukuoka-voucher').querySelectorAll(':scope > :not(.community-rewards)').forEach(n=>n.hidden=true);
 }
-function relabel(){I.apply();detailActions.querySelectorAll('button:not(#detailDislike)').forEach((b,i)=>b.textContent=t(['editPlace','history','placeReviews'][i]));fillPlaces();renderVotes();renderReviews();renderRewards();}
+function applyLocal(){[reviewSection,editor,historyDialog,deleteDialog].forEach(n=>I.apply(n));}
+function relabel(){applyLocal();detailActions.querySelectorAll('button:not(#detailDislike)').forEach((b,i)=>b.textContent=t(['editPlace','history','placeReviews'][i]));fillPlaces();renderVotes();renderReviews();renderRewards();}
 document.addEventListener('musubu:places-loaded',()=>{fillPlaces();if($('placeDialog').open)renderWiki(X.selected);});
 document.addEventListener('musubu:place-detail',e=>renderWiki(e.detail.place));
 document.addEventListener('musubu:regionchange',()=>{selectReviews(null);editor.close();historyDialog.close();deleteDialog.close();mount();});
 document.addEventListener('musubu:languagechange',relabel);
 document.addEventListener('musubu:reward-earned',renderRewards);
 window.MUSUBU_COMMUNITY={decorate,renderVotes};
-mount();I.apply();X.load();
+mount();applyLocal();X.load();
 })();

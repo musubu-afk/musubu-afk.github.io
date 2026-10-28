@@ -162,7 +162,7 @@
   });
   $('showReviews').addEventListener('click', () => $('reviewsHeading').focus());
   $('retryReviews').addEventListener('click', refreshReviews);
-  $('goVoucher').addEventListener('click', () => { dialog.close(); $('voucher').scrollIntoView({ behavior: 'smooth' }); });
+  $('goVoucher').addEventListener('click', () => { dialog.close(); window.MUSUBU_SCREENS?.go('shops'); });
   $('useVoucher').addEventListener('click', () => {
     if (!$('voucherBox').dataset.reviewId || voucherUsed) return;
     voucherUsed = true; msg('useVoucher', 'voucherUsed'); $('useVoucher').disabled = true;

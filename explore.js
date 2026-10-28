@@ -7,7 +7,7 @@ try { visitor=localStorage.getItem('musubu.visitor'); if(!/^[0-9a-f-]{36}$/i.tes
 const db=window.supabase?.createClient('https://fzynbjgkictmlmuxfldl.supabase.co','sb_publishable_x08dJFDQ_zuP0IKJ83jFYg_1so-HCCN',{
  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'musubu-map'},global:{headers:{'x-musubu-visitor':visitor}}
 });
-let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null;
+let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',addressVersion=0,deleting=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
 const view=p=>({...p,...(p.translations?.[I.lang]||{})});
@@ -15,7 +15,7 @@ const explorer=document.createElement('div');explorer.id='explorer';
 explorer.innerHTML=`<div class="explore-heading"><span class="tag">MUSUBU · LOCAL STORIES</span><h2 data-i18n="mapTitle"></h2><p data-i18n="mapIntro"></p></div>
 <div class="map-legend"><span data-i18n="mapOfficial"></span><span data-i18n="mapResident"></span><span data-i18n="mapWalk"></span></div>
 <div class="map-toolbar"><button type="button" class="recommend" id="recommendPlace" data-i18n="mapRecommend"></button><button type="button" id="mapHome" data-i18n="mapFit"></button></div>
-<div class="map-pick" id="mapPick" hidden><p data-i18n="mapPick"></p><div class="map-pick-actions"><button type="button" id="pickCenter" data-i18n="mapChooseCenter"></button><button type="button" id="cancelPick" data-i18n="mapCancel"></button></div></div>
+<div class="map-pick" id="mapPick" hidden><p data-i18n="mapPick"></p><div class="map-pick-actions"><button type="button" id="pickCenter" data-i18n="mapChooseCenter"></button><button type="button" id="continuePick" disabled data-i18n="mapContinue"></button><button type="button" id="cancelPick" data-i18n="mapCancel"></button></div><p id="selectedAddress" role="status"></p></div>
 <div class="map-wrap"><div id="storyMap" class="map-canvas" role="region" tabindex="0" data-i18n-aria="mapStory"><span class="map-center" aria-hidden="true">＋</span></div></div>
 <p id="mapTileStatus" class="map-status" role="status"></p><p id="mapStatus" class="map-status" role="status"></p>
 <section class="map-preview" id="mapPreview" tabindex="-1" aria-labelledby="previewTitle" hidden><button type="button" class="preview-close" id="closePreview" data-i18n-aria="mapClose">✕</button><span class="tag" id="previewKind"></span><h3 id="previewTitle"></h3><p id="previewReason"></p><p id="previewLikes"></p><div class="preview-actions"><button type="button" id="listenPlace" data-i18n="mapListen"></button><button type="button" id="openPlace" data-i18n="mapDetails"></button></div><small class="preview-attribution">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</small></section>
@@ -50,13 +50,13 @@ function choose(p,pan=false){
 }
 function likeButton(){if(!selected)return;const count=counts.get(selected.id)??'—';text('detailLike',liked.has(selected.id)?'mapLiked':'mapLike',{count});$('detailLike').disabled=liking||!db||liked.has(selected.id);}
 function detail(){
- if(!selected)return;const p=selected,v=view(p);$('placeDetailTitle').textContent=v.name;$('placeDetailMeta').textContent=kindLabel(p)+' · '+t('mapCategory_'+p.category);
+ if(!selected)return;const p=selected,v=view(p);$('placeDetailTitle').textContent=v.name;$('placeDetailMeta').textContent=kindLabel(p)+' · '+t('mapCategory_'+p.category)+' · '+(v.address||t('mapAddressUnknown'));
  document.querySelectorAll('#officialStories .destination-story').forEach(a=>a.hidden=a.id!=='story-'+p.story_key);
  $('officialStories').hidden=!p.story_key;$('communityStory').hidden=!!p.story_key;
  $('communityReason').textContent=v.reason;$('communityReason').lang=p.language;
  $('communityTip').textContent=v.tip||t('mapNoTip');$('placeExample').hidden=!p.is_example;likeButton();
 }
-function openDetail(){if(!selected)return;detail();$('mapPreview').hidden=true;$('placeDialog').showModal();document.body.classList.add('modal-open');$('placeDialog').querySelector('.place-scroll').scrollTop=0;}
+function openDetail(){if(!selected)return;$('deletePlaceForm').reset();I.clear($('deleteStatus'));$('sendDelete').disabled=false;document.querySelector('.delete-request').open=false;detail();$('mapPreview').hidden=true;$('placeDialog').showModal();document.body.classList.add('modal-open');$('placeDialog').querySelector('.place-scroll').scrollTop=0;}
 function closeDetail(){document.querySelectorAll('#placeDialog audio').forEach(a=>a.pause());document.body.classList.remove('modal-open');}
 $('placeDialog').addEventListener('close',closeDetail);
 document.querySelector('[data-close-place]').onclick=()=>$('placeDialog').close();
@@ -65,7 +65,7 @@ $('closePreview').onclick=()=>{$('mapPreview').hidden=true;};
 $('placeToShops').onclick=()=>{
  $('placeDialog').close();const target=$(region()==='nonsan'?'shops':'fukuoka-shops');
  if(selected){const heading=target.querySelector(':scope > h2');if(heading){I.message(heading,'mapNearby',{name:view(selected).name});delete heading.dataset.regionText;}}
- target.scrollIntoView({behavior:'smooth'});
+ window.MUSUBU_SCREENS.go('shops');
 };
 async function loadCounts(){if(!db)return;const {data,error}=await db.rpc('place_like_counts');if(error)throw error;counts=new Map(places.map(p=>[p.id,0]));(data||[]).forEach(r=>counts.set(r.place_id,Number(r.like_count)));draw();preview();likeButton();}
 async function load(){
@@ -73,7 +73,7 @@ async function load(){
  try{
   if(!db)throw Error('client');
   const [a,b]=await Promise.all([
-   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example').order('created_at').limit(1000),
+   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address').order('created_at').limit(1000),
    db.from('tour_regions').select('*')]);
   if(a.error||b.error)throw a.error||b.error;if(version!==loadVersion)return;
   places=a.data;for(const r of b.data)C.regions[r.id]=r;
@@ -89,15 +89,37 @@ $('detailLike').onclick=async()=>{
 };
 function setPicking(value){picking=value;$('mapPick').hidden=!value;$('storyMap').classList.toggle('picking',value);$('mapPreview').hidden=true;$('recommendPlace').disabled=value||!map;}
 $('recommendPlace').onclick=()=>{setPicking(true);$('mapPick').scrollIntoView({behavior:'smooth',block:'center'});};
-$('cancelPick').onclick=()=>setPicking(false);
+$('cancelPick').onclick=()=>{clearDraft();setPicking(false);};
 $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
+function clearDraft(){if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';addressVersion++;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function showAddress(){
+ const el=$('selectedAddress');I.clear(el);el.textContent=pointAddress||t('mapAddressFallback');
+ $('chosenPoint').textContent=t('mapSelected')+' · '+C.regions[formRegion]['name_'+I.lang];
+}
 function pick(latlng){
  const r=currentRegion(),b=r.bounds;
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
- point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;
- $('recommendForm').reset();submissionId=crypto.randomUUID();I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
- text('chosenPoint','mapSelected',{region:r['name_'+I.lang],lat:point.lat,lng:point.lng});setPicking(false);$('recommendDialog').showModal();document.body.classList.add('modal-open');
+ point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';
+ const version=++addressVersion;
+ if(draftMarker)draftMarker.remove();
+ draftMarker=L.marker([point.lat,point.lng],{icon:L.divIcon({className:'chosen-pin',html:'<span>📍</span>',iconSize:[48,48],iconAnchor:[24,44]}),zIndexOffset:2000,interactive:false}).addTo(map);
+ $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
+ showAddress();
 }
+$('continuePick').onclick=()=>{
+ if(!point)return;
+ $('recommendForm').reset();submissionId=crypto.randomUUID();I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
+ showAddress();$('placeAddress').value=pointAddress;
+ $('recommendDialog').showModal();document.body.classList.add('modal-open');
+};
+$('deletePlaceForm').onsubmit=async e=>{
+ e.preventDefault();if(deleting||!selected)return;
+ const reason=new FormData(e.currentTarget).get('reason').trim();if(reason.length<5)return;
+ deleting=true;$('sendDelete').disabled=true;
+ try{const {error}=await db.from('place_deletion_requests').insert({place_id:selected.id,reason});
+ if(error&&error.code!=='23505')throw error;text('deleteStatus',error?'mapDeleteDuplicate':'mapDeleteSent');}
+ catch{text('deleteStatus','mapSaveError');$('sendDelete').disabled=false;}finally{deleting=false;}
+};
 $('closeRecommend').onclick=()=>{if(!sending)$('recommendDialog').close();};
 $('recommendDialog').addEventListener('cancel',e=>{if(sending)e.preventDefault();});
 $('recommendDialog').addEventListener('close',()=>document.body.classList.remove('modal-open'));
@@ -107,15 +129,15 @@ $('recommendForm').onsubmit=async e=>{
  if([...name].length<2||[...name].length>80||[...reason].length<10||[...reason].length>1200||[...tip].length>300){text('placeSubmitStatus','mapValidation');return;}
  sending=true;$('sendPlace').disabled=true;$('closeRecommend').disabled=true;text('placeSubmitStatus','mapSending');
  try{
-  const {error}=await db.from('places').insert({id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang});
+  const {error}=await db.from('places').insert({id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim()});
   // The UUID is retained on retry. An identical accepted request cannot create duplicates.
-  if(error&&error.code!=='23505')throw error;text('placeSubmitStatus','mapSubmitted');$('recommendForm').reset();point=null;
+  if(error&&error.code!=='23505')throw error;text('placeSubmitStatus','mapSubmitted');$('recommendForm').reset();clearDraft();setPicking(false);await load();
  }catch{text('placeSubmitStatus','mapSaveError');$('sendPlace').disabled=false;}
  finally{sending=false;$('closeRecommend').disabled=false;}
 };
 function resetRegion(){
  if(sending)return;
- $('placeDialog').close();$('recommendDialog').close();selected=null;point=null;setPicking(false);mount();
+ $('placeDialog').close();$('recommendDialog').close();selected=null;clearDraft();setPicking(false);mount();
  if(map){map.invalidateSize();const r=currentRegion();map.setView([r.latitude,r.longitude],r.zoom);}
  draw();text('mapStatus','mapCount',{count:shownPlaces().length});
 }
@@ -128,9 +150,10 @@ if(window.L){
  map.on('click',e=>{if(picking)pick(e.latlng);});
 }else{text('mapTileStatus','mapTileError');$('recommendPlace').disabled=true;$('mapHome').disabled=true;}
 document.addEventListener('musubu:regionchange',resetRegion);
-document.addEventListener('musubu:languagechange',()=>{I.apply(explorer);draw();preview();if(selected){detail();const h=$(region()==='nonsan'?'shops':'fukuoka-shops').querySelector(':scope > h2');if(h?.dataset.i18n==='mapNearby')I.message(h,'mapNearby',{name:view(selected).name});}if(point){const r=C.regions[formRegion];text('chosenPoint','mapSelected',{region:r['name_'+I.lang],lat:point.lat,lng:point.lng});}});
+document.addEventListener('musubu:languagechange',()=>{I.apply(explorer);draw();preview();if(selected){detail();const h=$(region()==='nonsan'?'shops':'fukuoka-shops').querySelector(':scope > h2');if(h?.dataset.i18n==='mapNearby')I.message(h,'mapNearby',{name:view(selected).name});}if(point){const r=C.regions[formRegion];showAddress();}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')load();});
 window.addEventListener('online',load);
+document.addEventListener('musubu:screenchange',e=>{if(e.detail.screen==='story'){requestAnimationFrame(()=>map?.invalidateSize());}else{$('mapPreview').hidden=true;document.querySelectorAll('audio').forEach(a=>a.pause());}});
 // Keep the nearby-shop promise honest until partner coordinates are available.
 const note=document.createElement('p');note.className='notice';note.dataset.i18n='mapShopNote';$('shops').append(note);I.apply();load();
 })();

@@ -4,3 +4,14 @@
 @media(prefers-reduced-motion:reduce){.map-preview{animation:none}html{scroll-behavior:auto}}
 
 .explore-heading h2{word-break:keep-all;text-wrap:balance}.lang-ja .explore-heading h2{word-break:normal}.preview-attribution{display:block;font-size:10px;text-align:right;color:#627267}.preview-attribution a{color:inherit}
+/* A selected pin remains visible until the user confirms or cancels. */
+.chosen-pin span{display:block;font-size:40px;filter:drop-shadow(0 2px 3px #0008);line-height:48px}
+#selectedAddress{font-weight:700;overflow-wrap:anywhere}
+#continuePick:disabled{opacity:.45;cursor:default}
+.flow a[aria-current="page"]{background:#fff;color:#125642;font-weight:800}
+.theme-ja .flow a[aria-current="page"]{color:#a13856}
+.main>.card[hidden]{display:none!important}
+.delete-request{margin-top:20px;padding-top:12px;border-top:1px solid #dbe8e2}
+.delete-request summary{cursor:pointer;color:#63756d;font-size:14px}
+.delete-request textarea{width:100%;min-height:90px;font:inherit;border:1px solid #cbd8d3;border-radius:12px;padding:12px}
+.delete-request button{margin-top:10px}

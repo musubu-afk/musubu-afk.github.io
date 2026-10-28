@@ -56,9 +56,30 @@ DB SQL은 이미 적용되어 있으므로 기존 프로젝트에 중복 실행�
 - `tour_regions`: 지역명, 지도 중심, 확대 수준, 제출 허용 범위.
 - `places`: 위치, 지역, 이름/유형/이유/팁/언어, 상태, 원래 이야기 연결, 번역, 향후 사진/음성/산책길 확장 필드. 기존 공식 이야기4곳 + 가상 추천4곳. 유후인은 오이타 근교 여행으로 명시.
 - `place_likes`: 장소 + 익명 브라우저 UUID 복합 PK, DB 저장 시각. public에는 장소별 합계만 사용하며 visitor_id/author_id는 조회 권한을 주지 않음.
-- 위 세 테이블 RLS 활성화. anon은 승인된 장소만 조회하고 허용된 필드만 INSERT. status는 기본 pending이며 브라우저에서 지정/수정/삭제 불가. 좋아요는 승인된 장소에만 INSERT 가능. 집계 함수는 security invoker.
+- 위 세 테이블 RLS 활성화. anon은 승인된 장소만 조회하고 허용된 필드만 INSERT. 2026-10-28부터 신규 등록 status는 기본 approved이며 브라우저에서 지정/수정/삭제 불가. 좋아요는 승인된 장소에만 INSERT 가능. 집계 함수는 security invoker.
 - 익명 UUID는 localStorage에 보관, 같은 브라우저에서 장소당 1회. 인증된 본인 확인이 아니므로 저장소 초기화/다른 기기/의도적인 헤더 변경까지 막는 장치는 아님. 공개 운영에서는 인증·요청 제한을 추가할 것.
 - 주민 추천 본문은 작성 원문을 그대로 textContent로 표시. 사용자 사진 업로드·관리자 웹 UI·신고·산책 경로 그리기는 2/3차 범위. 현재 사용자의 GPS를 수집하지 않음.
-- 1차 승인 방법: Supabase 프로젝트의 Table Editor → places → status=pending 필터 → 내용/지도 좌표 검토 → status=approved 또는 rejected, reviewed_at 입력. 관리 권한이 있는 팀원만 수행. 승인 후 방문자는 '새 장소 확인' 또는 재방문 시 조회 가능.
+- 신규 장소는 즉시 공개합니다. 삭제 승인 방법은 아래 2026-10-28 운영 안내를 따릅니다. 변경 전 pending 데이터는 임의 승인하지 않고 보존했습니다.
 - 기존 reviews/shops, 실시간 후기, 사진4개, MP3 8개는 변경하지 않음. 쿠폰은 기존 후기 저장 성공 조건을 사용하며 상점 위로 이동. 후쿠오카 상점·쿠폰은 기존대로 준비 중.
 - 테이블 SQL은 이미 원격에 적용됨. `database/places.sql`과 `places-seed.sql`은 재현 기록이며 운영 DB에 중복 실행하지 않음.
+
+## 화면 전환·즉시 공개·삭제 검토 (2026-10-28)
+
+- `screens.js`: story / shops / review 중 선택한 화면만 표시. 뒤로/앞으로, 직접 링크, 지역 전환과 기존 voucher 링크 지원. 상단 메뉴는 스크롤 대신 화면 전환.
+- 지도 클릭 → 임시 빨간 핀 표시 → 위치 확인 → ‘이 위치로 작성하기’ → 주소와 내용 작성 → 즉시 공개. 아직 제출하지 않은 핀은 DB에 저장하지 않습니다.
+- `places.address`: 작성자가 입력한 주소를 저장하고 상세정보에 표시. 좌표는 지도 배치용으로만 사용. 자동 주소 조회는 미배포이며 입력 주소를 검증/자동 번역하지 않습니다. 기존 주소 없는 장소에는 ‘주소 미등록’을 표시합니다.
+- `place_deletion_requests`: place_id, reason, requester_id, status(pending/approved/rejected), created_at, reviewed_at. 익명은 요청 INSERT만 가능. 요청 목록/요청자 ID 조회와 승인 UPDATE 불가.
+- `database/place-publishing.sql`은 적용된 변경 기록입니다. 기존 운영 DB에 다시 실행하지 마세요.
+
+### 팀원 삭제 승인 방법
+
+1. Supabase의 `fzynbjgkictmlmuxfldl` 프로젝트를 엽니다.
+2. **Table Editor → public → place_deletion_requests**를 선택합니다.
+3. `status = pending`으로 필터합니다. `place_id`로 places 테이블의 장소명·주소·내용을 대조하고 reason을 확인합니다.
+4. 삭제에 동의하면 요청 행의 `status`를 **approved**로 변경하고 저장합니다.
+5. DB 트리거가 해당 places.status를 rejected로 바꾸고 reviewed_at을 기록합니다. 다음 장소 조회부터 공개 지도에 표시되지 않습니다.
+6. 삭제하지 않을 경우 요청의 status를 **rejected**로 변경합니다. 원래 장소는 그대로 공개됩니다.
+
+영구 삭제가 아닌 공개 중단 방식이므로 원본/요청 이력이 남습니다. 실수 승인 시 팀 관리자가 places.status를 approved로 복구할 수 있습니다. 승인 요청 status만 되돌리는 것은 장소를 자동 복구하지 않습니다. 팀원에게 이 Supabase 프로젝트의 DB 수정 권한이 있어야 합니다. GitHub 협업 권한과 Supabase 권한은 별개입니다. 관리자 비밀키를 팀 메신저나 사이트 코드에 공유하지 마세요.
+
+주소 자동 조회를 위한 공개 Edge Function은 자동 승인 검토에서 거절되어 배포하지 않았습니다. 관련 임시 DB 캐시/제한 테이블도 제거했습니다. 관리자 키는 프런트엔드에 포함되지 않습니다.

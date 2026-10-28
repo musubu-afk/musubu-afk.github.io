@@ -7,7 +7,7 @@ try { visitor=localStorage.getItem('musubu.visitor'); if(!/^[0-9a-f-]{36}$/i.tes
 const db=window.supabase?.createClient('https://fzynbjgkictmlmuxfldl.supabase.co','sb_publishable_x08dJFDQ_zuP0IKJ83jFYg_1so-HCCN',{
  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'musubu-map'},global:{headers:{'x-musubu-visitor':visitor}}
 });
-let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',addressVersion=0,deleting=false;
+let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
 const view=p=>({...p,...(p.translations?.[I.lang]||{})});
@@ -91,7 +91,7 @@ function setPicking(value){picking=value;$('mapPick').hidden=!value;$('storyMap'
 $('recommendPlace').onclick=()=>{setPicking(true);$('mapPick').scrollIntoView({behavior:'smooth',block:'center'});};
 $('cancelPick').onclick=()=>{clearDraft();setPicking(false);};
 $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
-function clearDraft(){if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';addressVersion++;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function clearDraft(){if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';$('continuePick').disabled=true;I.clear($('selectedAddress'));}
 function showAddress(){
  const el=$('selectedAddress');I.clear(el);el.textContent=pointAddress||t('mapAddressFallback');
  $('chosenPoint').textContent=t('mapSelected')+' · '+C.regions[formRegion]['name_'+I.lang];
@@ -100,7 +100,6 @@ function pick(latlng){
  const r=currentRegion(),b=r.bounds;
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
  point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';
- const version=++addressVersion;
  if(draftMarker)draftMarker.remove();
  draftMarker=L.marker([point.lat,point.lng],{icon:L.divIcon({className:'chosen-pin',html:'<span>📍</span>',iconSize:[48,48],iconAnchor:[24,44]}),zIndexOffset:2000,interactive:false}).addTo(map);
  $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
@@ -125,6 +124,7 @@ $('recommendDialog').addEventListener('cancel',e=>{if(sending)e.preventDefault()
 $('recommendDialog').addEventListener('close',()=>document.body.classList.remove('modal-open'));
 $('recommendForm').onsubmit=async e=>{
  e.preventDefault();if(sending||!db||!point)return;
+ if(!$('placeAddress').value.trim()){$('placeAddress').focus();return;}
  const data=new FormData(e.currentTarget),name=data.get('name').trim(),reason=data.get('reason').trim(),tip=data.get('tip').trim();
  if([...name].length<2||[...name].length>80||[...reason].length<10||[...reason].length>1200||[...tip].length>300){text('placeSubmitStatus','mapValidation');return;}
  sending=true;$('sendPlace').disabled=true;$('closeRecommend').disabled=true;text('placeSubmitStatus','mapSending');

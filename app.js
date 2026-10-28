@@ -136,7 +136,7 @@
     if (reviewFocus) requestAnimationFrame(() => $('reviewsHeading').focus());
   }
   function activateVoucher(review, shop) {
-    $('voucherBox').classList.remove('locked');
+    $('voucherBox').classList.remove('locked');$('voucherBox').hidden=false;
     $('voucherBox').dataset.reviewId = review.id;
     I.message($('voucherBox').firstElementChild,'voucherSaved',{name:shop.name});
     $('useVoucher').disabled = voucherUsed;

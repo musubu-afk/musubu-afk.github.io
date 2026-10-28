@@ -292,7 +292,8 @@
     ]
   }
 };
-  const valid = value => value === 'ko' || value === 'ja';
+  for(const [code,entries] of Object.entries(window.MUSUBU_LOCALES||{}))translations[code]={...(translations[code]||{}),...entries};
+  const valid = value => Object.hasOwn(translations,value);
   let stored = null;
   try { stored = localStorage.getItem('musubu.language'); } catch { /* Private browsing/storage restrictions: URL still works. */ }
   const query = new URL(location.href).searchParams.get('lang');
@@ -302,7 +303,7 @@
   }
   function setRoot() {
     document.documentElement.lang = lang;
-    document.documentElement.classList.remove('lang-ko','lang-ja','theme-ko','theme-ja');
+    document.documentElement.classList.remove('lang-ko','lang-ja','lang-en','lang-zh-CN','lang-zh-TW','theme-ko','theme-ja','theme-en','theme-zh-CN','theme-zh-TW');
     document.documentElement.classList.add('lang-' + lang, 'theme-' + lang);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = lang === 'ja' ? '#263354' : '#0e5c49';
@@ -346,7 +347,7 @@
   }
   setRoot();
   try { localStorage.setItem('musubu.language',lang); } catch {}
-  window.MUSUBU_I18N = {t, apply, message, clear, setLanguage, localizedUrl, shopView, get lang(){return lang;}, get locale(){return lang === 'ja' ? 'ja-JP' : 'ko-KR';}};
+  window.MUSUBU_I18N = {t, apply, message, clear, setLanguage, localizedUrl, shopView, get lang(){return lang;}, get locale(){return ({'ko':'ko-KR','ja':'ja-JP','en':'en-US','zh-CN':'zh-CN','zh-TW':'zh-TW'})[lang];}};
   document.addEventListener('click', event => {const button=event.target.closest('[data-language]'); if(button) setLanguage(button.dataset.language);});
   document.addEventListener('DOMContentLoaded',()=>apply());
 })();

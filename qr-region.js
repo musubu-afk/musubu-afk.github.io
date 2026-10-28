@@ -1,11 +1,11 @@
 (() => {
 const region=new URL(location.href).searchParams.get('region')==='fukuoka'?'fukuoka':'nonsan';
 function render(){
- const I=window.MUSUBU_I18N, ja=I.lang==='ja';
+ const I=window.MUSUBU_I18N, ja=I.lang==='ja',en=I.lang==='en';
  const back=document.querySelector('.qr-top>a'), backUrl=new URL(back.href);backUrl.searchParams.set('region',region);back.href=backUrl.href;
  if(region!=='fukuoka')return;
- document.querySelector('[data-i18n="qrHeading"]').textContent=ja?'福岡の旅へ、QRコードから':'후쿠오카 QR로 바로 접속하세요';
- document.querySelector('[data-i18n="qrDescription"]').textContent=ja?'ログイン不要。表示する言語のQRコードをお選びください。':'로그인 없이 후쿠오카 공간으로 접속합니다. 원하는 언어의 QR을 선택하세요.';
+ document.querySelector('[data-i18n="qrHeading"]').textContent=en?'Explore Fukuoka with a QR code':ja?'福岡の旅へ、QRコードから':'후쿠오카 QR로 바로 접속하세요';
+ document.querySelector('[data-i18n="qrDescription"]').textContent=en?'No login needed. Choose a Korean or Japanese QR code.':ja?'ログイン不要。表示する言語のQRコードをお選びください。':'로그인 없이 후쿠오카 공간으로 접속합니다. 원하는 언어의 QR을 선택하세요.';
  for(const [index,lang] of ['ko','ja'].entries()){
  const card=document.querySelectorAll('.qr-card')[index], url='https://musubu-afk.github.io/?region=fukuoka&lang='+lang;
  const img=card.querySelector('img');img.src='assets/qr-fukuoka-'+lang+'.svg';img.alt='MUSUBU Fukuoka '+lang+' QR';

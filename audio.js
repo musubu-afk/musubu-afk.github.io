@@ -11,7 +11,7 @@ const message = (p,key) => I.message(p.status,key);
 const sync = p => I.message(p.button,p.audio.paused ? 'play':'playing');
 function source(p) {
 p.audio.pause();
-p.audio.src = 'assets/audio/'+p.place+'-'+I.lang+'.mp3';
+p.audio.src = 'assets/audio/'+p.place+'-'+(I.lang==='ja'?'ja':'ko')+'.mp3';
 p.audio.load();
 message(p,'audioLoading');
 sync(p);

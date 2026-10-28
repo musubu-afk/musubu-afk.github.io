@@ -5,7 +5,6 @@
 
 .explore-heading h2{word-break:keep-all;text-wrap:balance}.lang-ja .explore-heading h2{word-break:normal}.preview-attribution{display:block;font-size:10px;text-align:right;color:#627267}.preview-attribution a{color:inherit}
 /* A selected pin remains visible until the user confirms or cancels. */
-.chosen-pin span{display:block;font-size:40px;filter:drop-shadow(0 2px 3px #0008);line-height:48px}
 #selectedAddress{font-weight:700;overflow-wrap:anywhere}
 #continuePick:disabled{opacity:.45;cursor:default}
 .flow a[aria-current="page"]{background:#fff;color:#125642;font-weight:800}

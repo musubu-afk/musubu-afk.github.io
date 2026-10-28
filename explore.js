@@ -101,7 +101,7 @@ function pick(latlng){
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
  point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';
  if(draftMarker)draftMarker.remove();
- draftMarker=L.marker([point.lat,point.lng],{icon:L.divIcon({className:'chosen-pin',html:'<span>📍</span>',iconSize:[48,48],iconAnchor:[24,44]}),zIndexOffset:2000,interactive:false}).addTo(map);
+ draftMarker=L.marker([point.lat,point.lng],{icon:pin({kind:'resident'}),title:t('mapSelected'),alt:t('mapSelected'),zIndexOffset:2000,interactive:false}).addTo(map);
  $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
  showAddress();
 }

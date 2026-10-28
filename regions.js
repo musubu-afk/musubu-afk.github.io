@@ -39,6 +39,7 @@ document.querySelectorAll('[data-region]').forEach(b=>b.addEventListener('click'
 document.addEventListener('musubu:languagechange',render);
 document.addEventListener('DOMContentLoaded',render);
 window.addEventListener('popstate',()=>{const value=new URL(location.href).searchParams.get('region');setRegion(valid(value)?value:'nonsan',false);});
+window.MUSUBU_REGION_TEXT=key=>words[I.lang][key];
 window.MUSUBU_REGION={get current(){return region;},setRegion};
 render();
 })();

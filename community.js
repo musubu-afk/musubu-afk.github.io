@@ -22,8 +22,9 @@ function requestReviewDelete(r){deleteReviewId=r.id;deleteDialog.querySelector('
 deleteDialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const b=e.currentTarget.querySelector('button'),msg=e.currentTarget.querySelector('p[role]');b.disabled=true;try{const reason=new FormData(e.currentTarget).get('reason').trim();if(reason.length<5)throw Error();const {error}=await db.from('review_deletion_requests').insert({review_id:deleteReviewId,reason});if(error)throw error;status(msg,'mapDeleteSent');}catch{status(msg,'mapSaveError');}finally{b.disabled=false;}};
 function mount(){ $(region()==='nonsan'?'review':'fukuoka-review').append(reviewSection);fillPlaces();renderRewards(); }
 function fillPlaces(){const select=$('reviewPlace'),old=select.value;select.replaceChildren();const first=el('option','',t('choosePlace'));first.value='';select.append(first);X.places.filter(p=>p.region===region()).forEach(p=>{const o=el('option','',X.view(p).name);o.value=p.id;select.append(o);});if([...select.options].some(o=>o.value===old))select.value=old;else{select.value='';selectReviews(null);} $('savePlaceReview').disabled=!select.value;}
+async function allRows(table,filter,order){let rows=[];for(let start=0;;start+=500){let q=db.from(table).select('*').order(order,{ascending:false}).range(start,start+499);if(filter)q=q.eq(filter[0],filter[1]);const r=await q;if(r.error)throw r.error;rows.push(...r.data);if(r.data.length<500)return rows;}}
 async function decorate(places){
- const {data,error}=await db.from('place_edits').select('*').order('id',{ascending:false}).limit(5000);if(error)throw error;
+ const data=await allRows('place_edits',null,'id');
  edits=new Map();for(const e of data||[]){if(!edits.has(e.place_id))edits.set(e.place_id,[]);edits.get(e.place_id).push(e);}
  for(const p of places){const latest=edits.get(p.id)?.[0];if(latest)p.wiki={name:latest.name,reason:latest.reason,tip:latest.tip,address:latest.address,language:latest.language};}
  await loadVotes();
@@ -49,17 +50,18 @@ $('wikiForm').onsubmit=async e=>{
  try{const data=type==='place'?{place_id:row.id,previous_id:previous,name:$('wikiName').value.trim(),reason:content,tip:$('wikiTip').value.trim(),address:$('wikiAddress').value.trim(),language:I.lang,edit_note:note}:{review_id:row.id,previous_id:previous,rating:Number($('wikiRating').value),review_text:content,language:I.lang,edit_note:note};
  const {error}=await db.from(type==='place'?'place_edits':'place_review_edits').insert(data);if(error)throw error;
  editor.close();await X.load();if(type==='review')await loadReviews();if($('placeDialog').open){renderWiki(X.selected);}status($('placeReviewStatus'),'editSaved');
- }catch(error){status($('wikiStatus'),String(error.message).includes('version_conflict')?'editConflict':'mapSaveError');}finally{busy=false;$('saveWiki').disabled=false;}
+ }catch(error){status($('wikiStatus'),String(error.message).includes('version_conflict')?'editConflict':'mapSaveError');}finally{busy=false;$('saveWiki').disabled=false;renderVotes();}
 };
 async function showHistory(type,row){
  const box=$('wikiHistory');box.replaceChildren();historyDialog.showModal();
+ let original={...row,id:null,edit_note:t('originalVersion')};if(type==='place'&&row.story_key){const key={donam:'donamText',tapjeong:'tapjeongText',ohori:'ohoriText',yufuin:'yufuinText'}[row.story_key];original.reason=window.MUSUBU_REGION_TEXT?.(key)||t(key);}
  const versions=type==='place'?(edits.get(row.id)||[]):reviewEdits.filter(e=>e.review_id===row.id);
- for(const v of [...versions,{...row,id:null,edit_note:t('originalVersion') }]){
+ for(const v of [...versions,original]){
   const card=el('article','history-card'),heading=el('strong','',v.id?'#'+v.id+' · '+v.edit_note:t('originalVersion'));
   card.append(heading,el('p','',v.reason||v.review_text),el('small','',new Date(v.created_at).toLocaleString(I.locale)),button('restore',()=>{historyDialog.close();openEditor(type,row,v);}));box.append(card);
  }
 }
-function renderWiki(p){if(!p)return;$('placeDetailTitle').textContent=X.view(p).name;renderVotes();
+function renderWiki(p){if(!p)return;const v=X.view(p);$('placeDetailTitle').textContent=v.name;const meta=$('placeDetailMeta');meta.textContent=(p.is_example?t('mapExample'):t(p.kind==='official'?'mapOfficial':p.kind==='walk'?'mapWalk':'mapResident'))+' · '+t('mapCategory_'+p.category)+' · '+(v.address||t('mapAddressUnknown'));renderVotes();
  if(p.story_key){const a=$('story-'+p.story_key);const para=a?.querySelector(':scope > p');if(para){if(!para.dataset.originalKey){para.dataset.originalKey=para.dataset.i18n||'';para.dataset.originalRegionKey=para.dataset.regionText||'';}
  if(p.wiki){delete para.dataset.i18n;delete para.dataset.regionText;para.textContent=p.wiki.reason;para.lang=p.wiki.language;}else if(para.dataset.originalRegionKey){para.dataset.regionText=para.dataset.originalRegionKey;}else if(para.dataset.originalKey){para.dataset.i18n=para.dataset.originalKey;I.apply(a);}}
  }else{$('communityReason').textContent=X.view(p).reason;$('communityTip').textContent=X.view(p).tip||t('mapNoTip');}
@@ -67,9 +69,8 @@ function renderWiki(p){if(!p)return;$('placeDetailTitle').textContent=X.view(p).
 async function loadReviews(){
  const id=activePlace,version=++reviewVersion;if(!id){$('placeReviewList').replaceChildren();$('placeReviewStats').textContent='';return;}
  status($('placeReviewStats'),'reviewsLoading');
- try{const a=await db.from('place_reviews').select('*').eq('place_id',id).order('created_at',{ascending:false}).limit(500);if(a.error)throw a.error;
- const b=a.data.length?await db.from('place_review_edits').select('*').in('review_id',a.data.map(r=>r.id)).order('id',{ascending:false}).limit(5000):{data:[]};if(b.error)throw b.error;if(version!==reviewVersion)return;
- reviewRows=a.data;reviewEdits=b.data;renderReviews();
+ try{const rows=await allRows('place_reviews',['place_id',id],'created_at');const revisions=rows.length?await allRows('place_review_edits',null,'id'):[];if(version!==reviewVersion)return;
+ const ids=new Set(rows.map(r=>r.id));reviewRows=rows;reviewEdits=revisions.filter(r=>ids.has(r.review_id));renderReviews();
  }catch{if(version===reviewVersion)status($('placeReviewStats'),'reviewsError');}
 }
 function renderReviews(){

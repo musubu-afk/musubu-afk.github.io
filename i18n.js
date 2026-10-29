@@ -318,6 +318,7 @@
     return url.href;
   }
   function shopView(shop) {
+    if (shop.translations?.[lang]) return {...shop,...shop.translations[lang]};
     if (lang !== 'ja') return shop;
     const entry = shopTranslations[shop.shop_id];
     if (!entry) return shop;

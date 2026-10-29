@@ -4,7 +4,8 @@
   function render() {
     if (!shop) { I.message(document.getElementById('description'), 'notFound'); return; }
     const view = I.shopView(shop);
-    document.getElementById('name').textContent = shop.name;
+    const back=document.querySelector('[data-local-link]');back.href='index.html?region='+shop.region+'&lang='+I.lang+'#'+(shop.region==='fukuoka'?'fukuoka-':'')+'shops';
+    document.getElementById('name').textContent = view.name;
     const photo = document.getElementById('photo'); photo.hidden = false;
     if (!photo.getAttribute('src')) photo.src = shop.image_url;
     photo.onerror = () => { photo.onerror = null; photo.src = 'assets/shop-placeholder.svg'; };

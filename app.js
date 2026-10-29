@@ -2,10 +2,12 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const shops = window.MUSUBU_SHOPS;
+  const region=()=>window.MUSUBU_REGION?.current||new URLSearchParams(location.search).get('region')||'nonsan';
+  const currentShops=()=>shops.filter(s=>s.region===region());
   const I = window.MUSUBU_I18N, t = (key, vars) => I.t(key, vars);
   const label = category => t('category_' + category);
   const msg = (id, key, vars) => I.message($(id), key, vars);
-  let selectedCategory = null, cachedRows = null;
+  let selectedCategory = null, cachedRows = null, statsLoaded=false;
   const dialog = $('shopDialog');
   let client = null, activeShop = null, channel = null, stats = new Map();
   let requestVersion = 0, pending = false, lastSubmission = null, voucherUsed = false;
@@ -17,7 +19,7 @@
   $('detailImage').onerror = imageError;
   function summary(id) {
     const row = stats.get(id);
-    if (!row) return t('statsLoading');
+    if (!row) return statsLoaded?t('noStats'):t('statsLoading');
     return Number(row.review_count) ? t('stats', {rating:Number(row.average_rating).toFixed(1),count:row.review_count}) : t('noStats');
   }
   function updateStatsUI() {
@@ -28,26 +30,28 @@
     if (!client) return;
     const { data, error } = await client.rpc('shop_review_stats');
     if (error) throw error;
-    stats = new Map(data.map(row => [row.shop_id, row]));
+    statsLoaded=true; stats = new Map(data.map(row => [row.shop_id, row]));
     updateStatsUI();
   }
   function showCategory(category, focus = true) {
     selectedCategory = category;
     $('shopResults').hidden = false;
-    $('categoryTitle').textContent = t('categoryTitle', {category:label(category)});
-    document.querySelectorAll('.category').forEach(button => button.setAttribute('aria-expanded', String(button.dataset.category === category)));
+    $('categoryTitle').textContent = t('categoryTitle', {category:label(category),count:currentShops().filter(s=>s.category===category).length});
+  document.querySelectorAll('.category').forEach(button => button.setAttribute('aria-expanded', String(button.dataset.category === category)));
     $('shopList').replaceChildren();
-    shops.filter(shop => shop.category === category).forEach(shop => {
+    currentShops().filter(shop => shop.category === category).forEach(shop => {
       const view = I.shopView(shop);
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'place-card'; button.dataset.shop = shop.shop_id;
       const img = document.createElement('img'); img.src = shop.image_url; img.alt = t('imageAlt', {name:shop.name}); img.loading = 'lazy'; img.onerror = imageError;
       const content = document.createElement('div'); content.className = 'place-copy';
       const demo = document.createElement('span'); demo.className = 'demo-pill'; demo.textContent = t('demo');
-      const name = document.createElement('strong'); name.textContent = shop.name; name.lang = 'ko';
+      const name = document.createElement('strong'); name.textContent = view.name; name.lang = I.lang;
       const sub = document.createElement('small'); sub.textContent = view.products[0].name;
       const rating = document.createElement('span'); rating.className = 'place-stats'; rating.dataset.stats = shop.shop_id; rating.textContent = summary(shop.shop_id);
-      content.append(demo, name, sub, rating); button.append(img, content);
+      const distance=document.createElement('small');distance.className='near-distance';distance.textContent=window.MUSUBU_NEARBY?.distance(shop)||'';
+      const desc=document.createElement('small');desc.textContent=view.description;
+      content.append(demo, name, sub, distance, desc, rating); button.append(img, content);
       button.addEventListener('click', () => openShop(shop));
       $('shopList').append(button);
     });
@@ -111,8 +115,12 @@
   }
   function renderShopInfo(shop) {
     const view = I.shopView(shop);
+    const stay=shop.category==='stay';$('stayInfo').hidden=$('stayDemo').hidden=!stay;
+    $('stayType').textContent=view.accommodation_type||'';$('stayHours').textContent=stay?shop.check_in+' / '+shop.check_out:'';$('stayAmenities').textContent=view.amenities||'';
+    $('detailDistance').textContent=window.MUSUBU_NEARBY?.distance(shop)||'';
+    document.dispatchEvent(new CustomEvent('musubu:shop-detail',{detail:{shop}}));
     if ($('detailImage').getAttribute('src') !== shop.image_url) $('detailImage').src = shop.image_url; $('detailImage').alt = t('imageAlt',{name:shop.name});
-    $('detailName').textContent = shop.name; $('detailCategory').textContent = t('detailCategory',{category:label(shop.category)});
+    $('detailName').textContent = view.name; $('detailName').lang=I.lang; $('detailCategory').textContent = t('detailCategory',{category:label(shop.category)});
     $('detailDescription').textContent = view.description;
     $('detailAddress').textContent = view.address; $('detailHours').textContent = view.business_hours; $('detailPhone').textContent = view.phone;
     $('officialLink').href = I.localizedUrl(shop.external_url); $('mapLink').href = shop.map_url;
@@ -143,9 +151,11 @@
     msg('reviewMsg','savedMessage',{name:shop.name});
   }
   document.querySelectorAll('.category').forEach(button => button.addEventListener('click', () => showCategory(button.dataset.category)));
-  shops.forEach(shop => {
+  function fillShopOptions(){const chosen=$('reviewShop').value;while($('reviewShop').options.length>1)$('reviewShop').remove(1);currentShops().forEach(shop => {
     const option = document.createElement('option'); option.value = shop.shop_id; option.textContent = shop.name + ' · ' + label(shop.category); $('reviewShop').append(option);
-  });
+  });$('reviewShop').value=chosen;}fillShopOptions();
+  document.addEventListener('musubu:regionchange',()=>{if(dialog.open)dialog.close();fillShopOptions();showCategory(selectedCategory||'meal',false);});
+    window.MUSUBU_SHOP_APP={showCategory,refresh:()=>showCategory(selectedCategory||'meal',false),get activeShop(){return activeShop;}};
   $('openReview').addEventListener('click', () => {
     const shop = shops.find(item => item.shop_id === $('reviewShop').value);
     if (!shop) { msg('reviewMsg', 'selectFirst'); $('reviewShop').focus(); return; }

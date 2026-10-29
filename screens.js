@@ -10,7 +10,7 @@
   document.querySelectorAll('.main:not([hidden]) > .card:not([hidden])').forEach(el=>{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)el.animate([{opacity:0,transform:'translateX(16px)'},{opacity:1,transform:'translateX(0)'}],{duration:220,easing:'ease-out'});});
   document.dispatchEvent(new CustomEvent('musubu:screenchange',{detail:{screen,region}}));
  }
- function go(screen){if(!names.includes(screen))return;const url=new URL(location.href);url.hash=(window.MUSUBU_REGION.current==='fukuoka'?'fukuoka-':'')+screen;history.pushState(null,'',url);render();window.scrollTo({top:0,behavior:'instant'});}
+ function go(screen){if(!names.includes(screen))return;const url=new URL(location.href);url.hash=(window.MUSUBU_REGION.current==='fukuoka'?'fukuoka-':'')+screen;history.pushState(null,'',url);render();requestAnimationFrame(()=>document.querySelector('.main:not([hidden]) > .card:not([hidden])')?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));}
  document.querySelectorAll('.flow a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.hash.slice(1).replace(/^fukuoka-/,''));}));
  window.addEventListener('hashchange',render);window.addEventListener('popstate',render);
  document.addEventListener('musubu:regionchange',render);

@@ -7,33 +7,33 @@ try { visitor=localStorage.getItem('musubu.visitor'); if(!/^[0-9a-f-]{36}$/i.tes
 const db=window.supabase?.createClient('https://fzynbjgkictmlmuxfldl.supabase.co','sb_publishable_x08dJFDQ_zuP0IKJ83jFYg_1so-HCCN',{
  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'musubu-map'},global:{headers:{'x-musubu-visitor':visitor}}
 });
-let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false,addressRequest=null,addressVersion=0,addressEdited=false;
+let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false,addressRequest=null,addressVersion=0,addressEdited=false,pointOriginal='',addressPartial=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
-const view=p=>{const v={...p,...(p.translations?.[I.lang]||{}),...(p.wiki||{})};if(I.lang==='en'&&p.story_key&&!p.wiki){const key={donam:'donam',tapjeong:'tapjeong',ohori:'ohori',yufuin:'yufuin'}[p.story_key];const r=window.MUSUBU_REGION_LOCALES.en;v.name=r[key+'Title']||t(key+'Title');v.reason=r[key+'Text']||t(key+'Text');}return v;};
+const view=p=>{const v={...p,...(p.translations?.[I.lang]||{}),...(p.wiki||{})};if(I.lang==='en'&&p.story_key&&!p.wiki){const key={donam:'donam',tapjeong:'tapjeong',ohori:'ohori',yufuin:'yufuin'}[p.story_key];const r=window.MUSUBU_REGION_LOCALES.en;v.name=r[key+'Title']||t(key+'Title');v.reason=r[key+'Text']||t(key+'Text');}const a=window.MUSUBU_ADDRESS.format(v.address_original||v.address,I.lang);v.address=a.address;v.addressPartial=a.partial;v.address_original=v.address_original||a.original;return v;};
 const explorer=document.createElement('div');explorer.id='explorer';
 explorer.innerHTML=`<div class="explore-heading"><span class="tag">MUSUBU · LOCAL STORIES</span><h2 data-i18n="mapTitle"></h2><p data-i18n="mapIntro"></p></div>
-<div class="explore-tabs" role="group"><button id="browsePlaces" type="button" data-i18n="browsePlaces" aria-pressed="true"></button><button id="registerPlaces" type="button" data-i18n="registerPlaces" aria-pressed="false"></button></div><div id="browseFilters"><label for="placeSort" data-i18n="sortLabel"></label><select id="placeSort"><option value="popular" data-i18n="sortPopular"></option><option value="latest" data-i18n="sortLatest"></option></select></div><div class="map-legend"><span data-i18n="mapOfficial"></span><span data-i18n="mapResident"></span><span data-i18n="mapWalk"></span></div>
-<div class="map-toolbar"><button type="button" class="recommend" id="recommendPlace" data-i18n="mapRecommend"></button><button type="button" id="mapHome" data-i18n="mapFit"></button></div>
+<div class="explore-tabs" role="group"><button id="browsePlaces" type="button" data-i18n="browsePlaces" aria-pressed="true"></button><button id="registerPlaces" type="button" data-i18n="registerPlaces" aria-pressed="false"></button></div><div class="map-legend"><span data-i18n="mapOfficial"></span><span data-i18n="mapResident"></span><span data-i18n="mapWalk"></span></div>
+<div class="map-toolbar" hidden><button type="button" class="recommend" id="recommendPlace" data-i18n="mapRecommend"></button><button type="button" id="mapHome" data-i18n="mapFit"></button></div>
 <div class="map-pick" id="mapPick" hidden><p data-i18n="mapPick"></p><div class="map-pick-actions"><button type="button" id="pickCenter" data-i18n="mapChooseCenter"></button><button type="button" id="continuePick" disabled data-i18n="mapContinue"></button><button type="button" id="cancelPick" data-i18n="mapCancel"></button></div><p id="selectedAddress" role="status"></p></div>
 <div class="map-wrap"><div id="storyMap" class="map-canvas" role="region" tabindex="0" data-i18n-aria="mapStory"><span class="map-center" aria-hidden="true">＋</span></div></div>
 <p id="mapTileStatus" class="map-status" role="status"></p><p id="mapStatus" class="map-status" role="status"></p>
 <section class="map-preview" id="mapPreview" tabindex="-1" aria-labelledby="previewTitle" hidden><button type="button" class="preview-close" id="closePreview" data-i18n-aria="mapClose">✕</button><span class="tag" id="previewKind"></span><h3 id="previewTitle"></h3><p id="previewReason"></p><p id="previewLikes"></p><div class="preview-actions"><button type="button" id="listenPlace" data-i18n="mapListen"></button><button type="button" id="openPlace" data-i18n="mapDetails"></button></div><small class="preview-attribution">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</small></section>
-<details class="map-list" open><summary data-i18n="mapList"></summary><div class="map-list-items" id="placeList"></div></details><button type="button" class="text-button" id="refreshPlaces" data-i18n="mapRefresh"></button>`;
+<details class="map-list" open><summary data-i18n="mapList"></summary><div id="browseFilters"><label for="placeSort" data-i18n="sortLabel"></label><select id="placeSort"><option value="popular" data-i18n="sortPopular"></option><option value="latest" data-i18n="sortLatest"></option></select></div><div class="map-list-items" id="placeList"></div></details><button type="button" class="text-button" id="refreshPlaces" data-i18n="mapRefresh"></button>`;
 function mount(){ $(region()==='nonsan'?'story':'fukuoka-story').append(explorer); }
 mount();I.apply(explorer);
 function rememberLike(id){liked.add(id);try{localStorage.setItem('musubu.likes',JSON.stringify([...liked]));}catch{}}
 function kindLabel(p){return p.is_example?t('mapExample'):t(p.kind==='official'?'mapOfficial':p.kind==='walk'?'mapWalk':'mapResident');}
 function shownPlaces(){return places.filter(p=>p.region===region()).sort((a,b)=>$('placeSort').value==='latest'?new Date(b.created_at)-new Date(a.created_at):(counts.get(b.id)||0)-(counts.get(a.id)||0)||a.name.localeCompare(b.name));}
 $('placeSort').onchange=draw;
-function pin(p){return L.divIcon({className:'map-pin '+p.kind,html:'<span><b>'+(p.kind==='official'?'♪':p.kind==='walk'?'↝':'♥')+'</b></span>',iconSize:[36,36],iconAnchor:[18,36]});}
+function pin(p){const palette={blue:'#2974bb',green:'#18835d',orange:'#d18423',pink:'#cc477b',purple:'#7952b3',red:'#c54848'};const color=palette[p.wiki?.pin_color||p.pin_color]||palette[p.kind==='official'?'blue':p.kind==='walk'?'orange':'green'];return L.divIcon({className:'map-pin '+p.kind,html:'<span style="background:'+color+'"><b></b></span>',iconSize:[36,36],iconAnchor:[18,36]});}
 function draw(){
  document.querySelectorAll('.leaflet-control-zoom-in,.leaflet-control-zoom-out').forEach(el=>{const label=t(el.classList.contains('leaflet-control-zoom-in')?'mapZoomIn':'mapZoomOut');el.title=label;el.setAttribute('aria-label',label);});
  if(markers)markers.clearLayers(); $('placeList').replaceChildren();
  shownPlaces().forEach(p=>{
   const v=view(p), b=document.createElement('button');b.type='button';
   const label=document.createElement('span'), title=document.createElement('strong'), sub=document.createElement('small');title.textContent=v.name;sub.textContent=kindLabel(p);label.append(title,sub);b.append(label);
-  const heart=document.createElement('span');heart.textContent='👍 '+(counts.get(p.id)??'—');b.append(heart);b.onclick=()=>choose(p,true);$('placeList').append(b);
+  const heart=document.createElement('span');heart.textContent='❤️ '+(counts.get(p.id)??'—');b.append(heart);b.onclick=()=>choose(p,true);$('placeList').append(b);
   if(map){const marker=L.marker([p.latitude,p.longitude],{icon:pin(p),title:v.name,alt:v.name});marker.on('click',()=>{if(picking)pick({lat:p.latitude,lng:p.longitude});else choose(p);});marker.addTo(markers);}
  });
  if(!shownPlaces().length){const p=document.createElement('p');p.textContent=t('mapNoPlaces');$('placeList').append(p);}
@@ -75,7 +75,7 @@ async function load(){
  try{
   if(!db)throw Error('client');
   const [a,b]=await Promise.all([
-   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address,created_at').order('created_at').limit(1000),
+   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address,address_original,pin_color,created_at').order('created_at').limit(1000),
    db.from('tour_regions').select('*')]);
   if(a.error||b.error)throw a.error||b.error;if(version!==loadVersion)return;
   places=a.data;if(window.MUSUBU_COMMUNITY)await window.MUSUBU_COMMUNITY.decorate(places);for(const r of b.data)C.regions[r.id]=r;
@@ -89,11 +89,12 @@ $('detailLike').onclick=async()=>{
  try{const {error}=await db.from('place_likes').insert({place_id:p.id});if(error&&error.code!=='23505')throw error;rememberLike(p.id);await loadCounts();}
  catch{text('likeStatus','mapSaveError');}finally{liking=false;likeButton();}
 };
-function setPicking(value){$('browsePlaces').setAttribute('aria-pressed',String(!value));$('registerPlaces').setAttribute('aria-pressed',String(value));$('browseFilters').hidden=value;document.querySelector('.map-list').hidden=value;picking=value;$('mapPick').hidden=!value;$('storyMap').classList.toggle('picking',value);$('mapPreview').hidden=true;$('recommendPlace').disabled=value||!map;}
+function setPicking(value){$('browsePlaces').setAttribute('aria-pressed',String(!value));$('registerPlaces').setAttribute('aria-pressed',String(value));$('browseFilters').hidden=value;document.querySelector('.map-toolbar').hidden=!value;document.querySelector('.map-list').hidden=value;picking=value;$('mapPick').hidden=!value;$('storyMap').classList.toggle('picking',value);$('mapPreview').hidden=true;$('recommendPlace').disabled=!map;}
 $('recommendPlace').onclick=()=>setPicking(true);$('registerPlaces').onclick=()=>setPicking(true);$('browsePlaces').onclick=()=>{clearDraft();setPicking(false);};
 $('cancelPick').onclick=()=>{clearDraft();setPicking(false);};
 $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
-function clearDraft(){addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function clearDraft(){addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';pointOriginal='';addressPartial=false;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function showOriginal(){const box=$('addressOriginalBox');box.hidden=!pointOriginal||pointOriginal===$('placeAddress').value;$('addressOriginalText').textContent=pointOriginal;}
 function showAddress(){
  const el=$('selectedAddress');I.clear(el);el.textContent=pointAddress||t('mapAddressFallback');
  $('chosenPoint').textContent=t('mapSelected')+' · '+(C.regions[formRegion]['name_'+I.lang]||(I.lang==='en'?formRegion:C.regions[formRegion].name_ko));
@@ -101,7 +102,7 @@ function showAddress(){
 function pick(latlng){addressVersion++;addressRequest?.abort();
  const r=currentRegion(),b=r.bounds;
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
- point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';
+ point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';pointOriginal='';addressPartial=false;
  if(draftMarker)draftMarker.remove();
  draftMarker=L.marker([point.lat,point.lng],{icon:pin({kind:'resident'}),title:t('mapSelected'),alt:t('mapSelected'),zIndexOffset:2000,interactive:false}).addTo(map);
  $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
@@ -111,18 +112,19 @@ $('placeAddress').addEventListener('input',()=>{addressEdited=true;});
 $('continuePick').onclick=async()=>{
  if(!point)return;
  $('recommendForm').reset();submissionId=crypto.randomUUID();I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
- showAddress();$('placeAddress').value=pointAddress;addressEdited=false;
+ showAddress();$('placeAddress').value=pointAddress;addressEdited=false;showOriginal();
  $('recommendDialog').showModal();document.body.classList.add('modal-open');
  const version=++addressVersion;addressRequest?.abort();const controller=new AbortController();addressRequest=controller;
  text('addressStatus','mapAddressLoading');const timer=setTimeout(()=>controller.abort(),10000);
  try{
-  const address=await window.MUSUBU_GEOCODE({...point},I.lang,controller.signal);
+  const result=await window.MUSUBU_GEOCODE({...point},I.lang,controller.signal);
   if(version!==addressVersion||!$('recommendDialog').open)return;
-  pointAddress=address;showAddress();if(!addressEdited)$('placeAddress').value=address;
-  text('addressStatus','mapAddressFound');
+  pointAddress=result.address;pointOriginal=result.original;addressPartial=result.partial;showAddress();if(!addressEdited)$('placeAddress').value=pointAddress;showOriginal();
+  text('addressStatus',result.partial?'mapAddressPartial':'mapAddressFound');
  }catch{if(version===addressVersion&&$('recommendDialog').open)text('addressStatus','mapAddressFailed');}
  finally{clearTimeout(timer);}
 };
+async function refreshAddressLanguage(){const version=++addressVersion;addressRequest?.abort();const controller=new AbortController();addressRequest=controller;text('addressStatus','mapAddressLoading');const timer=setTimeout(()=>controller.abort(),10000);try{const r=await window.MUSUBU_GEOCODE({...point},I.lang,controller.signal);if(version!==addressVersion||addressEdited||!$('recommendDialog').open)return;pointAddress=r.address;pointOriginal=r.original;addressPartial=r.partial;$('placeAddress').value=pointAddress;showAddress();showOriginal();text('addressStatus',r.partial?'mapAddressPartial':'mapAddressFound');}catch{if(version===addressVersion)text('addressStatus','mapAddressFailed');}finally{clearTimeout(timer);}}
 $('deletePlaceForm').onsubmit=async e=>{
  e.preventDefault();if(deleting||!selected)return;
  const reason=new FormData(e.currentTarget).get('reason').trim();if(reason.length<5)return;
@@ -141,7 +143,7 @@ $('recommendForm').onsubmit=async e=>{
  if([...name].length<2||[...name].length>80||[...reason].length<10||[...reason].length>1200||[...tip].length>300){text('placeSubmitStatus','mapValidation');return;}
  sending=true;$('sendPlace').disabled=true;$('closeRecommend').disabled=true;text('placeSubmitStatus','mapSending');
  try{
-  const {error}=await db.from('places').insert({id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim()});
+  const {error}=await db.from('places').insert({id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim(),address_original:addressEdited?data.get('address').trim():pointOriginal,pin_color:data.get('pin_color')});
   // The UUID is retained on retry. An identical accepted request cannot create duplicates.
   if(error&&error.code!=='23505')throw error;text('placeSubmitStatus','mapSubmitted');$('recommendForm').reset();clearDraft();setPicking(false);await load();document.dispatchEvent(new Event('musubu:reward-earned'));
  }catch{text('placeSubmitStatus','mapSaveError');$('sendPlace').disabled=false;}
@@ -162,7 +164,7 @@ if(window.L){
  map.on('click',e=>{if(picking)pick(e.latlng);});
 }else{text('mapTileStatus','mapTileError');$('recommendPlace').disabled=true;$('mapHome').disabled=true;}
 document.addEventListener('musubu:regionchange',resetRegion);
-document.addEventListener('musubu:languagechange',()=>{I.apply(explorer);draw();preview();if(selected){detail();const h=$(region()==='nonsan'?'shops':'fukuoka-shops').querySelector(':scope > h2');if(h?.dataset.i18n==='mapNearby')I.message(h,'mapNearby',{name:view(selected).name});}if(point){const r=C.regions[formRegion];showAddress();}});
+document.addEventListener('musubu:languagechange',()=>{I.apply(explorer);draw();preview();if(selected){detail();const h=$(region()==='nonsan'?'shops':'fukuoka-shops').querySelector(':scope > h2');if(h?.dataset.i18n==='mapNearby')I.message(h,'mapNearby',{name:view(selected).name});}if(point){showAddress();if($('recommendDialog').open&&!addressEdited)refreshAddressLanguage();}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')load();});
 window.addEventListener('online',load);
 document.addEventListener('musubu:screenchange',e=>{if(e.detail.screen==='story'){requestAnimationFrame(()=>map?.invalidateSize());}else{$('mapPreview').hidden=true;document.querySelectorAll('audio').forEach(a=>a.pause());}});

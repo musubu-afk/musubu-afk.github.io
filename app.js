@@ -43,7 +43,7 @@
       const view = I.shopView(shop);
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'place-card'; button.dataset.shop = shop.shop_id;
-      const img = document.createElement('img'); img.src = shop.image_url; img.alt = t('imageAlt', {name:shop.name}); img.loading = 'lazy'; img.onerror = imageError;
+      const img = document.createElement('img'); img.src = shop.image_url; img.alt = t('imageAlt', {name:I.shopView(shop).name}); img.loading = 'lazy'; img.onerror = imageError;
       const content = document.createElement('div'); content.className = 'place-copy';
       const demo = document.createElement('span'); demo.className = 'demo-pill'; demo.textContent = t('demo');
       const name = document.createElement('strong'); name.textContent = view.name; name.lang = I.lang;
@@ -116,10 +116,12 @@
   function renderShopInfo(shop) {
     const view = I.shopView(shop);
     const stay=shop.category==='stay';$('stayInfo').hidden=$('stayDemo').hidden=!stay;
+    $('detailHours').hidden=$('detailHours').previousElementSibling.hidden=stay;
+    $('detailProducts').previousElementSibling.hidden=$('detailProducts').hidden=stay;
     $('stayType').textContent=view.accommodation_type||'';$('stayHours').textContent=stay?shop.check_in+' / '+shop.check_out:'';$('stayAmenities').textContent=view.amenities||'';
     $('detailDistance').textContent=window.MUSUBU_NEARBY?.distance(shop)||'';
     document.dispatchEvent(new CustomEvent('musubu:shop-detail',{detail:{shop}}));
-    if ($('detailImage').getAttribute('src') !== shop.image_url) $('detailImage').src = shop.image_url; $('detailImage').alt = t('imageAlt',{name:shop.name});
+    if ($('detailImage').getAttribute('src') !== shop.image_url) $('detailImage').src = shop.image_url; $('detailImage').alt = t('imageAlt',{name:I.shopView(shop).name});
     $('detailName').textContent = view.name; $('detailName').lang=I.lang; $('detailCategory').textContent = t('detailCategory',{category:label(shop.category)});
     $('detailDescription').textContent = view.description;
     $('detailAddress').textContent = view.address; $('detailHours').textContent = view.business_hours; $('detailPhone').textContent = view.phone;
@@ -146,9 +148,9 @@
   function activateVoucher(review, shop) {
     $('voucherBox').classList.remove('locked');$('voucherBox').hidden=false;
     $('voucherBox').dataset.reviewId = review.id;
-    I.message($('voucherBox').firstElementChild,'voucherSaved',{name:shop.name});
+    I.message($('voucherBox').firstElementChild,'voucherSaved',{name:I.shopView(shop).name});
     $('useVoucher').disabled = voucherUsed;
-    msg('reviewMsg','savedMessage',{name:shop.name});
+    msg('reviewMsg','savedMessage',{name:I.shopView(shop).name});
   }
   document.querySelectorAll('.category').forEach(button => button.addEventListener('click', () => showCategory(button.dataset.category)));
   function fillShopOptions(){const chosen=$('reviewShop').value;while($('reviewShop').options.length>1)$('reviewShop').remove(1);currentShops().forEach(shop => {

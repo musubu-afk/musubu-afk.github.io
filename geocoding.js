@@ -14,7 +14,7 @@
   const result=window.MUSUBU_ADDRESS.format(raw,lang);
   // Obtain one coherent native-language address only when translated parts are missing.
   const native=p.country_code==='kr'?'ko':p.country_code==='jp'?'ja':lang;
-  if(result.partial&&native!==lang){try{result.original=join(await query(point,native,signal));}catch{/* Keep provider result visibly labelled as original. */}}
+  if(native!==lang){try{result.original=join(await query(point,native,signal));}catch{/* Keep provider result visibly labelled as original. */}}
   return {address:result.address.slice(0,300),original:result.original.slice(0,300),partial:result.partial};
  };
 })();

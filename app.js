@@ -146,6 +146,7 @@
     if (reviewFocus) requestAnimationFrame(() => $('reviewsHeading').focus());
   }
   function activateVoucher(review, shop) {
+    document.getElementById('nearbyContent').prepend($('voucherBox'));
     $('voucherBox').classList.remove('locked');$('voucherBox').hidden=false;
     $('voucherBox').dataset.reviewId = review.id;
     I.message($('voucherBox').firstElementChild,'voucherSaved',{name:I.shopView(shop).name});

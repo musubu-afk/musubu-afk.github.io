@@ -6,9 +6,9 @@
     const view = I.shopView(shop);
     const back=document.querySelector('[data-local-link]');back.href='index.html?region='+shop.region+'&lang='+I.lang+'#'+(shop.region==='fukuoka'?'fukuoka-':'')+'shops';
     document.getElementById('name').textContent = view.name;
-    const photo = document.getElementById('photo'); photo.hidden = false;
+    const photo = document.getElementById('photo'); photo.hidden = false; if(shop.reference_photo){let note=document.getElementById('referenceNote');if(!note){note=document.createElement('p');note.id='referenceNote';photo.after(note);}I.message(note,'referencePhoto');}
     if (!photo.getAttribute('src')) photo.src = shop.image_url;
-    photo.onerror = () => { photo.onerror = null; photo.src = 'assets/shop-placeholder.svg'; };
+    photo.onerror = () => { photo.onerror = null; photo.src = shop.image_fallback || 'assets/shop-placeholder.svg'; };
     document.getElementById('description').textContent = view.description;
     I.message(document.getElementById('hours'), 'demoHours', {hours:view.business_hours});
     const list = document.getElementById('products'); list.replaceChildren();

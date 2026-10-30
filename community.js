@@ -76,6 +76,7 @@ async function loadReviews(){
  }catch{if(version===reviewVersion)status($('placeReviewStats'),'reviewsError');}
 }
 function renderReviews(){
+ document.dispatchEvent(new Event('musubu:place-reviews-updated'));
  const rows=reviewRows.map(currentReview);I.message($('placeReviewStats'),'stats',{rating:rows.length?(rows.reduce((a,r)=>a+r.rating,0)/rows.length).toFixed(1):'—',count:rows.length});$('placeReviewList').replaceChildren();
  if(!rows.length)$('placeReviewList').append(el('p','',t('emptyReviews')));
  rows.forEach((r,i)=>{const card=el('article','place-review-card');card.append(el('strong','',('★'.repeat(r.rating))+' · '+new Date(r.created_at).toLocaleDateString(I.locale)),el('p','review-original',r.review_text));card.querySelector('p').lang=r.language;
@@ -103,6 +104,12 @@ document.addEventListener('musubu:place-detail',e=>renderWiki(e.detail.place));
 document.addEventListener('musubu:regionchange',()=>{selectReviews(null);editor.close();historyDialog.close();deleteDialog.close();mount();});
 document.addEventListener('musubu:languagechange',relabel);
 document.addEventListener('musubu:reward-earned',renderRewards);
-window.MUSUBU_COMMUNITY={decorate,renderVotes};
+async function previewReviews(id){
+ const rows=await allRows('place_reviews',id?['place_id',id]:null,'created_at');
+ const revisions=rows.length?await allRows('place_review_edits',null,'id'):[];
+ const latest=new Map();for(const r of revisions)if(!latest.has(r.review_id))latest.set(r.review_id,r);
+ return rows.map(r=>({...r,...latest.get(r.id),id:r.id,place_id:r.place_id,created_at:r.created_at}));
+}
+window.MUSUBU_COMMUNITY={decorate,renderVotes,previewReviews};
 mount();applyLocal();X.load();
 })();

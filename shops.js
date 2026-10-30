@@ -170,7 +170,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/lake.jpg",
     "external_url": "demo-shop.html?shop=nonsan-stay-01&region=nonsan",
     "map_url": "https://www.google.com/maps/search/?api=1&query=36.184,127.165",
     "is_demo": true,
@@ -196,7 +196,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "レイクビューペンション",
         "amenities": "湖を望むテラス・駐車場・Wi-Fi"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "nonsan-stay-02",
@@ -213,7 +215,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/hanok.jpg",
     "external_url": "demo-shop.html?shop=nonsan-stay-02&region=nonsan",
     "map_url": "https://www.google.com/maps/search/?api=1&query=36.205,127.18",
     "is_demo": true,
@@ -239,7 +241,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "韓屋ステイ",
         "amenities": "中庭・共用キッチン・朝食スペース"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "nonsan-stay-03",
@@ -256,7 +260,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/twin.jpg",
     "external_url": "demo-shop.html?shop=nonsan-stay-03&region=nonsan",
     "map_url": "https://www.google.com/maps/search/?api=1&query=36.19,127.1",
     "is_demo": true,
@@ -282,7 +286,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "ホテル",
         "amenities": "ファミリールーム・駐車場・ランドリー"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-meal-01",
@@ -299,7 +305,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-meal.svg",
+    "image_url": "assets/nearby-photos/ramen.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-meal-01&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.59,130.416",
     "is_demo": true,
@@ -325,7 +331,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-meal.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-meal-02",
@@ -342,7 +350,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-meal.svg",
+    "image_url": "assets/nearby-photos/hotpot.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-meal-02&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.592,130.398",
     "is_demo": true,
@@ -368,7 +376,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-meal.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-dessert-01",
@@ -385,7 +395,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-dessert.svg",
+    "image_url": "assets/nearby-photos/matcha.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-dessert-01&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.587,130.374",
     "is_demo": true,
@@ -411,7 +421,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-dessert.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-dessert-02",
@@ -428,7 +440,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-dessert.svg",
+    "image_url": "assets/nearby-photos/pudding.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-dessert-02&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.585,130.419",
     "is_demo": true,
@@ -454,7 +466,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-dessert.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-gift-01",
@@ -471,7 +485,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-gift.svg",
+    "image_url": "assets/nearby-photos/fans.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-gift-01&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.595,130.407",
     "is_demo": true,
@@ -497,7 +511,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-gift.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-gift-02",
@@ -514,7 +530,7 @@ window.MUSUBU_SHOPS = [
         "price": "가격 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-gift.svg",
+    "image_url": "assets/nearby-photos/cookies.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-gift-02&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.592,130.353",
     "is_demo": true,
@@ -540,7 +556,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": null,
         "amenities": ""
       }
-    }
+    },
+    "image_fallback": "assets/nearby-gift.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-stay-01",
@@ -557,7 +575,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/quiet.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-stay-01&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.585,130.378",
     "is_demo": true,
@@ -583,7 +601,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "ゲストハウス",
         "amenities": "読書ラウンジ・共用キッチン・Wi-Fi"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-stay-02",
@@ -600,7 +620,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/twin.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-stay-02&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.587,130.422",
     "is_demo": true,
@@ -626,7 +646,9 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "シティホテル",
         "amenities": "荷物預かり・ランドリー・Wi-Fi"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   },
   {
     "shop_id": "fukuoka-stay-03",
@@ -643,7 +665,7 @@ window.MUSUBU_SHOPS = [
         "price": "요금 미정 · 데모"
       }
     ],
-    "image_url": "assets/nearby-stay.svg",
+    "image_url": "assets/nearby-photos/sea.jpg",
     "external_url": "demo-shop.html?shop=fukuoka-stay-03&region=fukuoka",
     "map_url": "https://www.google.com/maps/search/?api=1&query=33.597,130.352",
     "is_demo": true,
@@ -669,6 +691,8 @@ window.MUSUBU_SHOPS = [
         "accommodation_type": "リゾートホテル",
         "amenities": "海を望むテラス・ファミリールーム・Wi-Fi"
       }
-    }
+    },
+    "image_fallback": "assets/nearby-stay.svg",
+    "reference_photo": true
   }
 ];

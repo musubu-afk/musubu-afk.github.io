@@ -14,7 +14,7 @@
   const fallback = 'assets/shop-placeholder.svg';
   function imageError(event) {
     event.currentTarget.onerror = null;
-    event.currentTarget.src = fallback;
+    event.currentTarget.src = event.currentTarget.dataset.fallback || fallback;
   }
   $('detailImage').onerror = imageError;
   function summary(id) {
@@ -43,7 +43,7 @@
       const view = I.shopView(shop);
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'place-card'; button.dataset.shop = shop.shop_id;
-      const img = document.createElement('img'); img.src = shop.image_url; img.alt = t('imageAlt', {name:I.shopView(shop).name}); img.loading = 'lazy'; img.onerror = imageError;
+      const img = document.createElement('img'); img.src = shop.image_url; img.alt = t('imageAlt', {name:I.shopView(shop).name}); img.loading = 'lazy'; img.dataset.fallback = shop.image_fallback || fallback; img.onerror = imageError;
       const content = document.createElement('div'); content.className = 'place-copy';
       const demo = document.createElement('span'); demo.className = 'demo-pill'; demo.textContent = t('demo');
       const name = document.createElement('strong'); name.textContent = view.name; name.lang = I.lang;
@@ -51,14 +51,14 @@
       const rating = document.createElement('span'); rating.className = 'place-stats'; rating.dataset.stats = shop.shop_id; rating.textContent = summary(shop.shop_id);
       const distance=document.createElement('small');distance.className='near-distance';distance.textContent=window.MUSUBU_NEARBY?.distance(shop)||'';
       const desc=document.createElement('small');desc.textContent=view.description;
-      content.append(demo, name, sub, distance, desc, rating); button.append(img, content);
+      content.append(demo, name, sub, distance, desc, rating); if(shop.reference_photo){const note=document.createElement("small");note.className="reference-photo-note";note.textContent=t("referencePhoto");content.append(note);} button.append(img, content);
       button.addEventListener('click', () => openShop(shop));
       $('shopList').append(button);
     });
     if (focus) $('categoryTitle').focus({ preventScroll: true });
   }
   function renderReviews(rows) {
-    cachedRows = rows; I.clear($('reviewList'));
+    cachedRows = rows; document.dispatchEvent(new CustomEvent('musubu:shop-reviews',{detail:{shopId:activeShop?.shop_id,rows}})); I.clear($('reviewList'));
     if (!rows.length) {
       const empty = document.createElement('p'); empty.className = 'review-empty'; empty.textContent = t('emptyReviews');
       $('reviewList').append(empty); return;
@@ -86,7 +86,7 @@
       renderReviews(data); $('retryReviews').hidden = true;
     } catch {
       if (activeShop?.shop_id !== shopId || version !== requestVersion) return;
-      cachedRows = null; msg('reviewList', 'reviewsError');
+      cachedRows = null; document.dispatchEvent(new CustomEvent('musubu:shop-reviews',{detail:{shopId,rows:[]}})); msg('reviewList', 'reviewsError');
       msg('detailStats','statsError');
       $('retryReviews').hidden = false;
     }
@@ -121,9 +121,10 @@
     $('stayType').textContent=view.accommodation_type||'';$('stayHours').textContent=stay?shop.check_in+' / '+shop.check_out:'';$('stayAmenities').textContent=view.amenities||'';
     $('detailDistance').textContent=window.MUSUBU_NEARBY?.distance(shop)||'';
     document.dispatchEvent(new CustomEvent('musubu:shop-detail',{detail:{shop}}));
+    $('detailImage').dataset.fallback=shop.image_fallback||fallback; $('detailImage').onerror=imageError;
     if ($('detailImage').getAttribute('src') !== shop.image_url) $('detailImage').src = shop.image_url; $('detailImage').alt = t('imageAlt',{name:I.shopView(shop).name});
     $('detailName').textContent = view.name; $('detailName').lang=I.lang; $('detailCategory').textContent = t('detailCategory',{category:label(shop.category)});
-    $('detailDescription').textContent = view.description;
+    $('detailDescription').textContent = view.description; let note=document.getElementById('detailPhotoNote');if(!note){note=document.createElement('p');note.id='detailPhotoNote';note.className='reference-photo-note';$('detailDescription').before(note);}note.hidden=!shop.reference_photo;note.textContent=t('referencePhoto');
     $('detailAddress').textContent = view.address; $('detailHours').textContent = view.business_hours; $('detailPhone').textContent = view.phone;
     $('officialLink').href = I.localizedUrl(shop.external_url); $('mapLink').href = shop.map_url;
     I.clear($('detailStats')); $('detailStats').textContent = summary(shop.shop_id);
@@ -135,7 +136,7 @@
   }
   function openShop(shop, reviewFocus = false) {
     stopChannel(); activeShop = shop; ++requestVersion;
-    cachedRows = null; renderShopInfo(shop);
+    cachedRows = null; document.dispatchEvent(new CustomEvent('musubu:shop-reviews',{detail:{shopId:shop.shop_id,rows:[]}})); renderShopInfo(shop);
     $('reviewForm').reset(); I.clear($('submitStatus')); $('submitStatus').classList.remove('error'); $('goVoucher').hidden = true;
     msg('reviewList', 'reviewsLoading'); $('retryReviews').hidden = true;
     $('submitReview').disabled = pending || !client;

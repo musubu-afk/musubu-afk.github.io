@@ -31,11 +31,12 @@ function draw(){
  document.querySelectorAll('.leaflet-control-zoom-in,.leaflet-control-zoom-out').forEach(el=>{const label=t(el.classList.contains('leaflet-control-zoom-in')?'mapZoomIn':'mapZoomOut');el.title=label;el.setAttribute('aria-label',label);});
  if(markers)markers.clearLayers(); $('placeList').replaceChildren();
  shownPlaces().forEach(p=>{
-  const v=view(p), b=document.createElement('button');b.type='button';
+  const v=view(p), b=document.createElement('button');b.type='button';b.dataset.placeId=p.id;
   const label=document.createElement('span'), title=document.createElement('strong'), sub=document.createElement('small');title.textContent=v.name;sub.textContent=kindLabel(p);label.append(title,sub);b.append(label);
   const heart=document.createElement('span');heart.textContent='❤️ '+(counts.get(p.id)??'—');b.append(heart);b.onclick=()=>choose(p,true);$('placeList').append(b);
   if(map){const marker=L.marker([p.latitude,p.longitude],{icon:pin(p),title:v.name,alt:v.name});marker.on('click',()=>{if(picking)pick({lat:p.latitude,lng:p.longitude});else choose(p);});marker.addTo(markers);}
  });
+ document.dispatchEvent(new Event('musubu:place-list-rendered'));
  if(!shownPlaces().length){const p=document.createElement('p');p.textContent=t('mapNoPlaces');$('placeList').append(p);}
 }
 function preview(){

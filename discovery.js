@@ -40,7 +40,7 @@ function renderMapShops(){document.querySelector('.map-list').hidden=$('register
 }
 function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChildren();root.setAttribute('role','group');root.setAttribute('aria-label',t('mapCategory'));for(const [id,key]of categories){const b=el('button','',t(key));b.type='button';b.setAttribute('aria-pressed',String(filter===id));b.onclick=()=>{filter=id;drawFilters();X.setFilter(matches);renderCards();$('mapPreview').hidden=true;};root.append(b);}}}
 function labels(){title.textContent=t('discoverTitle');shortcut.textContent=t('discoverNav');mapButton.textContent=t('discoverMap')+' ↓';note.textContent=t('favoriteNote');drawFilters();renderCards();renderMapShops();}
-shortcut.onclick=()=>{window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
+shortcut.onclick=()=>{$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
 mapButton.onclick=()=>$('storyMap').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 document.addEventListener('musubu:place-list-rendered',()=>{renderMapShops();if(!document.querySelector('#placeList button')){const p=$('placeList').querySelector('p');if(p)p.textContent=t('discoverEmpty');}});
 document.addEventListener('musubu:places-loaded',()=>{renderCards();renderMapShops();});

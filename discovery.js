@@ -13,8 +13,8 @@ const section=el('section','discovery');section.id='discovery';const head=el('di
 const note=el('p','notice'),filters=el('div','discovery-filters'),cards=el('div','discovery-cards'),message=el('p','notice');message.setAttribute('role','status');section.append(head,note,filters,cards,message);
 document.querySelector('.explore-tabs').after(section);
 const mapFilters=el('div','discovery-filters map-category-filters');$('storyMap').parentElement.before(mapFilters);
-const categories=[['all','discoverAll'],['history','discoverHistory'],['nature','discoverNature'],['walk','discoverWalk'],['meal','category_meal'],['dessert','category_dessert'],['gift','category_gift'],['stay','category_stay'],['saved','discoverSaved']];
-function group(p){if(p.shop_id)return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return 'nature';}
+const categories=[['all','discoverAll'],['history','discoverHistory'],['nature','discoverNature'],['walk','discoverWalk'],['local','mapCategory_local'],['meal','category_meal'],['dessert','category_dessert'],['gift','category_gift'],['stay','category_stay'],['saved','discoverSaved']];
+function group(p){if(p.shop_id)return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return ['scenery','rest'].includes(p.category)?'nature':'local';}
 function matches(p){return filter==='all'||(filter==='saved'?(p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id)):group(p)===filter);}
 function distance(p){const r=window.MUSUBU_MAP_CONFIG.regions[region()],rad=x=>x*Math.PI/180;const a=Math.sin(rad(p.latitude-r.latitude)/2)**2+Math.cos(rad(r.latitude))*Math.cos(rad(p.latitude))*Math.sin(rad(p.longitude-r.longitude)/2)**2;return t(p.shop_id?'discoverDemoDistance':'discoverOrigin',{km:(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1)});}
 function image(p){return p.shop_id?p.image_url:document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src');}
@@ -34,7 +34,7 @@ function renderCards(){cards.replaceChildren();const places=X.places.filter(p=>p
  }if(!list.length)cards.append(el('p','notice',t('discoverEmpty')));
 }
 let shopMarkers=X.map&&L.layerGroup().addTo(X.map);
-function renderMapShops(){if(!shopMarkers)return;shopMarkers.clearLayers();if($('registerPlaces').getAttribute('aria-pressed')==='true')return;
+function renderMapShops(){document.querySelector('.map-list').hidden=$('registerPlaces').getAttribute('aria-pressed')==='true'||['meal','dessert','gift','stay'].includes(filter);if(!shopMarkers)return;shopMarkers.clearLayers();if($('registerPlaces').getAttribute('aria-pressed')==='true')return;
  window.MUSUBU_SHOPS.filter(p=>p.region===region()&&matches(p)).forEach(p=>{const v=I.shopView(p),icon=L.divIcon({className:'map-pin nearby-map-pin',html:'<span><b>'+({meal:'🍚',dessert:'☕',gift:'🎁',stay:'🛏️'}[p.category])+'</b></span>',iconSize:[36,36],iconAnchor:[18,36]});const m=L.marker([p.latitude,p.longitude],{icon,title:v.name+' · '+t('demo'),alt:v.name});
  const content=el('div','discovery-popup');content.append(el('strong','',v.name),el('p','',summary(p)),el('small','',t('demo')));const b=el('button','community-button',t('mapDetails'));b.type='button';b.onclick=()=>{X.map.closePopup();open(p);};content.append(b);m.bindPopup(content).addTo(shopMarkers);});
 }
@@ -42,7 +42,7 @@ function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChild
 function labels(){title.textContent=t('discoverTitle');shortcut.textContent=t('discoverNav');mapButton.textContent=t('discoverMap')+' ↓';note.textContent=t('favoriteNote');drawFilters();renderCards();renderMapShops();}
 shortcut.onclick=()=>{window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
 mapButton.onclick=()=>$('storyMap').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-document.addEventListener('musubu:place-list-rendered',renderMapShops);
+document.addEventListener('musubu:place-list-rendered',()=>{renderMapShops();if(!document.querySelector('#placeList button')){const p=$('placeList').querySelector('p');if(p)p.textContent=t('discoverEmpty');}});
 document.addEventListener('musubu:places-loaded',()=>{renderCards();renderMapShops();});
 document.addEventListener('musubu:favorites',()=>{renderCards();if(filter==='saved')X.setFilter(matches);});
 document.addEventListener('musubu:preview-stats',e=>{reviewStats=new Map();for(const r of e.detail.rows){if(!reviewStats.has(r.place_id))reviewStats.set(r.place_id,[]);reviewStats.get(r.place_id).push(r);}reviewStats.loaded=true;renderCards();});

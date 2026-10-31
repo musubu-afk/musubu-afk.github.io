@@ -11,7 +11,7 @@ const dialog=new Element();dialog.open=true;const p=new ctx.Preview(dialog,new E
 const rows=[1,2,3].map(i=>({id:String(i),rating:i+2,review_text:'isolated fixture '+i,created_at:'2026-10-30T00:00:00Z'}));
 p.set([]);assert(p.root.hidden);assert.equal(jobs.size,0);
 p.set(rows.slice(0,1));assert(!p.root.hidden);assert(p.controls.hidden);assert.equal(jobs.size,0);
-p.set(rows);assert.equal(jobs.size,1);advance(5000);advance(320);assert.equal(p.index,1);assert.equal(jobs.size,1);
+p.set(rows);assert.equal(jobs.size,1);advance(3000);advance(320);assert.equal(p.index,1);assert.equal(jobs.size,1);
 p.hold('hover',true);advance(10000);assert.equal(p.index,1);assert.equal(jobs.size,0);p.hold('hover',false);assert.equal(jobs.size,1);
 p.hold('focus',true);assert.equal(jobs.size,0);p.hold('focus',false);
 p.move(1);advance(320);assert.equal(p.index,2);assert.equal(jobs.size,1);
@@ -23,5 +23,5 @@ dialog.open=false;dialog.events.close();assert.equal(jobs.size,0);advance(6000);
 dialog.open=true;p.observer.fn();assert.equal(jobs.size,1);p.set(rows.slice(0,1));assert.equal(jobs.size,0);
 motion.matches=true;p.set(rows);assert.equal(jobs.size,0);p.move(1);assert.equal(p.index,1);assert.equal(jobs.size,0);
 assert.equal(p.card.attrs['aria-live'],undefined);
-console.log('PASS: 0/1/multiple, 5s rotation, hover/focus/touch pause, horizontal swipe, vertical scroll, explicit pause, background, close/reopen, data replacement, reduced motion, no aria-live.');
+console.log('PASS: 0/1/multiple, 3s rotation, hover/focus/touch pause, horizontal swipe, vertical scroll, explicit pause, background, close/reopen, data replacement, reduced motion, no aria-live.');
 const app=fs.readFileSync('app.js','utf8');const handler=app.slice(app.indexOf('function imageError(event)'),app.indexOf("$('detailImage').onerror"));const imgCtx={fallback:'assets/shop-placeholder.svg'};vm.createContext(imgCtx);vm.runInContext(handler,imgCtx);const img={dataset:{fallback:'assets/nearby-stay.svg'},onerror:()=>{},src:'missing.jpg'};imgCtx.imageError({currentTarget:img});assert.equal(img.src,'assets/nearby-stay.svg');assert.equal(img.onerror,null);console.log('PASS: image error returns to category placeholder, removes handler to prevent error loops.');

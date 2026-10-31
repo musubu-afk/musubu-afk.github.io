@@ -12,7 +12,7 @@ const legacyReview=el('div');legacyReview.hidden=true;while($('review').firstChi
 const reviewSection=el('div','community-reviews');reviewSection.innerHTML=`<span class="tag" data-i18n="placeReviewTag"></span><h2 data-i18n="placeReviewTitle"></h2><p data-i18n="wikiNotice"></p><label for="reviewPlace" data-i18n="choosePlace"></label><select id="reviewPlace"></select><p id="placeReviewStats" role="status"></p><form id="placeReviewForm"><label for="placeRating" data-i18n="rating"></label><select id="placeRating" name="rating" required><option value="5">★★★★★ · 5</option><option value="4">★★★★☆ · 4</option><option value="3">★★★☆☆ · 3</option><option value="2">★★☆☆☆ · 2</option><option value="1">★☆☆☆☆ · 1</option></select><label for="placeReviewText" data-i18n="reviewTextLabel"></label><textarea id="placeReviewText" name="review_text" required minlength="2" maxlength="1000" data-i18n-placeholder="placeReviewHint"></textarea><button type="submit" class="submit" id="savePlaceReview" data-i18n="savePlaceReview"></button><p id="placeReviewStatus" role="status"></p></form><p id="placeReviewConnection" role="status"></p><button type="button" class="community-button" id="refreshPlaceReviews" data-i18n="retry"></button><div id="placeReviewList"></div>`;
 $('review').append(reviewSection);
 const detailActions=el('div','community-actions');detailActions.id='communityActions';$('detailLike').after(detailActions);$('detailLike').classList.add('vote-button');
-const dislike=button('dislike',()=>vote(-1));dislike.id='detailDislike';detailActions.append(dislike,button('editPlace',()=>openEditor('place',X.selected)),button('history',()=>showHistory('place',X.selected)),button('placeReviews',()=>{const p=X.selected;$('placeDialog').close();window.MUSUBU_SCREENS.go('review');$('reviewPlace').value=p.id;selectReviews(p.id);}));
+detailActions.append(button('editPlace',()=>openEditor('place',X.selected)),button('history',()=>showHistory('place',X.selected)),button('placeReviews',()=>{const p=X.selected;$('placeDialog').close();window.MUSUBU_SCREENS.go('review');$('reviewPlace').value=p.id;selectReviews(p.id);}));
 const originalAddress=el('details','original-address');originalAddress.innerHTML='<summary data-i18n="addressOriginal"></summary><p></p>';$('placeDetailMeta').after(originalAddress);
 const addressNotice=el('p','notice');addressNotice.dataset.i18n='mapAddressPartial';originalAddress.before(addressNotice);
 const wikiNote=el('p','notice');wikiNote.dataset.i18n='wikiNotice';detailActions.after(wikiNote);
@@ -32,8 +32,8 @@ async function decorate(places){
  await loadVotes();
 }
 async function loadVotes(){const [a,b]=await Promise.all([db.rpc('place_reaction_counts'),hashPromise]);if(a.error)throw a.error;reactions=new Map((a.data||[]).map(r=>[r.place_id,r]));const own=await db.from('place_reactions').select('place_id,value').eq('visitor_hash',b);if(own.error)throw own.error;votes=new Map((own.data||[]).map(r=>[r.place_id,r.value]));renderVotes();}
-function renderVotes(){const p=X.selected;if(!p)return;const r=reactions.get(p.id)||{likes:0,dislikes:0},v=votes.get(p.id)||0;I.clear($('detailLike'));$('detailLike').textContent='❤️ '+t('like')+' · '+r.likes;dislike.textContent='😐 '+t('dislike')+' · '+r.dislikes;$('detailLike').setAttribute('aria-pressed',String(v===1));dislike.setAttribute('aria-pressed',String(v===-1));$('detailLike').disabled=dislike.disabled=busy;}
-async function vote(value){if(busy||!X.selected)return;busy=true;const id=X.selected.id;renderVotes();try{const next=votes.get(id)===value?0:value;const {error}=await db.from('place_reactions').upsert({place_id:id,value:next},{onConflict:'place_id,visitor_hash'});if(error)throw error;await loadVotes();await X.loadCounts();}catch{status($('likeStatus'),'mapSaveError');}finally{busy=false;renderVotes();}}
+function renderVotes(){const p=X.selected;if(!p)return;const r=reactions.get(p.id)||{likes:0},v=votes.get(p.id)||0;I.clear($('detailLike'));$('detailLike').textContent=(v===1?'♥ ':'♡ ')+t(v===1?'favoriteSaved':'favoriteAdd')+' · '+r.likes;$('detailLike').setAttribute('aria-pressed',String(v===1));$('detailLike').disabled=busy;}
+async function vote(value,id=X.selected?.id){if(busy||!id)return;busy=true;renderVotes();try{const next=votes.get(id)===value?0:value;const {error}=await db.from('place_reactions').upsert({place_id:id,value:next},{onConflict:'place_id,visitor_hash'});if(error)throw error;await loadVotes();await X.loadCounts();return true;}catch{status($('likeStatus'),'mapSaveError');return false;}finally{busy=false;renderVotes();document.dispatchEvent(new Event('musubu:favorites'));}}
 $('detailLike').onclick=()=>vote(1);
 function currentReview(r){return {...r,...(reviewEdits.find(e=>e.review_id===r.id)||{}),id:r.id};}
 function openEditor(type,row,versionContent=null){
@@ -110,6 +110,6 @@ async function previewReviews(id){
  const latest=new Map();for(const r of revisions)if(!latest.has(r.review_id))latest.set(r.review_id,r);
  return rows.map(r=>({...r,...latest.get(r.id),id:r.id,place_id:r.place_id,created_at:r.created_at}));
 }
-window.MUSUBU_COMMUNITY={decorate,renderVotes,previewReviews};
+window.MUSUBU_COMMUNITY={decorate,renderVotes,previewReviews,isFavorite:id=>votes.get(id)===1,toggleFavorite:id=>vote(1,id)};
 mount();applyLocal();X.load();
 })();

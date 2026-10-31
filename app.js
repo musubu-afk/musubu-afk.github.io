@@ -31,7 +31,7 @@
     const { data, error } = await client.rpc('shop_review_stats');
     if (error) throw error;
     statsLoaded=true; stats = new Map(data.map(row => [row.shop_id, row]));
-    updateStatsUI();
+    updateStatsUI();document.dispatchEvent(new Event('musubu:shop-stats'));
   }
   function showCategory(category, focus = true) {
     selectedCategory = category;
@@ -159,7 +159,7 @@
     const option = document.createElement('option'); option.value = shop.shop_id; option.textContent = shop.name + ' · ' + label(shop.category); $('reviewShop').append(option);
   });$('reviewShop').value=chosen;}fillShopOptions();
   document.addEventListener('musubu:regionchange',()=>{if(dialog.open)dialog.close();fillShopOptions();showCategory(selectedCategory||'meal',false);});
-    window.MUSUBU_SHOP_APP={showCategory,refresh:()=>showCategory(selectedCategory||'meal',false),get activeShop(){return activeShop;}};
+    window.MUSUBU_SHOP_APP={openShop,summary,showCategory,refresh:()=>showCategory(selectedCategory||'meal',false),get activeShop(){return activeShop;}};
   $('openReview').addEventListener('click', () => {
     const shop = shops.find(item => item.shop_id === $('reviewShop').value);
     if (!shop) { msg('reviewMsg', 'selectFirst'); $('reviewShop').focus(); return; }
@@ -239,6 +239,6 @@
       if (cachedRows) renderReviews(cachedRows);
       dialog.querySelector('.sheet-scroll').scrollTop = scroll;
     }
-    updateStatsUI();
+    updateStatsUI();document.dispatchEvent(new Event('musubu:shop-stats'));
   });
 })();

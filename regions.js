@@ -19,7 +19,7 @@ function render() {
  document.querySelectorAll('[data-region]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.region===region)));
  document.getElementById('nonsanContent').hidden=fk;
  document.getElementById('fukuokaContent').hidden=!fk;
- document.querySelector('.brand').textContent='むすぶ · '+(fk?'FUKUOKA':'NONSAN')+' STORY TOUR';
+ document.querySelector('.brand').textContent='MUSUBU';
  ['heroTitle','heroDescription','pageTitle'].forEach(key=>document.querySelector('[data-i18n="'+key+'"]').textContent=fk?w[key]:I.t(key));
  document.querySelectorAll('.flow a').forEach((a,i)=>a.setAttribute('href','#'+(fk?'fukuoka-':'')+['story','shops','review'][i]));
  const qr=document.querySelector('.qrbtn');

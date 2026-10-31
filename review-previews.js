@@ -6,31 +6,29 @@ const node=(tag,cls)=>{const n=document.createElement(tag);n.className=cls||'';r
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
 class ReviewPreview {
  constructor(dialog,before,all){
-  this.dialog=dialog;this.rows=[];this.index=0;this.timer=null;this.transition=null;this.pauses=new Set();this.userPaused=false;
+  this.dialog=dialog;this.rows=[];this.index=0;this.timer=null;this.transition=null;this.pauses=new Set();
   this.root=node('section','review-preview');this.root.hidden=true;
   this.heading=node('h4');this.stats=node('p','review-preview-stats');this.card=node('article','review-preview-card');this.card.tabIndex=0;
   this.rating=node('strong');this.text=node('p','review-preview-text');this.date=node('time');this.card.append(this.rating,this.text,this.date);
-  this.controls=node('div','review-preview-controls');this.prev=node('button');this.next=node('button');this.pause=node('button');this.dots=node('div','review-preview-dots');
-  this.prev.textContent='‹';this.next.textContent='›';[this.prev,this.next,this.pause].forEach(b=>b.type='button');
-  this.controls.append(this.prev,this.dots,this.next,this.pause);this.all=node('button','text-button');this.all.type='button';this.all.onclick=all;
+  this.controls=node('div','review-preview-controls');this.prev=node('button');this.next=node('button');this.dots=node('div','review-preview-dots');
+  this.prev.textContent='‹';this.next.textContent='›';[this.prev,this.next].forEach(b=>b.type='button');
+  this.controls.append(this.prev,this.dots,this.next);this.all=node('button','text-button');this.all.type='button';this.all.onclick=all;
   this.root.append(this.heading,this.stats,this.card,this.controls,this.all);before.before(this.root);
-  this.prev.onclick=()=>this.move(-1);this.next.onclick=()=>this.move(1);this.pause.onclick=()=>{this.userPaused=!this.userPaused;this.labels();this.schedule();};
-  this.root.addEventListener('mouseenter',()=>this.hold('hover',true));this.root.addEventListener('mouseleave',()=>this.hold('hover',false));
-  this.root.addEventListener('focusin',()=>this.hold('focus',true));this.root.addEventListener('focusout',e=>{if(!this.root.contains(e.relatedTarget))this.hold('focus',false);});
+  this.prev.onclick=()=>this.move(-1);this.next.onclick=()=>this.move(1);
   this.card.addEventListener('pointerdown',e=>{this.start={x:e.clientX,y:e.clientY};this.hold('touch',true);});
   this.card.addEventListener('pointerup',e=>{if(this.start){const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4)this.move(dx<0?1:-1);}this.start=null;this.hold('touch',false);});
   this.card.addEventListener('pointercancel',()=>{this.start=null;this.hold('touch',false);});
-  this.card.addEventListener('pointerleave',()=>this.hold('touch',false));
+  this.card.addEventListener('pointerleave',()=>{this.start=null;this.hold('touch',false);});
   this.observer=new MutationObserver(()=>{if(!dialog.open){this.stop();this.pauses.clear();}else this.schedule();});this.observer.observe(dialog,{attributes:true,attributeFilter:['open']});
   this.intersection=new IntersectionObserver(entries=>this.hold('offscreen',!entries[0].isIntersecting));this.intersection.observe(this.root);
   dialog.addEventListener('close',()=>{this.stop();this.pauses.clear();});this.labels();
  }
- labels(){this.heading.textContent=t('recentReviews');this.all.textContent=t('allReviews')+' ›';this.prev.setAttribute('aria-label',t('reviewPrevious'));this.next.setAttribute('aria-label',t('reviewNext'));this.pause.textContent=this.userPaused?'▶':'Ⅱ';this.pause.setAttribute('aria-label',t(this.userPaused?'reviewResume':'reviewPause'));this.paint();}
+ labels(){this.heading.textContent=t('recentReviews');this.all.textContent=t('allReviews')+' ›';this.prev.setAttribute('aria-label',t('reviewPrevious'));this.next.setAttribute('aria-label',t('reviewNext'));this.paint();}
  set(rows){const old=this.rows[this.index]?.id;this.stop();this.rows=rows.slice(0,5);this.index=Math.max(0,this.rows.findIndex(r=>r.id===old));this.root.hidden=!rows.length;this.stats.textContent=rows.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):'';this.paint();this.schedule();}
  paint(){const r=this.rows[this.index];this.controls.hidden=this.rows.length<2;if(!r)return;this.rating.textContent='★'.repeat(Number(r.rating))+' · '+Number(r.rating).toFixed(1);this.text.textContent=r.review_text;this.text.lang=r.language||'';this.date.dateTime=r.created_at;this.date.textContent=new Date(r.created_at).toLocaleDateString(I.locale,{month:'short',day:'numeric'});this.dots.replaceChildren();this.rows.forEach((row,i)=>{const d=node('button','review-preview-dot');d.type='button';d.textContent=i===this.index?'●':'○';d.setAttribute('aria-label',t('reviewPosition',{current:i+1,total:this.rows.length}));d.setAttribute('aria-current',String(i===this.index));d.onclick=()=>this.move(i-this.index);this.dots.append(d);});}
  stop(){clearTimeout(this.timer);clearTimeout(this.transition);this.timer=this.transition=null;this.card.classList.remove('review-leaving','review-entering');}
  hold(reason,on){on?this.pauses.add(reason):this.pauses.delete(reason);this.schedule();}
- schedule(){clearTimeout(this.timer);this.timer=null;if(this.rows.length>1&&this.dialog.open&&!this.root.hidden&&!document.hidden&&!motion.matches&&!this.userPaused&&!this.pauses.size)this.timer=setTimeout(()=>this.move(1),3000);}
+ schedule(){clearTimeout(this.timer);this.timer=null;if(this.rows.length>1&&this.dialog.open&&!this.root.hidden&&!document.hidden&&!this.pauses.size)this.timer=setTimeout(()=>this.move(1),3000);}
  move(delta){this.stop();if(this.rows.length<2)return;const next=(this.index+delta+this.rows.length)%this.rows.length;if(motion.matches){this.index=next;this.paint();this.schedule();return;}this.card.classList.add('review-leaving');this.transition=setTimeout(()=>{this.index=next;this.paint();this.card.classList.remove('review-leaving');this.card.classList.add('review-entering');this.transition=setTimeout(()=>{this.card.classList.remove('review-entering');this.transition=null;this.schedule();},160);},160);}
 }
 const shop=new ReviewPreview($('shopDialog'),$('reviewList'),()=>{$('reviewList').scrollIntoView({block:'start',behavior:motion.matches?'auto':'smooth'});});

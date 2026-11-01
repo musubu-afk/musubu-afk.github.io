@@ -323,7 +323,7 @@
     const entry = shopTranslations[shop.shop_id];
     if (!entry) return shop;
     const number = { 'dessert-01':1, 'dessert-02':2, 'meal-01':3, 'meal-02':4, 'gift-01':5, 'gift-02':6 }[shop.shop_id];
-    return {...shop, description:entry.description, business_hours:entry.business_hours,
+    return {...shop, name:window.MUSUBU_SHOP_NAMES_JA?.[shop.shop_id] || entry.name || shop.name, description:entry.description, business_hours:entry.business_hours,
       address:'忠清南道 論山市 デモ通り' + number + '（架空の住所）', phone:'000-0000-0000（架空）',
       products:shop.products.map((p,i)=>({...p,name:entry.products[i],price:p.price.replace('원','ウォン')}))};
   }

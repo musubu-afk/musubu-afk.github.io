@@ -11,7 +11,7 @@ let categoryFilter=()=>true;
 let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false,addressRequest=null,addressVersion=0,addressEdited=false,pointOriginal='',addressPartial=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
-const view=p=>{const v={...p,...(p.translations?.[I.lang]||{}),...(p.wiki||{})};if(I.lang==='en'&&p.story_key&&!p.wiki){const key={donam:'donam',tapjeong:'tapjeong',ohori:'ohori',yufuin:'yufuin'}[p.story_key];const r=window.MUSUBU_REGION_LOCALES.en;v.name=r[key+'Title']||t(key+'Title');v.reason=r[key+'Text']||t(key+'Text');}const a=window.MUSUBU_ADDRESS.format(v.address_original||v.address,I.lang);v.address=a.address;v.addressPartial=a.partial;v.address_original=v.address_original||a.original;return v;};
+const view=p=>{const v={...p,...(p.translations?.[I.lang]||{}),...(p.wiki||{})};if(I.lang==='en'&&p.story_key&&!p.wiki){const key={donam:'donam',tapjeong:'tapjeong',ohori:'ohori',yufuin:'yufuin'}[p.story_key];const r=window.MUSUBU_REGION_LOCALES.en;v.name=r[key+'Title']||t(key+'Title');v.reason=r[key+'Text']||t(key+'Text');}const extra=window.MUSUBU_CONTENT_LOCALES?.[p.name]?.[I.lang];if(extra&&!p.wiki)Object.assign(v,extra);const a=window.MUSUBU_ADDRESS.format(v.address_original||v.address,I.lang);v.address=a.address;v.addressPartial=a.partial;v.address_original=v.address_original||a.original;return v;};
 const explorer=document.createElement('div');explorer.id='explorer';
 explorer.innerHTML=`<div class="explore-heading"><span class="tag">MUSUBU · LOCAL STORIES</span><h2 data-i18n="mapTitle"></h2><p data-i18n="mapIntro"></p></div>
 <div class="explore-tabs" role="group"><button id="browsePlaces" type="button" data-i18n="browsePlaces" aria-pressed="true"></button><button id="registerPlaces" type="button" data-i18n="registerPlaces" aria-pressed="false"></button></div><div class="map-legend"><span data-i18n="mapOfficial"></span><span data-i18n="mapResident"></span><span data-i18n="mapWalk"></span></div>
@@ -162,7 +162,8 @@ $('mapHome').onclick=()=>{if(map){const r=currentRegion();map.setView([r.latitud
 if(window.L){
  const r=currentRegion();map=L.map('storyMap',{scrollWheelZoom:false,zoomControl:true}).setView([r.latitude,r.longitude],r.zoom);
  markers=L.layerGroup().addTo(map);let failed=0;
- L.tileLayer(C.tileUrl,{maxZoom:C.maxZoom,attribution:C.attribution}).on('tileerror',()=>{if(++failed>=2)text('mapTileStatus','mapTileError');}).on('tileload',()=>{failed=0;I.clear($('mapTileStatus'));}).addTo(map);
+ const baseTiles=L.tileLayer(C.tileUrl,{maxZoom:C.maxZoom,attribution:C.attribution}).on('tileerror',()=>{if(++failed>=2)text('mapTileStatus','mapTileError');}).on('tileload',()=>{failed=0;I.clear($('mapTileStatus'));}).addTo(map);
+ window.MUSUBU_LOCALIZE_MAP?.(map,baseTiles);
  map.on('click',e=>{if(picking)pick(e.latlng);});
 }else{text('mapTileStatus','mapTileError');$('recommendPlace').disabled=true;$('mapHome').disabled=true;}
 document.addEventListener('musubu:regionchange',resetRegion);

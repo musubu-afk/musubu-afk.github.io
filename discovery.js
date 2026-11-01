@@ -22,7 +22,7 @@ const categories=[['all','discoverAll'],['history','discoverHistory'],['nature',
 function group(p){if(p.shop_id)return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return ['scenery','rest'].includes(p.category)?'nature':'local';}
 function matches(p){return filter==='all'||(filter==='saved'?(p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id)):group(p)===filter);}
 function distance(p){if(window.MUSUBU_LOCATION)return window.MUSUBU_LOCATION.label(p);const r=window.MUSUBU_MAP_CONFIG.regions[region()],rad=x=>x*Math.PI/180;const a=Math.sin(rad(p.latitude-r.latitude)/2)**2+Math.cos(rad(r.latitude))*Math.cos(rad(p.latitude))*Math.sin(rad(p.longitude-r.longitude)/2)**2;return t(p.shop_id?'discoverDemoDistance':'discoverOrigin',{km:(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1)});}
-function image(p){return p.shop_id?p.image_url:document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src');}
+function image(p){return p.shop_id?p.image_url:document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src') || (p.region==='fukuoka'?'assets/ohori.png':'assets/tapjeongho.jpg');}
 function open(p){if(p.shop_id)A.openShop(p);else {X.choose(p);X.openDetail();}}
 function favorite(p){return p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id);}
 async function toggle(p,b){if(saving)return;saving=true;b.disabled=true;message.textContent='';try{
@@ -34,6 +34,7 @@ function summary(p){if(p.shop_id)return A.summary(p.shop_id);const rows=reviewSt
 function renderCards(){cards.replaceChildren();const places=X.places.filter(p=>p.region===region()).sort((a,b)=>X.count(b.id)-X.count(a.id));const list=[...places,...window.MUSUBU_SHOPS.filter(p=>p.region===region())].filter(matches);
  for(const p of list){const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),button=el('button','discovery-open');button.type='button';button.onclick=()=>open(p);
  const src=image(p);if(src){const img=el('img');img.src=src;img.alt=v.name;img.loading='lazy';img.onerror=()=>{img.onerror=null;img.src=p.image_fallback||'assets/shop-placeholder.svg';};button.append(img);}else button.append(el('span','discovery-no-photo',t('discoverNoPhoto')));
+ if(!p.shop_id&&!p.story_key)button.append(el('small','discovery-photo-note',({ko:'지역 참고 사진 · 해당 지점의 실사진이 아닙니다',ja:'地域の参考写真（この地点の実写ではありません）',en:'Regional reference photo · not this exact spot'})[I.lang]||'Reference photo'));
  const text=el('span','discovery-copy');text.append(el('strong','',v.name),el('small','',p.shop_id?t('demo'):t(p.is_example?'mapExample':p.kind==='official'?'mapOfficial':'mapResident')),el('span','discovery-summary',summary(p)),el('small','',distance(p)));button.append(text);
  const heart=el('button','discovery-heart',favorite(p)?'♥':'♡');heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button,heart);cards.append(card);
  }if(!list.length)cards.append(el('p','notice',t('discoverEmpty')));

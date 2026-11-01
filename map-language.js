@@ -10,7 +10,7 @@ function fallback(){if(failed)return;failed=true;if(layer&&map.hasLayer(layer))m
 const observer=new IntersectionObserver(async entries=>{if(started||!entries.some(e=>e.isIntersecting))return;started=true;observer.disconnect();try{
  const css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css';document.head.append(css);
  await script('https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js');await script('vendor/leaflet-maplibre-gl.js');
- layer=L.maplibreGL({style:'https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=6acea95f9bee41778d0e85fc7818102c',interactive:false,attribution:'<a href="https://www.geoapify.com/">Geoapify</a> | © <a href="https://openmaptiles.org/">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+ layer=L.maplibreGL({style:'https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=6acea95f9bee41778d0e85fc7818102c',interactive:false,attribution:'<a href="https://www.geoapify.com/">Geoapify</a> | © <a href="https://openmaptiles.org/">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'});layer.addTo(map);
  gl=layer.getMaplibreMap();gl.on('style.load',localize);gl.on('load',()=>{if(!failed){localize();map.removeLayer(base);}});gl.on('error',fallback);localize();
-}catch{fallback();}}, {threshold:0.01});observer.observe(map.getContainer());document.addEventListener('musubu:languagechange',localize);label();
+}catch(error){console.warn('Multilingual map initialization:',error.message);fallback();}}, {threshold:0.01});observer.observe(map.getContainer());document.addEventListener('musubu:languagechange',localize);label();
 };

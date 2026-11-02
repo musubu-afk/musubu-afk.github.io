@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    active=key;
    if(key==='story'||key==='discover'){$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');if(key==='story')document.querySelector('.discovery-heading .text-button').click();else $('discovery').scrollIntoView({block:'start',behavior:'smooth'});}
    else window.MUSUBU_SCREENS.go(key==='coupon'?'shops':'review');
-   paint();
+   active=key;paint();
  };nav.append(b);}
  document.querySelector('.hero').after(nav);
  function paint(){I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='むすぶ · '+(window.MUSUBU_REGION.current==='fukuoka'?'FUKUOKA':'NONSAN')+' STORY TOUR';}

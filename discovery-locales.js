@@ -9,3 +9,10 @@ ko:{phaseMenu:'주요 기능',phaseStory:'지역 이야기',phaseDiscover:'추�
 ja:{phaseMenu:'主な機能',phaseStory:'地域の物語',phaseDiscover:'おすすめ',phaseReview:'クチコミ',phaseCoupon:'クーポン',phaseHistory:'歴史・文化',phaseNature:'自然・景色',phaseWalk:'散歩',phaseMeal:'グルメ',phaseDessert:'カフェ・スイーツ',phaseGift:'お土産',phaseStay:'宿泊',phaseStats:'★ {rating} ({count})',phaseNoRating:'評価はまだありません',phaseDistancePending:'位置情報の許可が必要',phaseReference:'参考写真',phaseDemo:'架空の例'},
 en:{phaseMenu:'Main features',phaseStory:'Local stories',phaseDiscover:'Discover',phaseReview:'Reviews',phaseCoupon:'Coupons',phaseHistory:'History & culture',phaseNature:'Nature',phaseWalk:'Walks',phaseMeal:'Food',phaseDessert:'Cafés & desserts',phaseGift:'Souvenirs',phaseStay:'Stays',phaseStats:'★ {rating} ({count})',phaseNoRating:'No ratings yet',phaseDistancePending:'Allow location',phaseReference:'Reference photo',phaseDemo:'Fictional example'}
 })) Object.assign(window.MUSUBU_LOCALES[lang],words);
+
+// Phase 1 correction: keep tourism and nearby businesses as separate browsing sources.
+for(const [lang,words] of Object.entries({
+ko:{phaseStoryTitle:'지역 이야기 탐색',phaseStoryBrowse:'관광지 둘러보기',phaseMapView:'지도에서 보기',phaseExperience:'체험·로컬',phaseStoryNote:'관광지와 주민이 추천하는 지역의 이야기를 만나보세요.',phaseShopNote:'관광 후 들를 맛집·카페·기념품·숙박을 찾아보세요. 현재 업체는 가상 제휴 예시입니다.',phaseDemoShop:'가상 가맹점'},
+ja:{phaseStoryTitle:'地域の物語を探す',phaseStoryBrowse:'観光スポットを探す',phaseMapView:'地図で見る',phaseExperience:'体験・ローカル',phaseStoryNote:'観光名所や地元の人がおすすめする場所で、まちの物語に出会いましょう。',phaseShopNote:'観光のあとに立ち寄る飲食店・カフェ・お土産店・宿泊先をご紹介。掲載店舗は架空の提携例です。',phaseDemoShop:'架空の提携店'},
+en:{phaseStoryTitle:'Explore local stories',phaseStoryBrowse:'Explore attractions',phaseMapView:'View on map',phaseExperience:'Local experiences',phaseStoryNote:'Discover attractions and local stories shared by residents.',phaseShopNote:'Find food, cafés, souvenirs and stays after your visit. Listed businesses are fictional partner examples.',phaseDemoShop:'Fictional partner'}
+})) Object.assign(window.MUSUBU_LOCALES[lang],words);

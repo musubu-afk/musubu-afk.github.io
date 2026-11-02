@@ -3,7 +3,7 @@
 const I=window.MUSUBU_I18N,X=window.MUSUBU_EXPLORE,C=window.MUSUBU_COMMUNITY,A=window.MUSUBU_SHOP_APP,$=id=>document.getElementById(id),t=(k,v)=>I.t(k,v);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);n.className=cls||'';if(text!==undefined)n.textContent=text;return n;};
 const region=()=>window.MUSUBU_REGION.current;
-let mapMode=false;
+let mapMode=false,source='places';
 let filter='all',reviewStats=new Map(),shopSaved=new Set(),shopRows=new Set(),saving=false,shopLoaded=false;
 const visitorHash=crypto.subtle.digest('SHA-256',new TextEncoder().encode(X.visitor)).then(b=>Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join(''));
 // Preserve the original controls and their event handlers; only move their parent.
@@ -18,10 +18,12 @@ const mapBack=el('button','community-button');mapBack.type='button';mapBack.id='
 function setMapMode(on){mapMode=on;mapPane.hidden=!on;section.hidden=on;if(!on)$('mapPreview').hidden=true;else requestAnimationFrame(()=>X.map?.invalidateSize());}
 mapBack.onclick=()=>{$('browsePlaces').click();setMapMode(false);section.scrollIntoView({block:'start'});};
 const mapFilters=el('div','discovery-filters map-category-filters');$('storyMap').parentElement.before(mapFilters);
-const listCategories=[['all','discoverAll'],['history','phaseHistory'],['nature','phaseNature'],['walk','phaseWalk'],['meal','phaseMeal'],['dessert','phaseDessert'],['gift','phaseGift'],['stay','phaseStay']];
+const placeCategories=[['all','discoverAll'],['history','phaseHistory'],['nature','phaseNature'],['walk','phaseWalk'],['local','phaseExperience']];
+const shopCategories=[['all','discoverAll'],['meal','phaseMeal'],['dessert','phaseDessert'],['gift','phaseGift'],['stay','phaseStay']];
+const listCategories=()=>source==='places'?placeCategories:shopCategories;
 const categories=[['all','discoverAll'],['history','discoverHistory'],['nature','discoverNature'],['walk','discoverWalk'],['local','mapCategory_local'],['meal','category_meal'],['dessert','category_dessert'],['gift','category_gift'],['stay','category_stay'],['saved','discoverSaved']];
 function group(p){if(p.shop_id)return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return ['scenery','rest'].includes(p.category)?'nature':'local';}
-function matches(p){return filter==='all'||(filter==='saved'?(p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id)):group(p)===filter);}
+function matches(p){if(Boolean(p.shop_id)!==(source==='shops'))return false;return filter==='all'||(filter==='saved'?(p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id)):group(p)===filter);}
 function distance(p){if(window.MUSUBU_LOCATION)return window.MUSUBU_LOCATION.label(p);const r=window.MUSUBU_MAP_CONFIG.regions[region()],rad=x=>x*Math.PI/180;const a=Math.sin(rad(p.latitude-r.latitude)/2)**2+Math.cos(rad(r.latitude))*Math.cos(rad(p.latitude))*Math.sin(rad(p.longitude-r.longitude)/2)**2;return t(p.shop_id?'discoverDemoDistance':'discoverOrigin',{km:(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1)});}
 function image(p){return p.shop_id?p.image_url:document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src') || (p.region==='fukuoka'?'assets/ohori.png':'assets/tapjeongho.jpg');}
 function open(p){if(p.shop_id)A.openShop(p);else {X.choose(p);X.openDetail();}}
@@ -32,13 +34,13 @@ async function toggle(p,b){if(saving)return;saving=true;b.disabled=true;message.
  }catch{message.textContent=t('mapSaveError');}finally{saving=false;renderCards();X.setFilter(matches);}}
 async function loadShopFavorites(){try{const {data,error}=await X.db.from('shop_likes').select('shop_id,liked').eq('visitor_hash',await visitorHash);if(error)throw error;shopRows=new Set(data.map(r=>r.shop_id));shopSaved=new Set(data.filter(r=>r.liked).map(r=>r.shop_id));shopLoaded=true;renderCards();if(filter==='saved')X.setFilter(matches);}catch{message.textContent=t('discoverError');}}
 function summary(p){if(p.shop_id)return A.summary(p.shop_id);const rows=reviewStats.get(p.id);return rows?.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):t(reviewStats.loaded?'noStats':'statsLoading');}
-function renderCards(){cards.replaceChildren();const places=X.places.filter(p=>p.region===region()).sort((a,b)=>X.count(b.id)-X.count(a.id));const list=[...places,...window.MUSUBU_SHOPS.filter(p=>p.region===region())].filter(matches);
+function renderCards(){cards.replaceChildren();const places=X.places.filter(p=>p.region===region()).sort((a,b)=>X.count(b.id)-X.count(a.id));const list=(source==='places'?places:window.MUSUBU_SHOPS.filter(p=>p.region===region())).filter(matches);
  for(const p of list){const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),button=el('button','discovery-open');button.type='button';button.onclick=()=>open(p);
  const src=image(p);if(src){const img=el('img');img.src=src;img.alt=v.name;img.loading='lazy';img.onerror=()=>{img.onerror=null;img.src=p.image_fallback||'assets/shop-placeholder.svg';};button.append(img);}else button.append(el('span','discovery-no-photo',t('discoverNoPhoto')));
  const U=window.MUSUBU_PHASE_ONE;
  if(!p.shop_id&&!p.story_key){const reference=el('small','discovery-photo-note',t('phaseReference'));reference.title=({ko:'지역 참고 사진 · 해당 지점의 실사진이 아닙니다',ja:'地域の参考写真（この地点の実写ではありません）',en:'Regional reference photo · not this exact spot'})[I.lang]||'Reference photo';button.append(reference);}
- const text=el('span','discovery-copy'),cat=el('small','phase-card-category');cat.append(el('span','phase-category-chip',t(listCategories.find(([id])=>id===group(p))?.[1]||'mapCategory_local')));
- if(p.shop_id||p.is_example)cat.append(el('span','phase-demo',t('phaseDemo')));
+ const text=el('span','discovery-copy'),cat=el('small','phase-card-category');cat.append(el('span','phase-category-chip',t(listCategories().find(([id])=>id===group(p))?.[1]||'mapCategory_local')));
+ if(p.shop_id||p.is_example)cat.append(el('span','phase-demo',t(p.shop_id?'phaseDemoShop':'phaseDemo')));
  const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
  const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);meta.append(stat,dist);text.append(el('strong','',v.name),cat,meta);button.append(text);
  const heart=el('button','discovery-heart',favorite(p)?'♥':'♡');heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button,heart);cards.append(card);
@@ -49,9 +51,9 @@ function renderMapShops(){document.querySelector('.map-list').hidden=true;if(!sh
  window.MUSUBU_SHOPS.filter(p=>p.region===region()&&matches(p)).forEach(p=>{const v=I.shopView(p),icon=L.divIcon({className:'map-pin nearby-map-pin',html:'<span><b>'+({meal:'🍚',dessert:'☕',gift:'🎁',stay:'🛏️'}[p.category])+'</b></span>',iconSize:[36,36],iconAnchor:[18,36]});const m=L.marker([p.latitude,p.longitude],{icon,title:v.name+' · '+t('demo'),alt:v.name});
  const content=el('div','discovery-popup');content.append(el('strong','',v.name),el('p','',summary(p)),el('small','',t('demo')));const b=el('button','community-button',t('mapDetails'));b.type='button';b.onclick=()=>{X.map.closePopup();open(p);};content.append(b);m.bindPopup(content).addTo(shopMarkers);});
 }
-function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChildren();root.setAttribute('role','group');root.setAttribute('aria-label',t('mapCategory'));for(const [id,key]of (root===filters?listCategories:categories)){const b=el('button','',t(key));b.type='button';b.setAttribute('aria-pressed',String(filter===id));b.onclick=()=>{filter=id;drawFilters();X.setFilter(matches);renderCards();$('mapPreview').hidden=true;};root.append(b);}}}
-function labels(){title.textContent=t('discoverTitle');shortcut.textContent=t('discoverNav');mapButton.textContent=t('discoverMap')+' →';mapBack.textContent='‹ '+t('discoverTitle');note.textContent=t('favoriteNote');drawFilters();renderCards();renderMapShops();}
-shortcut.onclick=()=>{$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
+function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChildren();root.setAttribute('role','group');root.setAttribute('aria-label',t('mapCategory'));for(const [id,key]of (root===filters?listCategories():[...listCategories(),['saved','discoverSaved']])){const b=el('button','',t(key));b.type='button';b.setAttribute('aria-pressed',String(filter===id));b.onclick=()=>{filter=id;drawFilters();X.setFilter(matches);renderCards();$('mapPreview').hidden=true;};root.append(b);}}}
+function labels(){const titleKey=source==='places'?'phaseStoryTitle':'discoverTitle';title.textContent=t(titleKey);shortcut.textContent=t('discoverNav');mapButton.textContent=t('phaseMapView');mapBack.textContent='‹ '+t(titleKey);note.textContent=t(source==='places'?'phaseStoryNote':'phaseShopNote');$('browsePlaces').dataset.i18n=source==='places'?'phaseStoryBrowse':'discoverTitle';$('browsePlaces').textContent=t($('browsePlaces').dataset.i18n);drawFilters();renderCards();renderMapShops();}
+shortcut.onclick=()=>{selectSource('shops');$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
 mapButton.onclick=()=>{setMapMode(true);mapPane.scrollIntoView({block:'start'});};
 document.addEventListener('musubu:place-list-rendered',()=>{renderMapShops();if(!document.querySelector('#placeList button')){const p=$('placeList').querySelector('p');if(p)p.textContent=t('discoverEmpty');}});
 document.addEventListener('musubu:places-loaded',()=>{renderCards();renderMapShops();});
@@ -63,5 +65,7 @@ document.addEventListener('musubu:regionchange',()=>{filter='all';X.setFilter(ma
 document.addEventListener('musubu:picking',e=>{setMapMode(e.detail.picking);mapFilters.hidden=e.detail.picking;renderMapShops();});
 document.addEventListener('musubu:locationchange',()=>{renderCards();renderMapShops();});
 $('shopDialog').addEventListener('close',loadShopFavorites);
-labels();loadShopFavorites();
+function selectSource(next){source=next==='shops'?'shops':'places';filter='all';$('browsePlaces').click();setMapMode(false);X.setFilter(matches);labels();document.dispatchEvent(new CustomEvent('musubu:discovery-source',{detail:{source}}));}
+window.MUSUBU_DISCOVERY={selectSource,get source(){return source;}};
+X.setFilter(matches);labels();loadShopFavorites();
 })();

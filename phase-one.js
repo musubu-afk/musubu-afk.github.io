@@ -8,10 +8,10 @@ function distance(raw){return String(raw).match(/\d+(?:\.\d+)?\s*km/i)?.[0].repl
 window.MUSUBU_PHASE_ONE={icon,stats,distance};
 document.addEventListener('DOMContentLoaded',()=>{
  const $=id=>document.getElementById(id),nav=document.createElement('nav');nav.className='phase-navigation';nav.setAttribute('aria-label',t('phaseMenu'));
- const entries=[['story','phaseStory','story'],['discover','phaseDiscover','pin'],['review','phaseReview','review'],['coupon','phaseCoupon','coupon']];let active='discover';
+ const entries=[['story','phaseStory','story'],['discover','phaseDiscover','pin'],['review','phaseReview','review'],['coupon','phaseCoupon','coupon']];let active='story';
  for(const [key,label,shape] of entries){const b=document.createElement('button');b.type='button';b.dataset.phaseMenu=key;const span=document.createElement('span');span.dataset.i18n=label;b.append(icon(shape),span);b.onclick=()=>{
    active=key;
-   if(key==='story'||key==='discover'){$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');if(key==='story')document.querySelector('.discovery-heading .text-button').click();else $('discovery').scrollIntoView({block:'start',behavior:'smooth'});}
+   if(key==='story'||key==='discover'){window.MUSUBU_DISCOVERY.selectSource(key==='story'?'places':'shops');window.MUSUBU_SCREENS.go('story');}
    else window.MUSUBU_SCREENS.go(key==='coupon'?'shops':'review');
    active=key;paint();
  };nav.append(b);}
@@ -19,9 +19,10 @@ document.addEventListener('DOMContentLoaded',()=>{
  function paint(){I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='むすぶ · '+(window.MUSUBU_REGION.current==='fukuoka'?'FUKUOKA':'NONSAN')+' STORY TOUR';}
  // Only replace the top-level globe artwork; its existing language-dialog handler stays attached.
  const globe=document.querySelector('.hero-top .globe-button');if(globe)globe.replaceChildren(icon('globe'));
- document.addEventListener('musubu:languagechange',paint);document.addEventListener('musubu:regionchange',()=>{active='discover';paint();});
- document.addEventListener('musubu:screenchange',e=>{active=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':$('discovery').hidden?'story':'discover';paint();});
- document.addEventListener('musubu:picking',e=>{active=e.detail.picking?'story':'discover';paint();});
+ document.addEventListener('musubu:languagechange',paint);document.addEventListener('musubu:regionchange',()=>{active=window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
+ document.addEventListener('musubu:screenchange',e=>{active=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
+ document.addEventListener('musubu:picking',e=>{active=e.detail.picking?'story':window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
+ document.addEventListener('musubu:discovery-source',e=>{active=e.detail.source==='shops'?'discover':'story';paint();});
  paint();
 });
 })();

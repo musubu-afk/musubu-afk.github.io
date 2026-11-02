@@ -18,6 +18,7 @@ const mapBack=el('button','community-button');mapBack.type='button';mapBack.id='
 function setMapMode(on){mapMode=on;mapPane.hidden=!on;section.hidden=on;if(!on)$('mapPreview').hidden=true;else requestAnimationFrame(()=>X.map?.invalidateSize());}
 mapBack.onclick=()=>{$('browsePlaces').click();setMapMode(false);section.scrollIntoView({block:'start'});};
 const mapFilters=el('div','discovery-filters map-category-filters');$('storyMap').parentElement.before(mapFilters);
+const listCategories=[['all','discoverAll'],['history','phaseHistory'],['nature','phaseNature'],['walk','phaseWalk'],['meal','phaseMeal'],['dessert','phaseDessert'],['gift','phaseGift'],['stay','phaseStay']];
 const categories=[['all','discoverAll'],['history','discoverHistory'],['nature','discoverNature'],['walk','discoverWalk'],['local','mapCategory_local'],['meal','category_meal'],['dessert','category_dessert'],['gift','category_gift'],['stay','category_stay'],['saved','discoverSaved']];
 function group(p){if(p.shop_id)return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return ['scenery','rest'].includes(p.category)?'nature':'local';}
 function matches(p){return filter==='all'||(filter==='saved'?(p.shop_id?shopSaved.has(p.shop_id):C.isFavorite(p.id)):group(p)===filter);}
@@ -34,8 +35,12 @@ function summary(p){if(p.shop_id)return A.summary(p.shop_id);const rows=reviewSt
 function renderCards(){cards.replaceChildren();const places=X.places.filter(p=>p.region===region()).sort((a,b)=>X.count(b.id)-X.count(a.id));const list=[...places,...window.MUSUBU_SHOPS.filter(p=>p.region===region())].filter(matches);
  for(const p of list){const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),button=el('button','discovery-open');button.type='button';button.onclick=()=>open(p);
  const src=image(p);if(src){const img=el('img');img.src=src;img.alt=v.name;img.loading='lazy';img.onerror=()=>{img.onerror=null;img.src=p.image_fallback||'assets/shop-placeholder.svg';};button.append(img);}else button.append(el('span','discovery-no-photo',t('discoverNoPhoto')));
- if(!p.shop_id&&!p.story_key)button.append(el('small','discovery-photo-note',({ko:'지역 참고 사진 · 해당 지점의 실사진이 아닙니다',ja:'地域の参考写真（この地点の実写ではありません）',en:'Regional reference photo · not this exact spot'})[I.lang]||'Reference photo'));
- const text=el('span','discovery-copy');text.append(el('strong','',v.name),el('small','',p.shop_id?t('demo'):t(p.is_example?'mapExample':p.kind==='official'?'mapOfficial':'mapResident')),el('span','discovery-summary',summary(p)),el('small','',distance(p)));button.append(text);
+ const U=window.MUSUBU_PHASE_ONE;
+ if(!p.shop_id&&!p.story_key){const reference=el('small','discovery-photo-note',t('phaseReference'));reference.title=({ko:'지역 참고 사진 · 해당 지점의 실사진이 아닙니다',ja:'地域の参考写真（この地点の実写ではありません）',en:'Regional reference photo · not this exact spot'})[I.lang]||'Reference photo';button.append(reference);}
+ const text=el('span','discovery-copy'),cat=el('small','phase-card-category');cat.append(el('span','phase-category-chip',t(listCategories.find(([id])=>id===group(p))?.[1]||'mapCategory_local')));
+ if(p.shop_id||p.is_example)cat.append(el('span','phase-demo',t('phaseDemo')));
+ const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
+ const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);meta.append(stat,dist);text.append(el('strong','',v.name),cat,meta);button.append(text);
  const heart=el('button','discovery-heart',favorite(p)?'♥':'♡');heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button,heart);cards.append(card);
  }if(!list.length)cards.append(el('p','notice',t('discoverEmpty')));
 }
@@ -44,7 +49,7 @@ function renderMapShops(){document.querySelector('.map-list').hidden=true;if(!sh
  window.MUSUBU_SHOPS.filter(p=>p.region===region()&&matches(p)).forEach(p=>{const v=I.shopView(p),icon=L.divIcon({className:'map-pin nearby-map-pin',html:'<span><b>'+({meal:'🍚',dessert:'☕',gift:'🎁',stay:'🛏️'}[p.category])+'</b></span>',iconSize:[36,36],iconAnchor:[18,36]});const m=L.marker([p.latitude,p.longitude],{icon,title:v.name+' · '+t('demo'),alt:v.name});
  const content=el('div','discovery-popup');content.append(el('strong','',v.name),el('p','',summary(p)),el('small','',t('demo')));const b=el('button','community-button',t('mapDetails'));b.type='button';b.onclick=()=>{X.map.closePopup();open(p);};content.append(b);m.bindPopup(content).addTo(shopMarkers);});
 }
-function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChildren();root.setAttribute('role','group');root.setAttribute('aria-label',t('mapCategory'));for(const [id,key]of categories){const b=el('button','',t(key));b.type='button';b.setAttribute('aria-pressed',String(filter===id));b.onclick=()=>{filter=id;drawFilters();X.setFilter(matches);renderCards();$('mapPreview').hidden=true;};root.append(b);}}}
+function drawFilters(){for(const root of [filters,mapFilters]){root.replaceChildren();root.setAttribute('role','group');root.setAttribute('aria-label',t('mapCategory'));for(const [id,key]of (root===filters?listCategories:categories)){const b=el('button','',t(key));b.type='button';b.setAttribute('aria-pressed',String(filter===id));b.onclick=()=>{filter=id;drawFilters();X.setFilter(matches);renderCards();$('mapPreview').hidden=true;};root.append(b);}}}
 function labels(){title.textContent=t('discoverTitle');shortcut.textContent=t('discoverNav');mapButton.textContent=t('discoverMap')+' →';mapBack.textContent='‹ '+t('discoverTitle');note.textContent=t('favoriteNote');drawFilters();renderCards();renderMapShops();}
 shortcut.onclick=()=>{$('browsePlaces').click();window.MUSUBU_SCREENS.go('story');requestAnimationFrame(()=>section.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));};
 mapButton.onclick=()=>{setMapMode(true);mapPane.scrollIntoView({block:'start'});};

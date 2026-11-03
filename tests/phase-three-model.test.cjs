@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');const M=require('../phase-three-model.js');
+const published={id:'a',name:'공개 카페',category:'dessert',kind:'resident',status:'approved',created_at:'2026-11-03'};
+const older={...published,id:'b',created_at:'2026-10-01'};
+assert.deepEqual(M.newest([older,{...published,id:'pending',status:'pending'},{...published,id:'demo',is_example:true},published]).map(p=>p.id),['a','b']);
+assert.equal(M.business(published),true);assert.equal(M.origin(published),'p3UserBusiness');assert.equal(M.origin({shop_id:'x',is_demo:true}),'p3Operator');
+assert.equal(M.search([published],'카페',p=>p.name).length,1);assert.equal(M.search([{name:'大濠公園 福岡'}],'福岡 公園',p=>p.name).length,1);
+assert.deepEqual(M.popular([{id:'low',name:'a'},{id:'high',name:'b'}],p=>({count:p.id==='high'?4:1,rating:5})).map(p=>p.id),['high','low']);
+const festival={name:'TEST ONLY',region:'nonsan',published:true,start_date:'2026-11-01',end_date:'2026-11-05'};
+assert.equal(M.activeFestivals([festival],'nonsan','2026-11-03').length,1);assert.equal(M.activeFestivals([festival],'nonsan','2026-11-06').length,0);assert.equal(M.activeFestivals([{...festival,published:false}],'nonsan','2026-11-03').length,0);
+assert.equal(M.routePoints(null),null);assert.equal(M.routePoints([[999,0],[0,0]]),null);assert.equal(M.routePoints([[36,127],[36.1,127.1]]).length,2);
+console.log('Phase 3: publication, provenance, search, ranking, festival dates and route validation passed');

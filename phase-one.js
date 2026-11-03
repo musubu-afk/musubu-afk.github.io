@@ -8,7 +8,7 @@ function distance(raw){return String(raw).match(/\d+(?:\.\d+)?\s*km/i)?.[0].repl
 window.MUSUBU_PHASE_ONE={icon,stats,distance};
 document.addEventListener('DOMContentLoaded',()=>{
  const $=id=>document.getElementById(id),nav=document.createElement('nav');nav.className='phase-navigation';nav.setAttribute('aria-label',t('phaseMenu'));
- const entries=[['story','phaseStory','story'],['discover','phaseDiscover','pin'],['review','phaseReview','review'],['coupon','phaseCoupon','coupon']];let active='story';
+ const entries=[['story','phaseStory','story'],['discover','phaseDiscover','pin'],['coupon','phaseCoupon','coupon']];let active='story';
  for(const [key,label,shape] of entries){const b=document.createElement('button');b.type='button';b.dataset.phaseMenu=key;const span=document.createElement('span');span.dataset.i18n=label;b.append(icon(shape),span);b.onclick=()=>{
    active=key;
    if(key==='story'||key==='discover'){window.MUSUBU_DISCOVERY.selectSource(key==='story'?'places':'shops');window.MUSUBU_SCREENS.go('story');}

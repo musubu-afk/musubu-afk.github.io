@@ -77,7 +77,7 @@ async function load(){
  try{
   if(!db)throw Error('client');
   const [a,b]=await Promise.all([
-   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address,address_original,pin_color,created_at').order('created_at').limit(1000),
+   db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address,address_original,pin_color,created_at,status,image_url,route_points,distance_m,duration_minutes').eq('status','approved').order('created_at',{ascending:false}).limit(1000),
    db.from('tour_regions').select('*')]);
   if(a.error||b.error)throw a.error||b.error;if(version!==loadVersion)return;
   places=a.data;if(window.MUSUBU_COMMUNITY)await window.MUSUBU_COMMUNITY.decorate(places);for(const r of b.data)C.regions[r.id]=r;

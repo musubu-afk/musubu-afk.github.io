@@ -1,0 +1,18 @@
+/* Navigation presentation only. Existing screens, detail and data owners remain intact. */
+(() => {
+'use strict';
+const I=window.MUSUBU_I18N,D=window.MUSUBU_DISCOVERY;
+let view='home',navigating=false,back,title;
+const valid=v=>['home','story','discover','coupon','review'].includes(v);
+function read(){const v=new URL(location.href).searchParams.get('view');return valid(v)?v:location.hash.includes('shops')||location.hash.includes('voucher')?'coupon':location.hash.includes('review')?'review':'home';}
+function paint(){document.body.dataset.browseView=view;if(!back)return;back.hidden=view==='home';back.setAttribute('aria-label',I.t('uiHome'));title.textContent=I.t(view==='discover'?'phaseDiscover':view==='coupon'?'phaseCoupon':view==='review'?'phaseReviews':'phaseStory');document.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===view?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';document.dispatchEvent(new CustomEvent('musubu:browse-view',{detail:{view}}));}
+function go(next,restore=false){if(!valid(next))return;navigating=true;view=next;if(next==='story'||next==='discover')D.selectSource(next==='story'?'places':'shops');if(!restore)window.MUSUBU_SCREENS.go(next==='coupon'?'shops':next==='review'?'review':'story');const url=new URL(location.href);url.searchParams.set('view',view);history.replaceState(history.state,'',url);navigating=false;paint();requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));}
+window.MUSUBU_UI={go};
+document.addEventListener('DOMContentLoaded',()=>{const bar=document.createElement('div');bar.className='browse-title';back=document.createElement('button');back.type='button';back.textContent='←';back.onclick=()=>go('home');title=document.createElement('h1');bar.append(back,title);document.querySelector('.p3-search').before(bar);const brand=document.querySelector('.brand'),home=document.createElement('button');home.className='brand-home';home.type='button';brand.before(home);home.append(brand);home.onclick=()=>go('home');const qr=document.querySelector('.qrbtn');document.querySelector('footer').prepend(qr);view=read();go(view,true);});
+document.addEventListener('musubu:navigate',e=>{if(!navigating){view=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':D.source==='shops'?'discover':'story';const u=new URL(location.href);u.searchParams.set('view',view);history.replaceState(history.state,'',u);paint();}});
+document.addEventListener('musubu:screenchange',e=>{if(navigating||!back)return;const wanted=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':D.source==='shops'?'discover':'story';if(e.detail.screen!== 'story'||view!=='home')view=wanted;paint();});
+window.addEventListener('popstate',()=>{view=read();if(view==='story'||view==='discover'){navigating=true;D.selectSource(view==='story'?'places':'shops');navigating=false;}paint();});
+document.addEventListener('musubu:languagechange',paint);
+document.addEventListener('musubu:regionchange',()=>{view=read();paint();});
+document.addEventListener('musubu:picking',e=>{if(e.detail.picking){view='story';paint();}});
+})();

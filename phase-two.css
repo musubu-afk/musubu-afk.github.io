@@ -19,3 +19,5 @@
 
 /* Keep existing action handlers and data, without duplicate detail controls. */
 #placeDialog #communityActions>button:last-child{display:none}
+
+#placeDialog [data-close-place]{padding:0!important;white-space:nowrap;font-size:13px;flex:none}

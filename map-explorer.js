@@ -23,7 +23,8 @@ const category=make('p','m4-category'),stats=make('p','m4-stats'),reason=make('p
 const detail=make('button'),route=make('a');detail.type='button';route.target='_blank';route.rel='noopener noreferrer';actions.append(detail,route);copy.append(title,category,stats,reason);card.append(close,cover,copy,actions);wrap.append(card);
 L.DomEvent.disableClickPropagation(card);L.DomEvent.disableScrollPropagation(card);L.DomEvent.disableClickPropagation(controls);
 const name=p=>(p.shop_id?I.shopView(p):X.view(p));
-const image=p=>M.image(p,document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src'));
+const thumbnails={'assets/donam-seowon.jpg':'assets/map-thumbs/donam-seowon.webp','assets/tapjeongho.jpg':'assets/map-thumbs/tapjeongho.webp','assets/ohori.png':'assets/map-thumbs/ohori.webp','assets/yufuin.png':'assets/map-thumbs/yufuin.webp'};
+const image=p=>{const src=M.image(p,document.querySelector('#story-'+p.story_key+' .story-photo')?.getAttribute('src'));return thumbnails[src]||src;};
 const kind=p=>p.kind==='official'?'m4Official':p.kind==='resident'?'m4Resident':'m4Other';
 const colour=p=>({blue:'#2974bb',green:'#18835d',orange:'#d18423',pink:'#cc477b',purple:'#7952b3',red:'#c54848'}[p.wiki?.pin_color||p.pin_color]||(p.kind==='official'?'#2974bb':p.kind==='resident'?'#18835d':'#d18423'));
 const glyph=p=>({history:'▥',nature:'♧',walk:'♧',local:'✦',meal:'♨',dessert:'☕',gift:'◇',stay:'⌂'}[D.group(p)]||'•');

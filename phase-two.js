@@ -19,7 +19,8 @@ class Detail {
  this.reviews=make('section','p2-recent');this.preview=this.more.querySelector('.review-preview');this.empty=make('p','notice');this.emptyTitle=make('h3');this.all=button('allReviews',()=>this.showReviews());this.reviews.append(this.emptyTitle,this.empty,this.preview,this.all);
  this.bottom=make('div','p2-bottom');this.bottomHeart=button('favoriteAdd',()=>this.nativeHeart.click());this.bottom.append(this.bottomHeart,button('p2Reviews',()=>this.showReviews()));
  this.root.append(this.hero,this.noPhoto,this.heading,this.chips,this.meta,this.intro,this.expand,this.actions,this.status,this.gallery,this.reviews,this.bottom);this.scroll.append(this.root,this.more);
- if(shop){this.topHeart.remove();this.expand.remove();this.all.remove();this.more.querySelector('.detail-actions').hidden=true;this.more.querySelector('.cover-wrap').hidden=true;$('detailCategory').hidden=true;$('detailStats').hidden=true;}this.nativeHeart.classList.add('p2-original-heart');
+ this.topHeart.remove();this.expand.remove();this.all.remove();this.bottom.remove();
+ if(shop){this.more.querySelector('.detail-actions').hidden=true;this.more.querySelector('.cover-wrap').hidden=true;$('detailCategory').hidden=true;$('detailStats').hidden=true;}this.nativeHeart.classList.add('p2-original-heart');
  new MutationObserver(()=>this.syncHeart()).observe(this.nativeHeart,{attributes:true,childList:true,subtree:true});
  new MutationObserver(()=>this.updateStats()).observe(this.preview,{attributes:true,attributeFilter:['hidden'],subtree:true,childList:true});
  this.dialog.addEventListener('close',()=>{this.more.open=false;});
@@ -38,7 +39,7 @@ class Detail {
  async sharePlace(){const url=new URL(location.href);url.searchParams.set('region',this.p.region);url.searchParams.set('lang',I.lang);url.searchParams.delete('place');url.searchParams.delete('shop');url.searchParams.set(this.shop?'shop':'place',this.shop?this.p.shop_id:this.p.id);url.hash='story';try{if(navigator.share)await navigator.share({title:this.name,text:this.name,url:url.href});else{await navigator.clipboard.writeText(url.href);this.status.textContent=t('p2Copied');}}catch(e){if(e.name==='AbortError')return;this.status.replaceChildren(make('span','',t('p2CopyManual')));const input=make('input');input.value=url.href;input.readOnly=true;input.setAttribute('aria-label',t('p2Share'));this.status.append(input);input.select();}}
 }
 const place=new Detail(false),shop=new Detail(true);
-function shopGlobe(){const globe=$('shopDialog').querySelector('.globe-button');if(globe)globe.replaceChildren(U.icon('globe'));}
+function shopGlobe(){document.querySelectorAll('#shopDialog .globe-button,#placeDialog .globe-button').forEach(globe=>globe.replaceChildren(U.icon('globe')));document.querySelector('.hero .musubu-sakura')?.remove();}
 document.addEventListener('DOMContentLoaded',shopGlobe);shopGlobe();
 $('writeShopReview').addEventListener('click',()=>{shop.more.open=true;},true);
 $('showReviews').addEventListener('click',()=>{shop.more.open=true;},true);

@@ -14,7 +14,7 @@ window.MUSUBU_FESTIVALS = [
   }
  },
  {
-  id:'fukuoka-sakura-event-demo',region:'fukuoka',enabled:true,demo:true,
+  id:'fukuoka-sakura-event-demo',region:'fukuoka',enabled:true,demo:true,show_on_home:true,
   name:'후쿠오카 벚꽃 축제',start_date:null,end_date:null,
   location:'오호리공원 / 마이즈루공원 일대 (예시)',
   description:'후쿠오카의 봄 풍경과 벚꽃을 즐길 수 있는 지역 이벤트',

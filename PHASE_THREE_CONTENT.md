@@ -10,11 +10,11 @@ Edit `phase-three-data.js` in the existing repository. No separate database or a
 - `translations.ja` / `translations.en`: localized equivalents
 - `start_date`, `end_date`: ISO dates, inclusive in Asia/Seoul
 - `image_url`, `url`: image and optional HTTP(S) details link
-- `demo`: never displayed in production; `image_reference`: visibly labels illustrative artwork
+- `demo`: labelled demo; `show_on_home: true` explicitly enables an undated demo on the regular home; `image_reference`: visibly labels illustrative artwork
 
-Only enabled records in the selected region with start_date <= today <= end_date are shown. Missing/invalid dates and demo records are hidden. Empty regions take no banner space. `?festival_preview=1` bypasses dates and enables demos, but never bypasses region or enabled. Preview/demo badges remain visible. Search uses the same eligibility rule. One banner is static; multiple banners reuse the existing carousel.
+Only enabled records in the selected region with start_date <= today <= end_date are shown. Missing/invalid dates are hidden for real events. Demo records are hidden unless explicitly enabled with show_on_home=true (Fukuoka, per operator request). Empty regions take no banner space. `?festival_preview=1` bypasses dates and enables demos, but never bypasses region or enabled. Preview/demo badges remain visible. Search uses the same eligibility rule. One banner is static; multiple banners reuse the existing carousel.
 
-Nonsan dates, hours and location were supplied by the operator, not independently verified. Fukuoka is an undated demo, not an official event announcement. No external detail URL was supplied: the CTA opens a localized information dialog. Set `url` when an official link is available.
+Nonsan dates, hours and location were supplied by the operator, not independently verified. Fukuoka is an undated demo visible on the regular home, not an official event announcement. Remove show_on_home or set enabled=false to hide it. No external detail URL was supplied: the CTA opens a localized information dialog. Set `url` when an official link is available.
 
 Images in `assets/festivals/` are text-free crops from the user-supplied combined visual reference (2026-11-03). The original was not modified. They are illustrative, not verified venue photography. Titles, dates and CTA remain HTML.
 

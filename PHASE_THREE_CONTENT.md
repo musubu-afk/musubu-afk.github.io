@@ -4,16 +4,19 @@ Edit `phase-three-data.js` in the existing repository. No separate database or a
 
 ## Festivals
 
-`MUSUBU_FESTIVALS` is an array of records with:
-- `id`: stable unique text key
-- `region`: `nonsan` or `fukuoka` (can extend with configured regions)
-- `name`, `description`, `location`, `image_url`, `url`
-- `start_date`, `end_date`: verified ISO dates `YYYY-MM-DD`
-- `display_from`: optional promotion start date; defaults to start date
-- `published`: boolean, must be true to be shown
-- `translations`: `{ko:{name,description,location},ja:{name,description,location}}`
+`MUSUBU_FESTIVALS` reuses the existing array and locale format:
+- `id`, `region`, `enabled`
+- `name`, `location`, `description`, `schedule`, `button_text`: Korean defaults
+- `translations.ja` / `translations.en`: localized equivalents
+- `start_date`, `end_date`: ISO dates, inclusive in Asia/Seoul
+- `image_url`, `url`: image and optional HTTP(S) details link
+- `demo`: never displayed in production; `image_reference`: visibly labels illustrative artwork
 
-The banner shows only the selected region, from display_from through end_date inclusive in Asia/Seoul. One record is static; multiple records rotate. Search also finds published upcoming festivals. Only http/https links are accepted. No past/sample festival is populated in production.
+Only enabled records in the selected region with start_date <= today <= end_date are shown. Missing/invalid dates and demo records are hidden. Empty regions take no banner space. `?festival_preview=1` bypasses dates and enables demos, but never bypasses region or enabled. Preview/demo badges remain visible. Search uses the same eligibility rule. One banner is static; multiple banners reuse the existing carousel.
+
+Nonsan dates, hours and location were supplied by the operator, not independently verified. Fukuoka is an undated demo, not an official event announcement. No external detail URL was supplied: the CTA opens a localized information dialog. Set `url` when an official link is available.
+
+Images in `assets/festivals/` are text-free crops from the user-supplied combined visual reference (2026-11-03). The original was not modified. They are illustrative, not verified venue photography. Titles, dates and CTA remain HTML.
 
 ## Attraction routes
 

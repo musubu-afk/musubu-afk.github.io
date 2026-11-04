@@ -1,0 +1,10 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const M=require('../map-explorer-model.js');
+const places=[{id:'a',latitude:36,longitude:127},{id:'b',latitude:36.01,longitude:127.01},{id:'c',latitude:37,longitude:128}];
+const project=p=>({x:(p.longitude-127)*100,y:(p.latitude-36)*100});
+test('low zoom groups nearby places without losing places',()=>{const g=M.groups(places,12,project);assert.equal(g.length,2);assert.equal(g.flatMap(x=>x.places).length,3);assert.equal(g[0].places.length,2);});
+test('photo zoom and selected markers remain individual',()=>{assert.equal(M.groups(places,13,project).length,3);const g=M.groups(places,12,project,'place:a');assert.equal(g.find(x=>x.id==='place:a').places.length,1);});
+test('reject missing and invalid coordinates, accept numeric strings and zero',()=>{for(const latitude of [null,undefined,'',NaN,91])assert.equal(M.valid({latitude,longitude:127}),false);assert.equal(M.valid({latitude:'36',longitude:'127'}),true);assert.equal(M.valid({latitude:0,longitude:0}),true);});
+test('photos only use actual registration or matching official story',()=>{assert.equal(M.image({kind:'resident'},'assets/donam.jpg'),'');assert.equal(M.image({kind:'official',story_key:'donam'},'assets/donam.jpg'),'assets/donam.jpg');assert.equal(M.image({image_url:'https://example.com/place.jpg'}),'https://example.com/place.jpg');assert.equal(M.image({image_url:'javascript:alert(1)'}),'');});
+test('shop and place ids cannot collide',()=>assert.notEqual(M.key({id:'a'}),M.key({shop_id:'a'})));

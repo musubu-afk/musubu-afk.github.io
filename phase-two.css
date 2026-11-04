@@ -2,3 +2,17 @@
 @media(max-width:430px){.p2-title h2{font-size:21px}.p2-actions .p2-button{flex-direction:column;font-size:12px;padding:8px 2px;gap:4px}.p2-dialog .place-scroll,.p2-dialog .sheet-scroll{padding:14px}.p2-meta{gap:7px 12px}.p2-bottom .p2-button{font-size:12px}.p2-dialog .sheet-header,.p2-dialog .place-head{gap:6px}}
 
 .p2-gallery-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.p2-gallery-head .p2-button{border:0;background:transparent;flex:none}.p2-viewer img+img{margin-top:12px}
+
+/* Shop-only compact header. Preserve attraction and home styling. */
+#shopDialog .sheet-header{display:flex;align-items:center;flex-wrap:nowrap;gap:10px;padding:12px 16px}
+#shopDialog .sheet-header>.shop-wordmark{display:block;max-width:none;flex:1;min-width:0;color:#214e40;font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1.5;white-space:nowrap}
+#shopDialog .sheet-header>.shop-wordmark::before,#shopDialog .sheet-header>.shop-wordmark::after{content:none!important}
+#shopDialog .sheet-header .musubu-sakura{display:none}
+#shopDialog .sheet-header .language-switch{margin:0;padding:0;flex:none}
+#shopDialog .sheet-header .globe-button{display:grid;place-items:center;min-width:44px;width:44px;height:44px;min-height:44px;padding:7px;background:#fff!important;color:#214e40!important;border:1px solid #c8dcd0;border-radius:12px}
+#shopDialog .sheet-header .globe-button svg{width:29px;height:29px}
+#shopDialog .sheet-header .write-review{margin:0;min-width:0;min-height:44px}
+#shopDialog #closeDetail{min-width:44px;width:44px;height:44px}
+#shopDialog .p2-more>summary{line-height:1.5}
+#shopDialog #detailReviews{scroll-margin-top:12px}
+@media(max-width:600px){#shopDialog .sheet-header{padding:10px 12px;gap:6px}#shopDialog .sheet-header>.shop-wordmark{font-size:21px}#shopDialog .sheet-header .write-review{font-size:11px;padding:8px!important}}

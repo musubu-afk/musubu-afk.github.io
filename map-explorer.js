@@ -147,7 +147,9 @@ function locate(){
  },error=>{locating=false;locateButton.disabled=false;locationKey=error.code===1?'locationDenied':'locationUnavailable';paint();},{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
 }
 function labels(){
- register.textContent='＋ '+t('r42Title');register.setAttribute('aria-label',t('r42Title'));
+ const longLabel=make('span','m4-register-long','＋ '+t('r42Title'));
+ const shortLabel=make('span','m4-register-short','＋ '+({ko:'등록',ja:'投稿',en:'Add'}[I.lang]||t('r42Title')));
+ register.replaceChildren(longLabel,shortLabel);register.setAttribute('aria-label',t('r42Title'));
  search.placeholder=t('m4Search');search.setAttribute('aria-label',t('m4Search'));results.setAttribute('aria-label',t('m4SearchResults'));
  fullButton.title=t(full?'m4Exit':'m4Full');fullButton.setAttribute('aria-label',fullButton.title);fullButton.setAttribute('aria-pressed',String(full));
  locateButton.title=t('m4Locate');locateButton.setAttribute('aria-label',locateButton.title);close.setAttribute('aria-label',t('mapClose'));

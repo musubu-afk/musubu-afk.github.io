@@ -63,3 +63,6 @@ body>#discoveryMapPane.m4-fullscreen{display:block;position:fixed;inset:0;width:
 .m4-fullscreen .m4-controls{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}
 .m4-fullscreen .m4-card{bottom:max(28px,env(safe-area-inset-bottom))}
 .m4-fullscreen .m4-notice:not(:empty){top:calc(max(8px,env(safe-area-inset-top)) + 148px)}
+
+.m4-register-short{display:none}
+@media(max-width:600px){.m4-register-long{display:none}.m4-register-short{display:inline}.m4-heading button{white-space:nowrap}.m4-fullscreen #mapBrowseBack{padding:6px 8px}}

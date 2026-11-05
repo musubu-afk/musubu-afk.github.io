@@ -1,0 +1,28 @@
+/* Registration only: existing browse mode and detail styles remain unchanged. */
+.r42-heading[hidden],.r42-searchbox[hidden],.r42-help[hidden],.r42-controls[hidden],.r42-results[hidden],.r42-photo[hidden]{display:none!important}
+.r42-registering>.explore-heading,.r42-pane>.map-toolbar,.r42-pane>.map-legend,.r42-pane>#mapBrowseBack,.r42-pane>#mapStatus,.r42-pane>#refreshPlaces{display:none!important}
+.r42-heading h2{font-size:24px;margin:0 0 8px;color:#285947}.r42-heading p{margin:0 0 16px;font-size:14px;color:#536d60}
+.r42-map{position:relative;isolation:isolate;border-radius:18px;overflow:hidden;background:#eaf2ed}
+.r42-map #storyMap{height:620px;min-height:520px;border-radius:18px}
+.r42-map .map-center{display:none!important}
+.r42-searchbox{position:absolute;z-index:650;left:12px;top:12px;right:70px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin:0;padding:0;background:none}
+.r42-searchbox input{min-width:0;width:100%;min-height:46px;border:1px solid #b9cebf;border-radius:13px;padding:10px 12px;font:inherit;font-size:16px;color:#244d3d;background:white;box-sizing:border-box}
+.r42-searchbox button,.r42-controls button,.r42-summary button{min-height:44px;border:1px solid #bed4c5;border-radius:12px;background:white;color:#285947;padding:8px 12px;font:inherit;cursor:pointer}
+.r42-searchbox>button{background:#285947;color:white}
+.r42-results{grid-column:1/-1;max-height:220px;overflow:auto;overscroll-behavior:contain;background:white;border:1px solid #bed4c5;border-radius:12px;box-shadow:0 5px 20px #173b4122}
+.r42-results button{display:block;width:100%;border:0;border-bottom:1px solid #e0e9e3;text-align:left;font-size:13px;line-height:1.5}
+.r42-status{grid-column:1/-1;background:#fffffff5;border-radius:10px;padding:9px;font-size:12px;margin:0;line-height:1.5}.r42-status:empty{display:none}
+.r42-help{position:absolute;z-index:450;top:66px;left:12px;right:70px;margin:0;border-radius:10px;padding:7px 10px;background:#fffffff0;font-size:11px;color:#385d4c;pointer-events:none}
+.r42-controls{position:absolute;right:12px;top:12px;z-index:660;display:grid;gap:8px}.r42-controls button{width:44px;height:44px;padding:0;font-size:25px;box-shadow:0 2px 7px #173b4122}
+.r42-map .leaflet-control-zoom{margin-top:120px!important;margin-right:12px!important}.r42-map .leaflet-control-zoom a{width:42px;height:42px;line-height:42px}
+.r42-map .r42-selection{position:absolute;z-index:600;bottom:28px;left:12px;right:12px;margin:0;padding:14px;background:#fffffff7;border:1px solid #bed4c5;border-radius:16px;box-shadow:0 4px 18px #173b4122;max-height:190px;overflow:auto;overscroll-behavior:contain}
+.r42-selection>strong{font-size:15px;color:#285947}.r42-selection>p{font-size:12px;margin:6px 0;line-height:1.5;overflow-wrap:anywhere}.r42-selection .map-pick-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.r42-selection #continuePick{min-height:44px;background:#285947;color:white;border-radius:12px}.r42-selection #cancelPick{min-height:44px;border-radius:12px}.r42-selection #selectedAddress{max-height:42px;overflow:auto}
+.r42-map #pickCenter{display:none!important}
+body>.r42-full{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;z-index:10000;border-radius:0;margin:0!important;padding:0!important}
+body>.r42-full #storyMap{height:100%!important;min-height:0!important;width:100%;border-radius:0}
+.r42-full .r42-searchbox{top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left))}.r42-full .r42-controls{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}.r42-full .r42-selection{bottom:max(28px,env(safe-area-inset-bottom))}.r42-lock{overflow:hidden}
+.r42-summary{padding:14px;background:#f0f7f2;border:1px solid #c5d9cc;border-radius:14px;margin-bottom:14px}.r42-summary p{font-size:13px;line-height:1.5;overflow-wrap:anywhere}.r42-photo{display:block;width:160px;height:110px;object-fit:cover;border-radius:12px;margin:10px 0}
+.r42-map button:focus-visible,.r42-map input:focus-visible{outline:3px solid #c59336;outline-offset:2px}
+@media(min-width:800px){.r42-searchbox{max-width:600px}.r42-help{max-width:600px}.r42-map .r42-selection{right:auto;width:430px;max-width:calc(100% - 24px)}}
+@media(max-width:600px){.r42-map #storyMap{height:70dvh;min-height:530px}.r42-map .r42-selection{padding:12px}.r42-searchbox{gap:4px}.r42-searchbox>button{padding:8px;font-size:13px}.r42-heading h2{font-size:21px}}
+@media(max-height:500px){.r42-full .r42-selection{left:12px;right:70px;bottom:26px;max-height:125px}.r42-full .r42-help{display:none}.r42-full .r42-selection>p:not(#selectedAddress){display:none}}

@@ -8,6 +8,13 @@
   const r=await fetch(url,{signal,credentials:'omit'});if(!r.ok)throw Error('address_lookup_failed');
   const p=(await r.json()).results?.[0];if(!p)throw Error('address_not_found');cache.set(id,p);return p;
  }
+ window.MUSUBU_GEOCODE_SEARCH=async(text,region,lang,signal)=>{
+  const r=window.MUSUBU_MAP_CONFIG.regions[region],b=r.bounds,url=new URL('https://api.geoapify.com/v1/geocode/search');
+  const params={text,lang,format:'json',limit:6,filter:'rect:'+b[0][1]+','+b[0][0]+','+b[1][1]+','+b[1][0],bias:'proximity:'+r.longitude+','+r.latitude,apiKey:key};
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const response=await fetch(url,{signal,credentials:'omit'});if(!response.ok)throw Error('search');
+  return ((await response.json()).results||[]).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon)).map(p=>({lat:p.lat,lng:p.lon,name:p.name||p.address_line1||p.formatted,address:p.formatted||p.address_line1||''}));
+ };
  const join=p=>[...new Set([p.state,p.county,p.city,p.district,p.suburb,p.quarter,p.street,p.housenumber].filter(Boolean))].join(' ')||p.formatted;
  window.MUSUBU_GEOCODE=async(point,lang,signal)=>{
   const p=await query(point,lang,signal),raw=join(p);if(!raw)throw Error('address_not_found');

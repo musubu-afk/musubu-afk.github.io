@@ -7,7 +7,7 @@ try { visitor=localStorage.getItem('musubu.visitor'); if(!/^[0-9a-f-]{36}$/i.tes
 const db=window.supabase?.createClient('https://fzynbjgkictmlmuxfldl.supabase.co','sb_publishable_x08dJFDQ_zuP0IKJ83jFYg_1so-HCCN',{
  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'musubu-map'},global:{headers:{'x-musubu-visitor':visitor}}
 });
-let categoryFilter=()=>true, browseRenderer=null;
+let categoryFilter=()=>true, browseRenderer=null, formStarted=false;
 let places=[], counts=new Map(),selected=null,map=null,markers=null,picking=false,point=null,formRegion=null,sending=false,liking=false,loadVersion=0,submissionId=null,draftMarker=null,pointAddress='',deleting=false,addressRequest=null,addressVersion=0,addressEdited=false,pointOriginal='',addressPartial=false;
 const region=()=>window.MUSUBU_REGION.current;
 const currentRegion=()=>C.regions[region()];
@@ -97,15 +97,16 @@ function setPicking(value){$('browsePlaces').setAttribute('aria-pressed',String(
 $('recommendPlace').onclick=()=>setPicking(true);$('registerPlaces').onclick=()=>setPicking(true);$('browsePlaces').onclick=()=>{clearDraft();setPicking(false);};
 $('cancelPick').onclick=()=>{clearDraft();setPicking(false);};
 $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
-function clearDraft(){addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';pointOriginal='';addressPartial=false;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
+function clearDraft(){formStarted=false;document.dispatchEvent(new Event('musubu:draft-cleared'));addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';pointOriginal='';addressPartial=false;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
 function showOriginal(){const box=$('addressOriginalBox');box.hidden=!pointOriginal||pointOriginal===$('placeAddress').value;$('addressOriginalText').textContent=pointOriginal;}
 function showAddress(){
- const el=$('selectedAddress');I.clear(el);el.textContent=pointAddress||t('mapAddressFallback');
- $('chosenPoint').textContent=t('mapSelected')+' · '+(C.regions[formRegion]['name_'+I.lang]||(I.lang==='en'?formRegion:C.regions[formRegion].name_ko));
+ const el=$('selectedAddress');I.clear(el);el.textContent=(pointAddress||t('mapAddressFallback'))+(point?' · '+point.lat.toFixed(6)+', '+point.lng.toFixed(6):'');
+ $('chosenPoint').textContent=t('mapSelected')+' · '+(C.regions[formRegion]['name_'+I.lang]||(I.lang==='en'?formRegion:C.regions[formRegion].name_ko))+(point?' · '+point.lat.toFixed(6)+', '+point.lng.toFixed(6):'');
+ document.dispatchEvent(new Event('musubu:draft-location'));
 }
 function pick(latlng){addressVersion++;addressRequest?.abort();
  const r=currentRegion(),b=r.bounds;
- if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');return;}
+ if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');document.dispatchEvent(new Event('musubu:draft-outside'));return;}
  point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';pointOriginal='';addressPartial=false;
  if(draftMarker)draftMarker.remove();
  draftMarker=L.marker([point.lat,point.lng],{icon:pin({kind:'resident'}),title:t('mapSelected'),alt:t('mapSelected'),zIndexOffset:2000,interactive:false}).addTo(map);
@@ -115,7 +116,7 @@ function pick(latlng){addressVersion++;addressRequest?.abort();
 $('placeAddress').addEventListener('input',()=>{addressEdited=true;});
 $('continuePick').onclick=async()=>{
  if(!point)return;
- $('recommendForm').reset();submissionId=crypto.randomUUID();I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
+ if(!formStarted){$('recommendForm').reset();submissionId=crypto.randomUUID();formStarted=true;}I.clear($('placeSubmitStatus'));$('sendPlace').disabled=false;
  showAddress();$('placeAddress').value=pointAddress;addressEdited=false;showOriginal();
  $('recommendDialog').showModal();document.body.classList.add('modal-open');
  const version=++addressVersion;addressRequest?.abort();const controller=new AbortController();addressRequest=controller;
@@ -147,10 +148,11 @@ $('recommendForm').onsubmit=async e=>{
  if([...name].length<2||[...name].length>80||[...reason].length<10||[...reason].length>1200||[...tip].length>300){text('placeSubmitStatus','mapValidation');return;}
  sending=true;$('sendPlace').disabled=true;$('closeRecommend').disabled=true;text('placeSubmitStatus','mapSending');
  try{
-  const {error}=await db.from('places').insert({id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim(),address_original:addressEdited?data.get('address').trim():pointOriginal,pin_color:data.get('pin_color')});
+  const image_url=await window.MUSUBU_REGISTRATION?.preparePhoto();
+  const {error}=await db.from('places').insert({... (image_url?{image_url}:{}),id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim(),address_original:addressEdited?data.get('address').trim():pointOriginal,pin_color:data.get('pin_color')});
   // The UUID is retained on retry. An identical accepted request cannot create duplicates.
   if(error&&error.code!=='23505')throw error;text('placeSubmitStatus','mapSubmitted');$('recommendForm').reset();clearDraft();setPicking(false);await load();document.dispatchEvent(new Event('musubu:reward-earned'));
- }catch{text('placeSubmitStatus','mapSaveError');$('sendPlace').disabled=false;}
+ }catch(error){text('placeSubmitStatus',error.message==='r42PhotoError'?'r42PhotoError':'mapSaveError');$('sendPlace').disabled=false;}
  finally{sending=false;$('closeRecommend').disabled=false;}
 };
 function resetRegion(){
@@ -166,7 +168,7 @@ if(window.L){
  markers=L.layerGroup().addTo(map);let failed=0;
  const baseTiles=L.tileLayer(C.tileUrl,{maxZoom:C.maxZoom,attribution:C.attribution}).on('tileerror',()=>{if(++failed>=2)text('mapTileStatus','mapTileError');}).on('tileload',()=>{failed=0;I.clear($('mapTileStatus'));}).addTo(map);
  window.MUSUBU_LOCALIZE_MAP?.(map,baseTiles);
- map.on('click',e=>{if(picking)pick(e.latlng);});
+ let clickTimer;map.on('click',e=>{clearTimeout(clickTimer);if(picking)clickTimer=setTimeout(()=>{if(picking)pick(e.latlng);},230);});map.on('dblclick',()=>clearTimeout(clickTimer));
 }else{text('mapTileStatus','mapTileError');$('recommendPlace').disabled=true;$('mapHome').disabled=true;}
 document.addEventListener('musubu:regionchange',resetRegion);
 document.addEventListener('musubu:languagechange',()=>{I.apply(explorer);draw();preview();if(selected){detail();const h=$(region()==='nonsan'?'shops':'fukuoka-shops').querySelector(':scope > h2');if(h?.dataset.i18n==='mapNearby')I.message(h,'mapNearby',{name:view(selected).name});}if(point){showAddress();if($('recommendDialog').open&&!addressEdited)refreshAddressLanguage();}});
@@ -174,5 +176,5 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('online',load);
 document.addEventListener('musubu:screenchange',e=>{if(e.detail.screen==='story'){requestAnimationFrame(()=>map?.invalidateSize());}else{$('mapPreview').hidden=true;document.querySelectorAll('audio').forEach(a=>a.pause());}});
 // Keep the nearby-shop promise honest until partner coordinates are available.
-const note=document.createElement('p');note.className='notice';note.dataset.i18n='mapShopNote';$('shops').append(note);I.apply();window.MUSUBU_EXPLORE={db,visitor,get picking(){return picking;},shownPlaces,setBrowseRenderer(fn){browseRenderer=fn;draw();},get map(){return map;},count:id=>counts.get(id)||0,setFilter(fn){categoryFilter=fn;draw();},load,loadCounts,view,choose,openDetail,get places(){return places;},get selected(){return selected;}};load();
+const note=document.createElement('p');note.className='notice';note.dataset.i18n='mapShopNote';$('shops').append(note);I.apply();window.MUSUBU_EXPLORE={db,visitor,registration:{pick,get point(){return point?{...point}:null;},get sending(){return sending;},setAddress(p,address){if(point&&point.lat===p.lat&&point.lng===p.lng){pointAddress=address.slice(0,300);showAddress();}}},get picking(){return picking;},shownPlaces,setBrowseRenderer(fn){browseRenderer=fn;draw();},get map(){return map;},count:id=>counts.get(id)||0,setFilter(fn){categoryFilter=fn;draw();},load,loadCounts,view,choose,openDetail,get places(){return places;},get selected(){return selected;}};load();
 })();

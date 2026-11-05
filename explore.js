@@ -109,7 +109,7 @@ function pick(latlng){addressVersion++;addressRequest?.abort();
  if(latlng.lat<b[0][0]||latlng.lat>b[1][0]||latlng.lng<b[0][1]||latlng.lng>b[1][1]){text('mapStatus','mapOutside');document.dispatchEvent(new Event('musubu:draft-outside'));return;}
  point={lat:Number(latlng.lat.toFixed(6)),lng:Number(latlng.lng.toFixed(6))};formRegion=r.id;pointAddress='';pointOriginal='';addressPartial=false;
  if(draftMarker)draftMarker.remove();
- draftMarker=L.marker([point.lat,point.lng],{icon:pin({kind:'resident'}),title:t('mapSelected'),alt:t('mapSelected'),zIndexOffset:2000,interactive:false}).addTo(map);
+ draftMarker=L.marker([point.lat,point.lng],{icon:pin({kind:'resident'}),title:t('mapSelected'),alt:t('mapSelected'),zIndexOffset:2000,interactive:false}).addTo(map);draftMarker.getElement()?.classList.add('r42-selected-pin');
  $('continuePick').disabled=false;text('mapStatus','mapPinSelected');text('selectedAddress','mapAddressLoading');
  showAddress();
 }

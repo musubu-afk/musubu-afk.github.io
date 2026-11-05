@@ -22,7 +22,7 @@
 .m4-selected{transform:scale(1.13);box-shadow:0 0 0 4px #fff,0 0 0 7px #285947,0 5px 15px #173b4155}
 .m4-cluster{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#285947;color:#fff;border:3px solid white;box-shadow:0 2px 9px #173b4144;font:800 16px system-ui}
 .m4-card{position:absolute;z-index:600;bottom:24px;left:14px;width:min(410px,calc(100% - 28px));display:grid;grid-template-columns:78px minmax(0,1fr);gap:9px 12px;background:#fff;border:1px solid #c7dbce;border-radius:18px;padding:16px;box-shadow:0 8px 28px #173b4133;max-height:245px;overflow:auto;overscroll-behavior:contain;animation:m4-rise .18s ease}
-.m4-card[hidden],.m4-toolbar[hidden],.m4-controls[hidden],.m4-legend[hidden],.m4-results[hidden],.m4-cover[hidden]{display:none!important}
+.m4-notice[hidden],.m4-card[hidden],.m4-toolbar[hidden],.m4-controls[hidden],.m4-legend[hidden],.m4-results[hidden],.m4-cover[hidden]{display:none!important}
 .m4-cover{width:78px;height:78px;object-fit:cover;border-radius:12px;align-self:center}
 .m4-copy{min-width:0;padding-right:25px}.m4-copy h3{font-size:17px;margin:0 0 5px;line-height:1.35;overflow-wrap:anywhere}
 .m4-copy p{font-size:12px;line-height:1.45;margin:4px 0;color:#556c5f}

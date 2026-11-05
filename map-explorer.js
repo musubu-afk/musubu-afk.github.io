@@ -140,7 +140,7 @@ function labels(){
 }
 function mode(){
  const browsing=!X.picking;pane.classList.toggle('m4-browsing',browsing);
- for(const node of [toolbar,controls,legend])node.hidden=!browsing;
+ for(const node of [toolbar,controls,legend,notice])node.hidden=!browsing;
  if(!browsing||!D.mapMode){setFull(false);clearSelection(false);}
  map.zoomControl?.setPosition(browsing?'topright':'topleft');
  if(browsing)requestAnimationFrame(()=>{map.invalidateSize({pan:false});schedule();});

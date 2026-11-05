@@ -47,3 +47,19 @@
 @keyframes m4-rise{from{transform:translateY(10px);opacity:.3}to{transform:translateY(0);opacity:1}}
 @media(max-width:600px){.m4-browsing .map-canvas{height:65svh;min-height:430px}.m4-fullscreen .map-canvas{height:100%;min-height:0}.m4-card{left:8px;width:calc(100% - 16px);padding:12px;gap:7px 10px;grid-template-columns:64px minmax(0,1fr);max-height:220px}.m4-cover{width:64px;height:64px}.m4-copy h3{font-size:15px}.m4-copy p{font-size:11px}.m4-legend{gap:8px;font-size:10px}.m4-card-actions>*{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.m4-marker{transition:none}.m4-card{animation:none}}
+
+.m4-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.m4-heading[hidden]{display:none!important}
+.m4-register{border:1px solid #bad0c3;color:#245441;background:#f5faf6;border-radius:12px;padding:8px 12px;min-height:44px;font:inherit;cursor:pointer}
+body>#discoveryMapPane.m4-fullscreen{display:block;position:fixed;inset:0;width:100%;height:100dvh;max-width:none;max-height:none;padding:0;z-index:9500;isolation:isolate}
+.m4-fullscreen>.map-wrap{position:absolute;inset:0;margin:0}
+.m4-fullscreen #storyMap{width:100%;height:100%;min-height:0;border-radius:0}
+.m4-fullscreen>.m4-heading,.m4-fullscreen>.m4-toolbar,.m4-fullscreen>.map-category-filters{position:absolute;left:max(10px,env(safe-area-inset-left));right:max(66px,env(safe-area-inset-right));max-width:610px;z-index:700;margin:0}
+.m4-fullscreen>.m4-heading{top:max(8px,env(safe-area-inset-top))}
+.m4-fullscreen>.m4-heading button{background:#fff;font-size:13px}
+.m4-fullscreen>.m4-toolbar{top:calc(max(8px,env(safe-area-inset-top)) + 50px);z-index:750}
+.m4-fullscreen>.map-category-filters{top:calc(max(8px,env(safe-area-inset-top)) + 100px);padding:0}
+.m4-fullscreen>.m4-legend,.m4-fullscreen>#mapTileStatus{display:none}
+.m4-fullscreen .m4-controls{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}
+.m4-fullscreen .m4-card{bottom:max(28px,env(safe-area-inset-bottom))}
+.m4-fullscreen .m4-notice:not(:empty){top:calc(max(8px,env(safe-area-inset-top)) + 148px)}

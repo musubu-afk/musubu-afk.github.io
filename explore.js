@@ -152,7 +152,7 @@ $('recommendForm').onsubmit=async e=>{
   const {error}=await db.from('places').insert({... (image_url?{image_url}:{}),id:submissionId,region:formRegion,latitude:point.lat,longitude:point.lng,name,category:data.get('category'),reason,tip,language:I.lang,address:data.get('address').trim(),address_original:addressEdited?data.get('address').trim():pointOriginal,pin_color:data.get('pin_color')});
   // The UUID is retained on retry. An identical accepted request cannot create duplicates.
   if(error&&error.code!=='23505')throw error;text('placeSubmitStatus','mapSubmitted');$('recommendForm').reset();clearDraft();setPicking(false);await load();document.dispatchEvent(new Event('musubu:reward-earned'));
- }catch(error){text('placeSubmitStatus',error.message==='r42PhotoError'?'r42PhotoError':'mapSaveError');$('sendPlace').disabled=false;}
+ }catch(error){text('placeSubmitStatus',error.message?.includes('musubu_registration_limit')?'r42Limit':error.message==='r42PhotoError'?'r42PhotoError':'mapSaveError');$('sendPlace').disabled=false;}
  finally{sending=false;$('closeRecommend').disabled=false;}
 };
 function resetRegion(){

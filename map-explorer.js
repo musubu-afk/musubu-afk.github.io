@@ -10,6 +10,18 @@ const toolbar=make('div','m4-toolbar'),search=make('input','m4-search');search.t
 const results=make('div','m4-results');results.id='mapSearchResults';search.setAttribute('aria-controls',results.id);results.hidden=true;
 const resultStatus=make('span','m4-sr');resultStatus.setAttribute('role','status');
 toolbar.append(search,results,resultStatus);filters.before(toolbar);
+const paneAnchor=document.createComment('browse map');pane.before(paneAnchor);
+const mapHeading=make('div','m4-heading');
+const back=$('mapBrowseBack');back.before(mapHeading);mapHeading.append(back);
+const register=make('button','m4-register');
+register.type='button';
+register.onclick=()=>{
+ const center=map.getCenter(),zoom=map.getZoom();
+ setFull(false);
+ $('registerPlaces').click();
+ requestAnimationFrame(()=>{map.invalidateSize();map.setView(center,zoom,{animate:false});});
+};
+mapHeading.append(register);
 const legend=make('div','m4-legend');filters.after(legend);
 const controls=make('div','m4-controls');
 function action(shape,fn){const b=make('button','m4-control',shape);b.type='button';b.onclick=fn;return b;}
@@ -103,12 +115,15 @@ function searchResults(){
  if(!found.length)results.append(make('p','',t('m4Empty')));
  for(const p of found){const b=make('button','',name(p).name);b.type='button';b.onclick=()=>{search.value='';results.hidden=true;search.setAttribute('aria-expanded','false');select(p,true);detail.focus({preventScroll:true});};results.append(b);}
 }
-search.oninput=searchResults;search.onkeydown=e=>{if(e.key==='Escape'){search.value='';searchResults();e.stopPropagation();}if(e.key==='ArrowDown'){e.preventDefault();results.querySelector('button')?.focus();}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click();}};
+search.oninput=searchResults;search.onkeydown=e=>{if(e.key==='Escape'&&search.value){search.value='';searchResults();e.stopPropagation();}if(e.key==='ArrowDown'){e.preventDefault();results.querySelector('button')?.focus();}if(e.key==='Enter'){e.preventDefault();results.querySelector('button')?.click();}};
 function setFull(on){
  if(on===full)return;
- full=on;if(on)focusBefore=document.activeElement;
+ const center=map.getCenter(),zoom=map.getZoom();
+ full=on;
+ if(on){focusBefore=document.activeElement;document.body.append(pane);}
+ else paneAnchor.after(pane);
  pane.classList.toggle('m4-fullscreen',on);document.body.classList.toggle('m4-map-open',on);labels();
- requestAnimationFrame(()=>{map.invalidateSize({pan:false});schedule();if(on)fullButton.focus();else if(focusBefore?.isConnected)focusBefore.focus({preventScroll:true});});
+ requestAnimationFrame(()=>{map.invalidateSize({pan:false});map.setView(center,zoom,{animate:false});schedule();if(on)fullButton.focus();else if(!X.picking&&focusBefore?.isConnected)focusBefore.focus({preventScroll:true});});
 }
 pane.addEventListener('keydown',e=>{
  if(e.key==='Escape'&&full){e.preventDefault();setFull(false);}
@@ -132,6 +147,7 @@ function locate(){
  },error=>{locating=false;locateButton.disabled=false;locationKey=error.code===1?'locationDenied':'locationUnavailable';paint();},{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
 }
 function labels(){
+ register.textContent='＋ '+t('r42Title');register.setAttribute('aria-label',t('r42Title'));
  search.placeholder=t('m4Search');search.setAttribute('aria-label',t('m4Search'));results.setAttribute('aria-label',t('m4SearchResults'));
  fullButton.title=t(full?'m4Exit':'m4Full');fullButton.setAttribute('aria-label',fullButton.title);fullButton.setAttribute('aria-pressed',String(full));
  locateButton.title=t('m4Locate');locateButton.setAttribute('aria-label',locateButton.title);close.setAttribute('aria-label',t('mapClose'));
@@ -140,6 +156,8 @@ function labels(){
 }
 function mode(){
  const browsing=!X.picking;pane.classList.toggle('m4-browsing',browsing);
+ if(browsing&&D.mapMode)map.scrollWheelZoom.enable();
+ mapHeading.hidden=!browsing;
  for(const node of [toolbar,controls,legend,notice])node.hidden=!browsing;
  if(!browsing||!D.mapMode){setFull(false);clearSelection(false);}
  map.zoomControl?.setPosition(browsing?'topright':'topleft');

@@ -3,3 +3,12 @@
 body:not([data-browse-view=home]) .p3-preview:not([hidden]){display:block!important}body[data-browse-view=coupon] .p3-preview,body[data-browse-view=review] .p3-preview,.p3-preview[hidden]{display:none!important}.browse-qr:empty{display:none}.p3-preview{position:relative}.p3-preview .p3-slide{touch-action:pan-y}.p3-preview .p3-enter{animation:none}.p3-preview .p3-carousel-controls{justify-content:flex-end;margin-top:10px}.p3-preview .discovery-open img{aspect-ratio:4/3}.p3-preview h2{margin:8px 0 12px}.p3-search{padding-top:4px;padding-bottom:8px}.phase-navigation{padding-top:8px;padding-bottom:12px}.ux-recommend-empty{padding:18px;border-radius:14px;background:var(--musubu-soft)}
 @media(max-width:600px){.hero .hero-top{padding:10px 12px}.hero .brand,html.theme-ja .hero .brand{font-size:22px}.hero .discovery-controls{gap:5px}.ux-settings-trigger{font-size:11px;padding:7px}.phase-navigation{gap:6px}.phase-navigation button{font-size:12px;padding:9px 3px;gap:5px}.phase-navigation svg{width:25px;height:25px}.hero .musubu-identity{flex-shrink:0}.p3-preview .phase-card-meta{flex-wrap:wrap}.p3-preview .discovery-copy{padding:9px}.p3-preview .discovery-copy strong{font-size:14px}}
 @media(min-width:900px){.phase-navigation button{min-height:66px}.p3-preview .discovery-open img{aspect-ratio:16/10}}
+
+.p3-preview{overflow:hidden}.discovery-summary{color:#8b6b31}
+html.theme-ja .phase-navigation button[aria-current=page],html.theme-ja .discovery-filters button[aria-pressed=true]{background:var(--musubu-primary);color:white;border-color:var(--musubu-primary)}
+html.theme-ja #discovery .phase-category-chip,html.theme-ja .phase-category-chip,html.theme-ja .phase-origin,html.theme-ja .tag{background:var(--musubu-soft);color:var(--musubu-primary)}
+html.theme-ja .app .discovery-card{background:white;border-color:var(--musubu-border)}
+html.theme-ja .app .p3-button,html.theme-ja .app .text-button{color:var(--musubu-primary);border-color:var(--musubu-border)}
+html.theme-ja .app .voucher{background:var(--musubu-soft);border-color:var(--musubu-border)}
+html.theme-ja .app .voucher strong,html.theme-ja .app .voucher button{color:var(--musubu-primary);border-color:var(--musubu-primary)}
+#discovery .discovery-heading h2{display:none}

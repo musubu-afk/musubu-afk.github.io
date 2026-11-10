@@ -11,3 +11,10 @@ test('newest excludes private and examples, orders actual creation timestamps',(
  const rows=[{...row,id:'old',created_at:'2026-10-01'},{...row,id:'new',created_at:'2026-11-10'},{...row,id:'pending',status:'pending',created_at:'2026-11-11'}];
  assert.deepEqual(M.newest(rows).map(p=>p.id),['new','old']);
 });
+test('confirmed future events are upcoming, unconfirmed and expired events stay hidden',()=>{
+ const f={region:'nonsan',enabled:true,start_date:'2027-01-01',end_date:'2027-01-02',official_confirmed:true,source_url:'https://example.org/official'};
+ assert.equal(M.activeFestivals([f],'nonsan','2026-11-10').length,1);
+ assert.equal(M.activeFestivals([{...f,official_confirmed:false}],'nonsan','2026-11-10').length,0);
+ assert.equal(M.activeFestivals([f],'nonsan','2027-01-03').length,0);
+ assert.equal(M.recommendable({name:'시험용',status:'approved'}),false);
+});

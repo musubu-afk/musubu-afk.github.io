@@ -11,7 +11,7 @@
    const view=document.body.dataset.browseView;
    toggle.hidden=view!=='story'||X.picking;intro.hidden=view!=='new';
    [...toggle.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(D.mapMode===(i===0))));
-   window.MUSUBU_I18N.apply(toggle);window.MUSUBU_I18N.apply(intro);
+   window.MUSUBU_I18N.apply(toggle);intro.textContent=window.MUSUBU_I18N.t('uxNewIntro');
   }
   ['musubu:browse-view','musubu:map-mode','musubu:picking','musubu:languagechange'].forEach(event=>document.addEventListener(event,layout));layout();
   const I=window.MUSUBU_I18N,R=window.MUSUBU_REGION,top=document.querySelector('.hero-top');

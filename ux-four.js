@@ -2,6 +2,18 @@
 (() => {
  'use strict';
  document.addEventListener('DOMContentLoaded',()=>{
+  const D=window.MUSUBU_DISCOVERY,X=window.MUSUBU_EXPLORE;
+  const toggle=document.createElement('div');toggle.className='ux-map-toggle';
+  for(const [key,on]of [['uxMap',true],['uxList',false]]){const b=document.createElement('button');b.type='button';b.dataset.i18n=key;b.onclick=()=>D.setMapMode(on);toggle.append(b);}
+  document.getElementById('discoveryMapPane').before(toggle);
+  const intro=document.createElement('p');intro.className='ux-new-intro';intro.dataset.i18n='uxNewIntro';document.querySelector('#discovery .p3-tabs').before(intro);
+  function layout(){
+   const view=document.body.dataset.browseView;
+   toggle.hidden=view!=='story'||X.picking;intro.hidden=view!=='new';
+   [...toggle.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(D.mapMode===(i===0))));
+   window.MUSUBU_I18N.apply(toggle);window.MUSUBU_I18N.apply(intro);
+  }
+  ['musubu:browse-view','musubu:map-mode','musubu:picking','musubu:languagechange'].forEach(event=>document.addEventListener(event,layout));layout();
   const I=window.MUSUBU_I18N,R=window.MUSUBU_REGION,top=document.querySelector('.hero-top');
   const controls=document.querySelector('.discovery-controls');
   const region=document.querySelector('.region-switch');

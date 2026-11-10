@@ -23,3 +23,9 @@ window.MUSUBU_FESTIVALS = [
  }
 ];
 window.MUSUBU_ROUTES = {};
+
+// Evergreen regional introductions. These are not event listings.
+window.MUSUBU_REGION_PROMOS={
+ nonsan:{id:'intro-nonsan',promo:true,region:'nonsan',name:'논산의 풍경과 이야기를 만나보세요',description:'돈암서원에서 탑정호까지, 지역의 이야기를 따라 여행해 보세요.',image_url:'assets/tapjeongho.jpg',translations:{ja:{name:'論山の風景と物語に出会う',description:'遯岩書院から塔亭湖まで、まちの物語をたどる旅へ。'},en:{name:'Discover Nonsan',description:'Explore local stories from Donam Seowon to Tapjeong Lake.'}}},
+ fukuoka:{id:'intro-fukuoka',promo:true,region:'fukuoka',name:'후쿠오카에서 만나는 여행 이야기',description:'오호리공원의 풍경과 지역 이야기를 지도에서 만나보세요.',image_url:'assets/ohori.png',translations:{ja:{name:'福岡で出会う旅の物語',description:'大濠公園の風景や地域の物語を地図で見つけましょう。'},en:{name:'Discover Fukuoka',description:'Find Ohori Park and local stories on the map.'}}}
+};

@@ -1,8 +1,8 @@
 (() => {
  const labels={
-  ko:{p3Suggest:'＋ 맛집 등록',uxNew:'신규 장소',uxNewBadge:'신규',uxShops:'동네 가게',uxRecommend:'추천 장소',uxRecommendShops:'추천 가게',uxRecommendEmpty:'현재 공개된 추천 정보가 없습니다.',uxSettings:'지역·언어 선택',uxRegion:'지역',uxLanguage:'언어'},
-  ja:{p3Suggest:'＋ お店を登録',uxNew:'新しい場所',uxNewBadge:'新着',uxShops:'まちのお店',uxRecommend:'おすすめスポット',uxRecommendShops:'おすすめのお店',uxRecommendEmpty:'公開中のおすすめ情報はありません。',uxSettings:'地域・言語の選択',uxRegion:'地域',uxLanguage:'言語'},
-  en:{p3Suggest:'+ Add a shop',uxNew:'New places',uxNewBadge:'New',uxShops:'Local shops',uxRecommend:'Recommended places',uxRecommendShops:'Recommended shops',uxRecommendEmpty:'No public recommendations yet.',uxSettings:'Region and language',uxRegion:'Region',uxLanguage:'Language'}
+  ko:{uxRegister:'＋ 장소 등록',uxLatest:'최신순',uxPopular:'인기순',uxNewIntro:'최근 등록된 새로운 장소를 가장 먼저 만나보세요.',uxTravelIntro:'MUSUBU · 지역 여행 소개',uxExplore:'지역 이야기 둘러보기',uxUpcoming:'예정',uxMap:'지도',uxList:'목록',p3Suggest:'＋ 맛집 등록',uxNew:'신규 장소',uxNewBadge:'신규',uxShops:'동네 가게',uxRecommend:'추천 장소',uxRecommendShops:'추천 가게',uxRecommendEmpty:'현재 공개된 추천 정보가 없습니다.',uxSettings:'지역·언어 선택',uxRegion:'지역',uxLanguage:'언어'},
+  ja:{uxRegister:'＋ 場所を登録',uxLatest:'新着順',uxPopular:'人気順',uxNewIntro:'最近投稿された新しい場所を見つけましょう。',uxTravelIntro:'MUSUBU · 地域の旅案内',uxExplore:'地域の物語を見る',uxUpcoming:'開催予定',uxMap:'地図',uxList:'一覧',p3Suggest:'＋ お店を登録',uxNew:'新しい場所',uxNewBadge:'新着',uxShops:'まちのお店',uxRecommend:'おすすめスポット',uxRecommendShops:'おすすめのお店',uxRecommendEmpty:'公開中のおすすめ情報はありません。',uxSettings:'地域・言語の選択',uxRegion:'地域',uxLanguage:'言語'},
+  en:{uxRegister:'+ Add a place',uxLatest:'Newest',uxPopular:'Popular',uxNewIntro:'Discover recently shared places.',uxTravelIntro:'MUSUBU · Regional travel guide',uxExplore:'Explore local stories',uxUpcoming:'Upcoming',uxMap:'Map',uxList:'List',p3Suggest:'+ Add a shop',uxNew:'New places',uxNewBadge:'New',uxShops:'Local shops',uxRecommend:'Recommended places',uxRecommendShops:'Recommended shops',uxRecommendEmpty:'No public recommendations yet.',uxSettings:'Region and language',uxRegion:'Region',uxLanguage:'Language'}
  };
  for(const [lang,values] of Object.entries(labels))Object.assign(window.MUSUBU_LOCALES[lang],values);
 })();

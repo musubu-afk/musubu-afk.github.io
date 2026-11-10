@@ -4,7 +4,7 @@ vm.runInNewContext(fs.readFileSync('phase-three-data.js','utf8'),ctx);
 const data=ctx.window.MUSUBU_FESTIVALS,[n,f]=data;
 for(const day of ['2026-10-23','2026-11-04','2026-11-07'])assert.equal(M.activeFestivals(data,'nonsan',day).length,1);
 for(const day of ['2026-10-22','2026-11-08'])assert.equal(M.activeFestivals(data,'nonsan',day).length,0);
-assert.equal(M.activeFestivals(data,'fukuoka','2026-11-04')[0].id,f.id);
+assert.equal(M.activeFestivals(data,'fukuoka','2026-11-04').length,0);
 assert.equal(M.activeFestivals([{...f,show_on_home:false}],'fukuoka','2026-11-04').length,0);
 assert.equal(M.activeFestivals([{...f,enabled:false}],'fukuoka','2026-11-04').length,0);
 assert.equal(M.activeFestivals([f],'nonsan','2026-11-04').length,0);

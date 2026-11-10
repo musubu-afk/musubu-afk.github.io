@@ -15,7 +15,7 @@ function activeFestivals(list,region,today,preview=false){return list.filter(f=>
  const enabled=f.enabled===undefined?f.published===true:f.enabled===true;
  if(f.region!==region||!enabled)return false;
  if(preview)return true;
- if(f.demo)return f.show_on_home===true;
+ if(f.demo)return false;
  const valid=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;
  return valid(f.start_date)&&valid(f.end_date)&&f.start_date<=today&&today<=f.end_date;
 });}

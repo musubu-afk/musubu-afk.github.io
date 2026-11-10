@@ -12,3 +12,8 @@ html.theme-ja .app .p3-button,html.theme-ja .app .text-button{color:var(--musubu
 html.theme-ja .app .voucher{background:var(--musubu-soft);border-color:var(--musubu-border)}
 html.theme-ja .app .voucher strong,html.theme-ja .app .voucher button{color:var(--musubu-primary);border-color:var(--musubu-primary)}
 #discovery .discovery-heading h2{display:none}
+html.theme-ja .hero,html.theme-ja .hero .hero-top{background:#fff;border-radius:0;color:var(--musubu-primary)}
+html.theme-ja .hero .qrbtn{background:#fff;color:var(--musubu-primary);border-color:var(--musubu-border);box-shadow:none}
+.p3-preview .discovery-no-photo{height:auto}
+.p3-preview .p3-slide:has(>.discovery-card:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+.p3-preview .p3-slide:has(>.discovery-card:only-child){grid-template-columns:minmax(0,360px)}

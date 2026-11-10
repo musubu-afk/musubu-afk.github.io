@@ -28,3 +28,6 @@ body[data-browse-view=new] #discovery .discovery-cards,body[data-browse-view=dis
 @media(min-width:601px){.p3-preview[data-item-count="2"] .ux-recommend-card{flex-basis:calc((100% - 12px)/2)}}
 
 body:is([data-browse-view=new],[data-browse-view=discover]) #discovery>.discovery-heading,body:is([data-browse-view=new],[data-browse-view=discover]) #discovery>.location-tools{display:none!important}
+
+/* Clip off-canvas map labels and carousel tracks without page-level scrolling. */
+html,body{overflow-x:clip}

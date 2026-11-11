@@ -31,3 +31,11 @@ body:is([data-browse-view=new],[data-browse-view=discover]) #discovery>.discover
 
 /* Clip off-canvas map labels and carousel tracks without page-level scrolling. */
 html,body{overflow-x:clip}
+
+/* Home/story structure: one exploration surface at a time. */
+.ux-promo{height:220px}.ux-promo>div{padding:28px}.ux-promo p{margin-bottom:0}
+.ux-story-intro{margin:0 0 12px;color:var(--musubu-muted);font-size:14px;line-height:1.6}.ux-story-intro[hidden]{display:none}
+body[data-browse-view=story] #discovery>.discovery-heading,body[data-browse-view=story] #discovery>.location-tools{display:none!important}
+#discovery .ux-bookmark{display:grid;place-items:center;right:5px;top:7px;width:36px;min-width:36px;height:40px;min-height:40px;padding:8px;border:0;border-radius:8px;background:transparent;color:var(--musubu-primary)}
+.ux-bookmark svg{width:20px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}.ux-bookmark[aria-pressed=true] svg{fill:currentColor}.ux-bookmark:focus-visible{outline:2px solid var(--musubu-primary);outline-offset:1px}
+@media(max-width:600px){.ux-promo{height:175px}.ux-promo>div{padding:18px}.ux-promo h3{font-size:20px}.ux-story-intro{font-size:13px;margin-bottom:10px}}

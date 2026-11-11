@@ -16,7 +16,7 @@ const note=el('p','notice'),filters=el('div','discovery-filters'),cards=el('div'
 document.querySelector('.explore-tabs').after(section);
 const mapPane=el('section','discovery-map-pane');mapPane.hidden=true;mapPane.id='discoveryMapPane';section.before(mapPane);[...$('explorer').children].filter(n=>n!==mapPane&&n!==section&&!n.matches('.explore-heading,.explore-tabs')).forEach(n=>mapPane.append(n));
 const mapBack=el('button','community-button');mapBack.type='button';mapBack.id='mapBrowseBack';mapPane.prepend(mapBack);
-function setMapMode(on){mapMode=on;mapPane.hidden=!on;section.hidden=on&&(source!=='places'||X.picking);section.classList.toggle('ux-below-map',on&&source==='places');if(!on)$('mapPreview').hidden=true;else requestAnimationFrame(()=>X.map?.invalidateSize());document.dispatchEvent(new CustomEvent('musubu:map-mode',{detail:{on}}));}
+function setMapMode(on){mapMode=on;mapPane.hidden=!on;section.hidden=on;if(on)requestAnimationFrame(()=>X.map?.invalidateSize());document.dispatchEvent(new CustomEvent('musubu:map-mode',{detail:{on}}));}
 mapBack.onclick=()=>{$('browsePlaces').click();setMapMode(false);section.scrollIntoView({block:'start'});};
 const mapFilters=el('div','discovery-filters map-category-filters');$('storyMap').parentElement.before(mapFilters);
 const placeCategories=[['all','discoverAll'],['history','phaseHistory'],['nature','phaseNature'],['walk','phaseWalk'],['local','phaseExperience']];
@@ -49,7 +49,7 @@ const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),bu
  const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
  const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);meta.append(stat,dist);text.append(el('strong','',v.name),cat,meta);
  if(showNew&&M.userPlace(p)){cat.prepend(el('span','ux-new-badge',t('uxNewBadge')));const date=new Date(p.created_at);if(Number.isFinite(date.getTime())){const time=el('time','ux-date',date.toLocaleDateString(I.locale));time.dateTime=date.toISOString();text.append(time);}}button.append(text);
- const heart=el('button','discovery-heart',favorite(p)?'♥':'♡');heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button);if(options.favorite!==false)card.append(heart);return card;
+ const heart=el('button','discovery-heart',favorite(p)?'♥':'♡');if(source==='places'&&!p.shop_id){heart.classList.add('ux-bookmark');heart.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-6-4-6 4z"/></svg>';}heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button);if(options.favorite!==false)card.append(heart);return card;
 }
 function renderCards(){cards.replaceChildren();let list;
  if(source==='new'){list=M.newest(X.places.filter(p=>p.region===region()&&!M.business(p)&&!M.testPlace(p)));if(recommendation==='popular')list=M.popular(list,metrics);}

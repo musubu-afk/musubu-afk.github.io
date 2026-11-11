@@ -72,7 +72,7 @@ function openFestival(f){
 }
 function festivalDates(f){return f.start_date&&f.end_date?f.start_date+' ~ '+f.end_date:t('festivalDatePending');}
 function festivalCard(f){
- if(f.promo){const card=el('article','ux-promo');const img=el('img');img.src=f.image_url;img.alt='';img.onerror=()=>img.hidden=true;const copy=el('div');copy.append(el('small','',t('uxTravelIntro')),el('h3','',localized(f,'name')),el('p','',localized(f,'description')),button('uxExplore',()=>window.MUSUBU_UI.go('story')));card.append(img,copy);return card;}
+ if(f.promo){const card=el('article','ux-promo');const img=el('img');img.src=f.image_url;img.alt='';img.onerror=()=>img.hidden=true;const copy=el('div');copy.append(el('small','',t('uxTravelIntro')),el('h3','',localized(f,'name')),el('p','',localized(f,'description')));card.append(img,copy);return card;}
  const card=el('article','p3-festival-card');card.dataset.festivalId=f.id;
  const surface=el('div','festival-surface');
  if(f.image_url&&safeUrl(f.image_url)){const im=el('img','festival-art');im.src=f.image_url;im.alt='';im.onerror=()=>im.hidden=true;surface.append(im);}

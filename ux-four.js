@@ -8,10 +8,11 @@
   const pane=document.getElementById('discoveryMapPane');
   const anchor=pane.previousSibling;
   if(anchor?.nodeType===8)anchor.before(toggle);else pane.before(toggle);
+  const storyIntro=document.createElement('p');storyIntro.className='ux-story-intro';toggle.before(storyIntro);
   const intro=document.createElement('p');intro.className='ux-new-intro';intro.dataset.i18n='uxNewIntro';document.querySelector('#discovery .p3-tabs').before(intro);
   function layout(){
    const view=document.body.dataset.browseView;
-   toggle.hidden=view!=='story'||X.picking;intro.hidden=view!=='new';
+   toggle.hidden=view!=='story'||X.picking;storyIntro.hidden=toggle.hidden;storyIntro.textContent=window.MUSUBU_I18N.t('uxStoryIntro');intro.hidden=view!=='new';
    [...toggle.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(D.mapMode===(i===0))));
    window.MUSUBU_I18N.apply(toggle);intro.textContent=window.MUSUBU_I18N.t('uxNewIntro');
   }

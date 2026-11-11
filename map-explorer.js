@@ -161,7 +161,9 @@ function mode(){
  if(browsing&&D.mapMode)map.scrollWheelZoom.enable();
  mapHeading.hidden=!browsing;
  for(const node of [toolbar,controls,legend,notice])node.hidden=!browsing;
- if(!browsing||!D.mapMode){setFull(false);clearSelection(false);}
+ if(!browsing||!D.mapMode)setFull(false);
+ if(!browsing)clearSelection(false);
+ else if(D.mapMode&&selected)showCard();
  map.zoomControl?.setPosition(browsing?'topright':'topleft');
  if(browsing)requestAnimationFrame(()=>{map.invalidateSize({pan:false});schedule();});
 }

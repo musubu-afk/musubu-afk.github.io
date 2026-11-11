@@ -14,5 +14,5 @@ document.addEventListener('musubu:screenchange',e=>{if(navigating||!back)return;
 window.addEventListener('popstate',()=>{view=read();if(view==='story'||view==='discover'||view==='new'){navigating=true;D.selectSource(view==='story'?'places':view==='new'?'new':'shops');navigating=false;}paint();});
 document.addEventListener('musubu:languagechange',paint);
 document.addEventListener('musubu:regionchange',()=>{view=read();paint();});
-document.addEventListener('musubu:picking',e=>{if(e.detail.picking){view='story';paint();}});
+document.addEventListener('musubu:picking',paint);
 })();

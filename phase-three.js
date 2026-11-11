@@ -10,9 +10,10 @@ const festivalPreview=new URL(location.href).searchParams.get('festival_preview'
 const festivals=()=>M.activeFestivals(window.MUSUBU_FESTIVALS,R.current,today(),festivalPreview);
 const banners=()=>{const active=festivals();return active.length?active:[window.MUSUBU_REGION_PROMOS[R.current]];};
 class Carousel {
- constructor(root,draw){this.root=root;this.draw=draw;this.pageSize=()=>root.classList.contains('p3-preview')?(matchMedia('(min-width:900px)').matches?3:2):1;this.items=[];this.index=0;this.pauses=new Set();this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.body=el('div','p3-slide');this.controls=el('div','p3-carousel-controls');this.prev=button('p3Previous',()=>this.move(-1));this.next=button('p3Next',()=>this.move(1));this.pause=button('p3Pause',()=>{this.manual=!this.manual;this.update();});this.counter=el('span','p3-counter');this.controls.append(this.prev,this.counter,this.next,this.pause);root.append(this.body,this.controls);
- root.addEventListener('focusin',()=>this.hold('focus',true));root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('focus',root.contains(document.activeElement))));root.addEventListener('mouseenter',()=>this.hold('hover',true));root.addEventListener('mouseleave',()=>this.hold('hover',false));
+ constructor(root,draw,gesture=false){this.root=root;this.draw=draw;this.pageSize=()=>root.classList.contains('p3-preview')?(matchMedia('(min-width:900px)').matches?3:2):1;this.items=[];this.index=0;this.pauses=new Set();this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.body=el('div','p3-slide');this.controls=el('div','p3-carousel-controls');this.prev=button('p3Previous',()=>this.move(-1));this.next=button('p3Next',()=>this.move(1));this.pause=button('p3Pause',()=>{this.manual=!this.manual;this.update();});this.counter=el('span','p3-counter');this.controls.append(this.prev,this.counter,this.next,this.pause);root.append(this.body,this.controls);
+ if(!gesture){root.addEventListener('focusin',()=>this.hold('focus',true));root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('focus',root.contains(document.activeElement))));root.addEventListener('mouseenter',()=>this.hold('hover',true));root.addEventListener('mouseleave',()=>this.hold('hover',false));
  this.body.addEventListener('pointerdown',e=>{this.start={x:e.clientX,y:e.clientY};this.hold('touch',true);});this.body.addEventListener('pointerup',e=>{if(this.start){const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4){this.swiped=true;this.move(dx<0?1:-1);}}this.start=null;this.hold('touch',false);});this.body.addEventListener('click',e=>{if(this.swiped){e.preventDefault();e.stopPropagation();this.swiped=false;}},true);['pointercancel','pointerleave'].forEach(k=>this.body.addEventListener(k,()=>{this.start=null;this.hold('touch',false);}));
+ }
  new IntersectionObserver(entries=>this.hold('offscreen',!entries[0].isIntersecting)).observe(root);document.addEventListener('visibilitychange',()=>this.update());this.motion.addEventListener('change',()=>this.update());new MutationObserver(()=>this.hold('dialog',!!document.querySelector('dialog[open]'))).observe(document.body,{attributes:true,attributeFilter:['open'],subtree:true});
  }
  hold(key,on){on?this.pauses.add(key):this.pauses.delete(key);this.update();}
@@ -23,11 +24,32 @@ class Carousel {
 }
 class RecommendationCarousel extends Carousel {
  constructor(root,draw){
-  super(root,draw);
+  super(root,draw,true);
   this.viewport=el('div','ux-recommend-viewport');this.body.before(this.viewport);this.viewport.append(this.body);
   this.dots=el('div','ux-slide-dots');this.controls.insertBefore(this.dots,this.prev);
   const header=el('div','ux-recommend-heading');root.prepend(header);header.append(root.querySelector('h2'),this.controls);
+  this.prev.remove();this.next.remove();this.pause.remove();this.counter.remove();
+  this.viewport.tabIndex=0;this.viewport.setAttribute('role','group');
+  this.viewport.setAttribute('aria-roledescription','carousel');
+  this.body.addEventListener('dragstart',e=>e.preventDefault());
+  this.body.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.swiped=false;this.start={x:e.clientX,y:e.clientY,id:e.pointerId};this.hold('touch',true);});
+  this.body.addEventListener('pointermove',e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.4){this.body.setPointerCapture(e.pointerId);this.body.classList.add('ux-dragging');}});
+  const finish=e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;this.swiped=e.type==='pointerup'&&Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4;this.start=null;this.body.classList.remove('ux-dragging');if(this.body.hasPointerCapture(e.pointerId))this.body.releasePointerCapture(e.pointerId);if(this.swiped)this.move(dx<0?1:-1);this.hold('touch',false);};
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])this.body.addEventListener(event,finish);
+  this.body.addEventListener('click',e=>{if(this.swiped){e.preventDefault();e.stopPropagation();this.swiped=false;}},true);
+  this.viewport.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();this.hold('keyboard',true);this.move(e.key==='Home'?-this.index:e.key==='End'?this.items.length-1-this.index:e.key==='ArrowRight'?1:-1);});
+  this.viewport.addEventListener('keyup',()=>this.hold('keyboard',false));
+  this.viewport.addEventListener('focusout',()=>this.hold('keyboard',false));
+  new ResizeObserver(()=>this.update()).observe(this.viewport);
+  new MutationObserver(()=>this.update()).observe(root,{attributes:true,attributeFilter:['hidden']});
  }
+ set(items){
+  const key=p=>String(p.id||p.shop_id);
+  const changed=this.items.map(key).join('|')!==items.map(key).join('|');
+  this.items=items;if(changed)this.index=0;
+  this.root.hidden=!items.length;this.paint();
+ }
+ canMove(){return this.items.length>1&&this.viewport&&this.body.scrollWidth>this.viewport.clientWidth+1;}
  paint(){
   clearTimeout(this.transitionTimer);this.transitionTimer=null;
   this.body.style.transition='none';this.body.style.transform='translateX(0)';
@@ -38,14 +60,14 @@ class RecommendationCarousel extends Carousel {
 
  update(){
   super.update();if(!this.dots)return;
-  this.counter.hidden=true;
-  this.prev.removeAttribute('data-i18n');this.next.removeAttribute('data-i18n');this.prev.textContent='‹';this.next.textContent='›';
-  this.prev.setAttribute('aria-label',t('p3Previous'));this.next.setAttribute('aria-label',t('p3Next'));
-  this.dots.replaceChildren();
-  this.items.forEach((item,i)=>{const dot=el('button','ux-slide-dot');dot.type='button';dot.setAttribute('aria-label',t('p3Slide',{current:i+1,total:this.items.length}));dot.setAttribute('aria-current',String(i===this.index));dot.onclick=()=>this.move(i-this.index);this.dots.append(dot);});
+  const movable=this.canMove();if(!movable)clearTimeout(this.timer);
+  this.controls.hidden=!movable;
+  this.viewport.setAttribute('aria-label',this.root.querySelector('h2').textContent);
+  if(this.dots.children.length!==this.items.length){this.dots.replaceChildren();this.items.forEach((item,i)=>{const dot=el('button','ux-slide-dot');dot.type='button';dot.onclick=()=>this.move(i-this.index);this.dots.append(dot);});}
+  [...this.dots.children].forEach((dot,i)=>{dot.setAttribute('aria-label',t('p3Slide',{current:i+1,total:this.items.length}));dot.setAttribute('aria-current',String(i===this.index));});
  }
  move(delta){
-  if(this.items.length<2||this.transitionTimer)return;
+  if(!delta||!this.canMove()||this.transitionTimer)return;
   const next=(this.index+delta+this.items.length)%this.items.length;
   if(this.motion.matches||Math.abs(delta)>1){this.index=next;this.paint();return;}
   const step=this.body.children[0].getBoundingClientRect().width+12;

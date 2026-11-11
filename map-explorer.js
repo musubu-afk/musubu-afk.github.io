@@ -31,6 +31,7 @@ const card=make('section','m4-card');card.hidden=true;card.setAttribute('aria-la
 const close=action('×',()=>clearSelection(true));close.className='m4-close';
 const cover=make('img','m4-cover');cover.alt='';cover.width=78;cover.height=78;cover.decoding='async';
 const copy=make('div','m4-copy'),title=make('h3');title.id='m4Title';
+const save=make('button','ux-bookmark m4-save');save.type='button';save.append(window.MUSUBU_PHASE_ONE.icon('bookmark'));save.onclick=async()=>{if(selected)await D.toggle(selected,save);if(selected)showCard();};copy.append(save);
 const category=make('p','m4-category'),stats=make('p','m4-stats'),reason=make('p','m4-reason'),actions=make('div','m4-card-actions');
 const detail=make('button'),route=make('a');detail.type='button';route.target='_blank';route.rel='noopener noreferrer';actions.append(detail,route);copy.append(title,category,stats,reason);card.append(close,cover,copy,actions);wrap.append(card);
 L.DomEvent.disableClickPropagation(card);L.DomEvent.disableScrollPropagation(card);L.DomEvent.disableClickPropagation(controls);
@@ -61,7 +62,7 @@ function select(p,pan=false){
 }
 function showCard(){
  if(!selected)return;
- const p=selected,v=name(p),src=image(p);card.hidden=false;cover.hidden=!src||failedImages.has(src);
+ const p=selected,v=name(p),src=image(p);save.disabled=false;save.setAttribute('aria-pressed',String(D.favorite(p)));save.setAttribute('aria-label',v.name+' · '+t(D.favorite(p)?'favoriteSaved':'favoriteAdd'));card.hidden=false;cover.hidden=!src||failedImages.has(src);
  if(!cover.hidden&&cover.getAttribute('src')!==src)cover.src=src;
  cover.onerror=()=>{failedImages.add(src);cover.hidden=true;card.classList.add('m4-no-photo');};
  card.classList.toggle('m4-no-photo',cover.hidden);title.textContent=v.name;
@@ -176,7 +177,7 @@ document.addEventListener('musubu:place-list-rendered',()=>{schedule();searchRes
 document.addEventListener('musubu:map-selection',e=>{if(D.mapMode&&!X.picking){selected=e.detail.place;showCard();schedule();}});
 document.addEventListener('musubu:regionchange',()=>{setFull(false);selected=null;card.hidden=true;search.value='';locationKey='';labels();});
 document.addEventListener('musubu:languagechange',labels);
-for(const event of ['musubu:preview-stats','musubu:shop-stats','musubu:places-loaded'])document.addEventListener(event,()=>{schedule();if(selected)showCard();});
+for(const event of ['musubu:favorites','musubu:preview-stats','musubu:shop-stats','musubu:places-loaded'])document.addEventListener(event,()=>{schedule();if(selected)showCard();});
 document.addEventListener('musubu:screenchange',e=>{if(e.detail.screen!=='story'){setFull(false);clearSelection(false);}});
 document.addEventListener('musubu:browse-view',()=>{if(pane.closest('[hidden]'))setFull(false);});
 new ResizeObserver(()=>{if(D.mapMode)map.invalidateSize({pan:false});}).observe(wrap);

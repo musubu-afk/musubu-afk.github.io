@@ -11,7 +11,9 @@ const recommendations=(list,region,shops,metrics)=>popular(list.filter(p=>p.regi
 const normalize=s=>String(s||'').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,' ').trim();
 function search(list,query,text){const terms=normalize(query).split(' ').filter(Boolean);return terms.length?list.filter(p=>terms.every(q=>normalize(text(p)).includes(q))):[];}
 function popular(list,metrics){return list.filter(p=>!p.is_example).slice().sort((a,b)=>{const x=metrics(a),y=metrics(b);return y.count-x.count||y.rating-x.rating||String(a.name).localeCompare(String(b.name));});}
-function newest(list){return list.filter(userPlace).slice().sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||String(a.id).localeCompare(String(b.id)));}
+function publicDate(p){const ms=publicPlace(p)&&p.reviewed_at?Date.parse(p.reviewed_at):NaN;return Number.isFinite(ms)?ms:null;}
+function isNew(p,now=Date.now()){const ms=publicDate(p);return userPlace(p)&&ms!==null&&now>=ms&&now-ms<30*86400000;}
+function newest(list){return list.filter(p=>userPlace(p)&&!business(p)&&!testPlace(p)).slice().sort((a,b)=>(publicDate(b)??-Infinity)-(publicDate(a)??-Infinity)||String(a.id).localeCompare(String(b.id))).slice(0,20);}
 function activeFestivals(list,region,today,preview=false){return list.filter(f=>{
  const enabled=f.enabled===undefined?f.published===true:f.enabled===true;
  if(f.region!==region||!enabled)return false;
@@ -21,5 +23,5 @@ function activeFestivals(list,region,today,preview=false){return list.filter(f=>
  return valid(f.start_date)&&valid(f.end_date)&&today<=f.end_date&&(f.start_date<=today||(f.official_confirmed===true&&/^https:\/\//.test(f.source_url||'')));
 });}
 function routePoints(raw){if(!Array.isArray(raw)||raw.length<2)return null;return raw.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=85&&Math.abs(p[1])<=180)?raw:null;}
-const api={testPlace,recommendable,recommendations,businessCategories,business,publicPlace,userPlace,origin,normalize,search,popular,newest,activeFestivals,routePoints};root.MUSUBU_PHASE_THREE_MODEL=api;if(typeof module!=='undefined')module.exports=api;
+const api={publicDate,isNew,testPlace,recommendable,recommendations,businessCategories,business,publicPlace,userPlace,origin,normalize,search,popular,newest,activeFestivals,routePoints};root.MUSUBU_PHASE_THREE_MODEL=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);

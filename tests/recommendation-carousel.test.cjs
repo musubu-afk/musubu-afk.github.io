@@ -10,9 +10,11 @@ test('shared carousel advances at 3s and stops for interaction, offscreen, reduc
  motion.matches=true;c.update();assert.equal(jobs.size,0);motion.matches=false;c.set([{id:1}]);assert.equal(jobs.size,0);
  const r=new context.RecommendationCarousel(new Element(),()=>new Element());r.set([{id:1},{id:2}]);const first=r.body.children[0];r.move(1);assert.equal(r.body.children[0],first);assert.equal(r.body.style.transform,'translateX(-112px)');assert.equal(r.body.style.transition,'transform 360ms ease');r.hold('offscreen',true);advance(360);assert.equal(r.index,1);
  r.hold('offscreen',false);advance(3360);assert.equal(r.index,0);
- r.viewport.clientWidth=1000;r.body.scrollWidth=1000;r.update();assert.equal(jobs.size,0);assert.equal(r.controls.hidden,true);
+ r.viewport.clientWidth=1000;r.body.scrollWidth=1000;r.update();assert.equal(jobs.size,1);assert.equal(r.controls.hidden,false);advance(3360);assert.equal(r.index,1);
  r.viewport.clientWidth=300;r.update();assert.equal(jobs.size,1);
  r.set([{id:3},{id:4},{id:5}]);assert.equal(r.index,0);advance(3360);assert.equal(r.index,1);
+ r.dots.children[0].onclick();advance(360);assert.equal(r.index,0);r.dots.children[2].onclick();assert.equal(r.body.style.transform,'translateX(-224px)');advance(360);assert.equal(r.index,2);
+ r.set([]);assert.equal(jobs.size,0);
  r.set([{id:8}]);assert.equal(r.index,0);assert.equal(jobs.size,0);
  assert.equal(r.root.events.mouseenter,undefined);
  r.set([{id:1},{id:2}]);r.body.events.pointerdown({button:0,clientX:200,clientY:20,pointerId:1});assert.equal(jobs.size,0);

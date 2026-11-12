@@ -8,7 +8,7 @@ const safeUrl=value=>{try{const u=new URL(value,location.href);return ['https:',
 const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'});
 const festivalPreview=new URL(location.href).searchParams.get('festival_preview')==='1';
 const festivals=()=>M.activeFestivals(window.MUSUBU_FESTIVALS,R.current,today(),festivalPreview);
-const banners=()=>{const active=festivals();return active.length?active:[window.MUSUBU_REGION_PROMOS[R.current]];};
+const banners=()=>window.MUSUBU_TRAVEL_BANNERS.filter(f=>f.region===R.current&&f.is_active&&(!f.end_date||f.end_date>=today())).sort((a,b)=>a.display_order-b.display_order);
 class Carousel {
  constructor(root,draw,gesture=false){this.root=root;this.draw=draw;this.pageSize=()=>root.classList.contains('p3-preview')?(matchMedia('(min-width:900px)').matches?3:2):1;this.items=[];this.index=0;this.pauses=new Set();this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.body=el('div','p3-slide');this.controls=el('div','p3-carousel-controls');this.prev=button('p3Previous',()=>this.move(-1));this.next=button('p3Next',()=>this.move(1));this.pause=button('p3Pause',()=>{this.manual=!this.manual;this.update();});this.counter=el('span','p3-counter');this.controls.append(this.prev,this.counter,this.next,this.pause);root.append(this.body,this.controls);
  if(!gesture){root.addEventListener('focusin',()=>this.hold('focus',true));root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('focus',root.contains(document.activeElement))));root.addEventListener('mouseenter',()=>this.hold('hover',true));root.addEventListener('mouseleave',()=>this.hold('hover',false));
@@ -27,7 +27,7 @@ class RecommendationCarousel extends Carousel {
   super(root,draw,true);
   this.viewport=el('div','ux-recommend-viewport');this.body.before(this.viewport);this.viewport.append(this.body);
   this.dots=el('div','ux-slide-dots');this.controls.insertBefore(this.dots,this.prev);
-  const header=el('div','ux-recommend-heading');root.prepend(header);header.append(root.querySelector('h2'),this.controls);
+  const header=el('div','ux-recommend-heading');root.prepend(header);header.append(root.querySelector('h2'));root.append(this.controls);
   this.prev.remove();this.next.remove();this.pause.remove();this.counter.remove();
   this.viewport.tabIndex=0;this.viewport.setAttribute('role','group');
   this.viewport.setAttribute('aria-roledescription','carousel');
@@ -49,12 +49,13 @@ class RecommendationCarousel extends Carousel {
   this.items=items;if(changed)this.index=0;
   this.root.hidden=!items.length;this.paint();
  }
- canMove(){return this.items.length>1&&this.viewport&&this.body.scrollWidth>this.viewport.clientWidth+1;}
+ canMove(){return this.items.length>1&&!!this.viewport;}
  paint(){
   clearTimeout(this.transitionTimer);this.transitionTimer=null;
   this.body.style.transition='none';this.body.style.transform='translateX(0)';
   const ordered=this.items.map((_,i)=>this.items[(this.index+i)%this.items.length]);
   this.body.replaceChildren(...ordered.map(this.draw));
+  if(this.root.classList.contains('ux-travel-carousel'))[...this.body.children].forEach((card,i)=>{if(i)card.setAttribute('aria-hidden','true');});
   this.root.dataset.itemCount=String(this.items.length);this.update();
  }
 
@@ -69,19 +70,34 @@ class RecommendationCarousel extends Carousel {
  move(delta){
   if(!delta||!this.canMove()||this.transitionTimer)return;
   const next=(this.index+delta+this.items.length)%this.items.length;
-  if(this.motion.matches||Math.abs(delta)>1){this.index=next;this.paint();return;}
-  const step=this.body.children[0].getBoundingClientRect().width+12;
-  const clone=this.draw(delta<0?this.items[next]:this.items[this.index]);
-  clone.setAttribute('aria-hidden','true');clone.querySelectorAll('button,a').forEach(b=>b.tabIndex=-1);
+  if(this.motion.matches){this.index=next;this.paint();return;}
+  const count=Math.abs(delta);
+  const step=this.body.children[0].getBoundingClientRect().width+(this.root.classList.contains('ux-travel-carousel')?0:12);
+  const clones=[];
+  for(let n=0;n<count;n++){
+   const item=delta<0?this.items[(next+n)%this.items.length]:this.items[(this.index+n)%this.items.length];
+   const clone=this.draw(item);clone.setAttribute('aria-hidden','true');clone.querySelectorAll('button,a').forEach(b=>b.tabIndex=-1);clones.push(clone);
+  }
   this.body.style.transition='none';
-  if(delta<0){this.body.prepend(clone);this.body.style.transform='translateX(-'+step+'px)';}else this.body.append(clone);
+  if(delta<0){this.body.prepend(...clones);this.body.style.transform='translateX(-'+step*count+'px)';}else this.body.append(...clones);
   void this.body.offsetWidth;
   this.body.style.transition='transform 360ms ease';
-  this.body.style.transform=delta<0?'translateX(0)':'translateX(-'+step+'px)';
+  this.body.style.transform=delta<0?'translateX(0)':'translateX(-'+step*count+'px)';
   this.index=next;this.update();
   this.transitionTimer=setTimeout(()=>this.paint(),360);
  }
 
+}
+function travelCard(f){
+ const ja=I.lang==='ja',card=el('article','ux-travel-card');card.dataset.bannerId=f.id;
+ const img=el('img');img.src=f.image_url;img.alt='';img.draggable=false;img.style.objectPosition=f.image_position||'center';img.onerror=()=>img.hidden=true;
+ const copy=el('div','ux-travel-copy');
+ copy.append(el('small','ux-travel-type',f.content_type==='event'?(ja?(f.start_date>today()?'開催予定':'開催中'):(f.start_date>today()?'개최 예정':'진행 중')):(ja?'旅のコンセプト':'여행 콘셉트')));
+ copy.append(el('h3','',ja?f.title_ja:f.title_ko));
+ if(f.start_date&&f.end_date){const format=d=>new Intl.DateTimeFormat(ja?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));copy.append(el('p','ux-travel-date',format(f.start_date)+' ～ '+format(f.end_date)));}
+ if(f.venue_ko)copy.append(el('p','ux-travel-venue',ja?f.venue_ja:f.venue_ko));
+ copy.append(el('small','ux-travel-note',ja?'AI演出画像 · 実際の現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+ card.append(img,copy);return card;
 }
 let festivalDialog,openedFestival;
 function closeFestival(){festivalDialog?.close();openedFestival=null;}
@@ -111,10 +127,10 @@ let search,searchRegion,resultBox,resultTitle,resultCards,preview,festival,searc
 function textFor(p){const v=p.shop_id?I.shopView(p):X.view(p),key=({history:'phaseHistory',nature:'phaseNature',walk:'phaseWalk',local:'phaseExperience',meal:'phaseMeal',dessert:'phaseDessert',gift:'phaseGift',stay:'phaseStay'})[D.group(p)];const categoryWords=['ko','ja','en'].flatMap(l=>[window.MUSUBU_LOCALES[l]?.[key],window.MUSUBU_LOCALES[l]?.['mapCategory_'+p.category]]);return [p.name,v.name,window.MUSUBU_SHOP_NAMES_JA?.[p.shop_id],...Object.values(p.translations||{}).map(v=>v.name),...Object.values(window.MUSUBU_CONTENT_LOCALES?.[p.name]||{}).map(v=>v.name),p.region,window.MUSUBU_MAP_CONFIG.regions[p.region]?.name_ko,window.MUSUBU_MAP_CONFIG.regions[p.region]?.name_ja,...categoryWords].join(' ');}
 function openResult(p){if(p.region!==R.current)R.setRegion(p.region);D.open(p);}
 function searchRender(){if(!search)return;document.querySelector('.p3-search-clear').hidden=!search.value;resultBox.hidden=!search.value.trim();if(resultBox.hidden)return;const list=D.allPlaces().filter(p=>p.region===R.current),found=M.search(list,search.value,textFor);resultCards.replaceChildren();for(const p of found){const card=D.createCard(p);card.querySelector('.discovery-open').onclick=()=>openResult(p);resultCards.append(card);}const fs=festivals();const matches=M.search(fs,search.value,f=>[f.name,localized(f,'name'),f.region,...Object.values(f.translations||{}).map(v=>v.name),window.MUSUBU_MAP_CONFIG.regions[f.region]?.name_ko,window.MUSUBU_MAP_CONFIG.regions[f.region]?.name_ja].join(' '));matches.forEach(f=>resultCards.append(festivalCard(f)));resultTitle.textContent=t('p3Results',{count:found.length+matches.length});if(!found.length&&!matches.length)resultCards.append(el('p','notice',t('discoverEmpty')));}
-function update(){if(!search)return;I.apply(searchRoot);search.placeholder=t('p3SearchHint');search.setAttribute('aria-label',t('p3Search'));searchRegion.setAttribute('aria-label',t('p3SearchRegion'));[...searchRegion.options].forEach(o=>o.textContent=o.value==='all'?t('p3AllRegions'):(I.lang==='ja'?window.MUSUBU_MAP_CONFIG.regions[o.value].name_ja:window.MUSUBU_MAP_CONFIG.regions[o.value].name_ko));const view=document.body.dataset.browseView||'home';previewRoot.querySelector('h2').textContent=t(view==='discover'?'uxRecommendShops':'uxRecommend');preview.set(D.ranked(view==='discover').slice(0,6));if(view==='home')document.querySelector('.phase-navigation').after(previewRoot);else document.querySelector('footer').before(previewRoot);previewRoot.hidden=['coupon','review'].includes(view)||X.picking;previewRoot.querySelector('.ux-recommend-empty').hidden=preview.items.length>0;previewRoot.querySelector('.ux-recommend-empty').textContent=t('uxRecommendEmpty');festival.set(banners());searchRender();}
+function update(){if(!search)return;I.apply(searchRoot);search.placeholder=t('p3SearchHint');search.setAttribute('aria-label',t('p3Search'));searchRegion.setAttribute('aria-label',t('p3SearchRegion'));[...searchRegion.options].forEach(o=>o.textContent=o.value==='all'?t('p3AllRegions'):(I.lang==='ja'?window.MUSUBU_MAP_CONFIG.regions[o.value].name_ja:window.MUSUBU_MAP_CONFIG.regions[o.value].name_ko));const view=document.body.dataset.browseView||'home';previewRoot.querySelector('h2').textContent=t(view==='discover'?'uxRecommendShops':'uxRecommend');preview.set(D.ranked(view==='discover').slice(0,6));if(view==='home')document.querySelector('.phase-navigation').after(previewRoot);else document.querySelector('footer').before(previewRoot);previewRoot.hidden=['coupon','review'].includes(view)||X.picking;previewRoot.querySelector('.ux-recommend-empty').hidden=preview.items.length>0;previewRoot.querySelector('.ux-recommend-empty').textContent=t('uxRecommendEmpty');festivalRoot.querySelector('h2').textContent=I.lang==='ja'?'地域のイベント・旅案内':'지역 행사·여행 안내';festival.set(banners());searchRender();}
 document.addEventListener('DOMContentLoaded',()=>{
  const nav=document.querySelector('.phase-navigation');searchRoot=el('section','p3-search');searchRoot.setAttribute('role','search');const row=el('div','p3-search-row');search=el('input');search.type='search';search.maxLength=120;searchRegion=el('select');for(const value of [R.current,...Object.keys(window.MUSUBU_MAP_CONFIG.regions).filter(k=>k!==R.current),'all']){const option=el('option');option.value=value;searchRegion.append(option);}const clear=button('p3Clear',()=>{search.value='';searchRender();search.focus();});clear.classList.add('p3-search-clear');clear.hidden=true;row.append(search,clear);resultBox=el('section','p3-results');resultBox.hidden=true;resultTitle=el('h2');resultTitle.setAttribute('role','status');resultCards=el('div','discovery-cards');resultBox.append(resultTitle,resultCards);searchRoot.append(row,resultBox);nav.before(searchRoot);
- festivalRoot=el('section','p3-festival');festivalRoot.hidden=true;searchRoot.after(festivalRoot);festival=new Carousel(festivalRoot,festivalCard);
+ festivalRoot=el('section','p3-festival ux-travel-carousel');festivalRoot.append(el('h2'));festivalRoot.hidden=true;searchRoot.after(festivalRoot);festival=new RecommendationCarousel(festivalRoot,travelCard);
  previewRoot=el('section','p3-preview');previewRoot.append(el('h2'));nav.after(previewRoot);preview=new RecommendationCarousel(previewRoot,p=>{const card=D.createCard(p,false,{favorite:false});card.classList.add('ux-recommend-card');return card;});const empty=el('p','notice ux-recommend-empty');empty.dataset.i18n='uxRecommendEmpty';previewRoot.append(empty);
  search.addEventListener('input',searchRender);searchRegion.onchange=searchRender;window.addEventListener('resize',()=>preview.paint());
  const suggest=button('p3Suggest',()=>{$('registerPlaces').click();$('storyMap').scrollIntoView({block:'center'});});suggest.id='p3Suggest';$('discovery').append(suggest);

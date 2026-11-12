@@ -1,0 +1,10 @@
+// AI-produced artwork supplied by the operator, never represented as venue photography.
+// Only verified events carry dates/venues. No database or security-policy changes.
+window.MUSUBU_TRAVEL_BANNERS = [
+ {id:'yangchon-2026',region:'nonsan',image_url:'assets/travel/yangchon.webp',title_ko:'2026 양촌곶감축제',title_ja:'2026 陽村干し柿祭り',venue_ko:'논산 양촌리 체육공원 일원',venue_ja:'論山市 陽村里体育公園一帯',start_date:'2026-12-11',end_date:'2026-12-13',content_type:'event',is_active:true,display_order:1,source_url:'https://www.nonsan.go.kr/tour/html/sub03/030107.html',image_position:'65% center'},
+ {id:'nonsan-winter-market',region:'nonsan',image_url:'assets/travel/winter-market.webp',title_ko:'지역 겨울 야시장 풍경',title_ja:'冬のナイトマーケット風景',venue_ko:null,venue_ja:null,start_date:null,end_date:null,content_type:'travel_concept',is_active:true,display_order:2,source_url:null,image_position:'65% center'},
+ {id:'chungnam-winter-ice',region:'nonsan',image_url:'assets/travel/winter-ice.webp',title_ko:'충남 겨울 얼음 여행',title_ja:'忠清南道 冬の氷の旅',venue_ko:null,venue_ja:null,start_date:null,end_date:null,content_type:'travel_concept',is_active:true,display_order:3,source_url:null,image_position:'60% center'},
+ {id:'hakata-christmas-2026',region:'fukuoka',image_url:'assets/travel/hakata-christmas.webp',title_ko:'하카타 크리스마스 마켓',title_ja:'クリスマスマーケット in 光の街・博多',venue_ko:'JR 하카타역 앞 광장',venue_ja:'JR博多駅前広場',start_date:'2026-11-07',end_date:'2026-12-25',content_type:'event',is_active:true,display_order:1,source_url:'https://christmas-advent.jp/fukuoka-hakata/',image_position:'70% center'},
+ {id:'fukuoka-winter-walk',region:'fukuoka',image_url:'assets/travel/fukuoka-walk.webp',title_ko:'후쿠오카 겨울빛 산책',title_ja:'福岡 冬の光をめぐる散歩',venue_ko:null,venue_ja:null,start_date:null,end_date:null,content_type:'travel_concept',is_active:true,display_order:2,source_url:null,image_position:'65% center'},
+ {id:'fukuoka-winter-night',region:'fukuoka',image_url:'assets/travel/fukuoka-night.webp',title_ko:'후쿠오카 겨울 야경',title_ja:'福岡 冬の夜景',venue_ko:null,venue_ja:null,start_date:null,end_date:null,content_type:'travel_concept',is_active:true,display_order:3,source_url:null,image_position:'45% center'}
+];

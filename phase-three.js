@@ -64,7 +64,7 @@ class RecommendationCarousel extends Carousel {
   const movable=this.canMove();if(!movable)clearTimeout(this.timer);
   this.controls.hidden=!movable;
   this.viewport.setAttribute('aria-label',this.root.querySelector('h2').textContent);
-  if(this.dots.children.length!==this.items.length){this.dots.replaceChildren();this.items.forEach((item,i)=>{const dot=el('button','ux-slide-dot');dot.type='button';dot.onclick=()=>this.move(i-this.index);this.dots.append(dot);});}
+  if(this.dots.children.length!==this.items.length){this.dots.replaceChildren();this.items.forEach((item,i)=>{const dot=el('button','ux-slide-dot');dot.type='button';dot.onclick=()=>{if(this.transitionTimer)this.paint();this.move(i-this.index);this.update();};this.dots.append(dot);});}
   [...this.dots.children].forEach((dot,i)=>{dot.setAttribute('aria-label',t('p3Slide',{current:i+1,total:this.items.length}));dot.setAttribute('aria-current',String(i===this.index));});
  }
  move(delta){

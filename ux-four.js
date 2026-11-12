@@ -3,18 +3,21 @@
  'use strict';
  document.addEventListener('DOMContentLoaded',()=>{
   const D=window.MUSUBU_DISCOVERY,X=window.MUSUBU_EXPLORE;
-  const toggle=document.createElement('div');toggle.className='ux-map-toggle';
-  for(const [key,on]of [['uxMap',true],['uxList',false]]){const b=document.createElement('button');b.type='button';b.dataset.i18n=key;b.onclick=()=>D.setMapMode(on);toggle.append(b);}
   const pane=document.getElementById('discoveryMapPane');
   const anchor=pane.previousSibling;
-  if(anchor?.nodeType===8)anchor.before(toggle);else pane.before(toggle);
-  const storyIntro=document.createElement('p');storyIntro.className='ux-story-intro';toggle.before(storyIntro);
+  const storyIntro=document.createElement('p');storyIntro.className='ux-story-intro';
+  if(anchor?.nodeType===8)anchor.before(storyIntro);else pane.before(storyIntro);
+  const actions=document.querySelector('.location-tools'),register=document.getElementById('browseRegister');
+  actions.classList.add('ux-story-actions');storyIntro.after(actions);
   const intro=document.createElement('p');intro.className='ux-new-intro';intro.dataset.i18n='uxNewIntro';document.querySelector('#discovery .p3-tabs').before(intro);
   function layout(){
    const view=document.body.dataset.browseView;
-   toggle.hidden=view!=='story'||X.picking;storyIntro.hidden=toggle.hidden;storyIntro.textContent=window.MUSUBU_I18N.t('uxStoryIntro');intro.hidden=view!=='new';
-   [...toggle.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(D.mapMode===(i===0))));
-   window.MUSUBU_I18N.apply(toggle);intro.textContent=window.MUSUBU_I18N.t('uxNewIntro');
+   const story=view==='story'&&!X.picking;
+   storyIntro.hidden=!story;actions.hidden=!story;
+   storyIntro.textContent=window.MUSUBU_I18N.t('uxStoryIntro');intro.hidden=view!=='new';
+   if(story)actions.insertBefore(register,actions.querySelector('.notice'));
+   else document.querySelector('.browse-title').append(register);
+   intro.textContent=window.MUSUBU_I18N.t('uxNewIntro');
   }
   ['musubu:browse-view','musubu:map-mode','musubu:picking','musubu:languagechange'].forEach(event=>document.addEventListener(event,layout));layout();
   const I=window.MUSUBU_I18N,R=window.MUSUBU_REGION,top=document.querySelector('.hero-top');

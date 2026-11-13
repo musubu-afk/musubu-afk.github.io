@@ -47,6 +47,15 @@ const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),bu
  if(p.shop_id||M.business(p)||M.userPlace(p))cat.append(el('span','phase-origin',t(M.origin(p))));
  if(p.is_demo||p.is_example)cat.append(el('span','phase-demo',t(p.is_demo?'phaseDemoShop':'phaseDemo')));
  const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.dataset.unavailable=String(!window.MUSUBU_LOCATION?.available(p));dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
+ if(options.story){
+  const address=typeof v.address==='string'?v.address.trim():'';
+  const actualDistance=window.MUSUBU_LOCATION?.available(p)?U.distance(rawDistance):'';
+  const locationText=[address,actualDistance].filter(Boolean).join(' · ');
+  dist.classList.add('story-location');dist.removeAttribute('data-unavailable');
+  dist.title=locationText;dist.setAttribute('aria-label',locationText);dist.replaceChildren();
+  if(locationText)dist.append(U.icon('pin'),el('span','story-location-text',locationText));
+  else dist.setAttribute('aria-hidden','true');
+ }
  const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);meta.append(stat,dist);text.append(el('strong','',v.name),cat,meta);
  if(showNew&&M.userPlace(p)){if(M.isNew(p))cat.prepend(el('span','ux-new-badge',t('uxNewBadge')));const ms=M.publicDate(p);if(ms!==null){const date=new Date(ms),time=el('time','ux-date',date.toLocaleDateString(I.locale));time.dateTime=date.toISOString();text.append(time);}else text.append(el('small','ux-date',t('uxDateUnknown')));}button.append(text);
  const heart=el('button','discovery-heart ux-bookmark');heart.append(U.icon('bookmark'));heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button);if(options.favorite!==false)card.append(heart);return card;
@@ -57,7 +66,7 @@ function renderCards(){cards.replaceChildren();let list;
  else if(recommendation==='popular')list=ranked();
  else if(recommendation==='new')list=M.newest(X.places.filter(p=>p.region===region()));
  else list=allPlaces().filter(p=>p.region===region()&&M.business(p));
- list=list.filter(matches);list.forEach(p=>cards.append(createCard(p)));
+ list=list.filter(matches);list.forEach(p=>cards.append(createCard(p,source==='new',{story:source==='places'})));
  if(!list.length)cards.append(el('p','notice',t('discoverEmpty')));
  document.dispatchEvent(new Event('musubu:discovery-rendered'));
 }

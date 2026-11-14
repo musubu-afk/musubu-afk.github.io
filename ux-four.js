@@ -13,7 +13,7 @@
   function layout(){
    const view=document.body.dataset.browseView;
    const story=view==='story'&&!X.picking;
-   storyIntro.hidden=!story;actions.hidden=!story;
+   storyIntro.hidden=true;actions.hidden=!story;
    storyIntro.textContent=window.MUSUBU_I18N.t('uxStoryIntro');intro.hidden=view!=='new';
    if(story)actions.insertBefore(register,actions.querySelector('.notice'));
    else document.querySelector('.browse-title').append(register);
@@ -35,10 +35,20 @@
   dialog.querySelector('.place-head button').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
   const qr=document.querySelector('.qrbtn');qr.removeAttribute('data-i18n');qr.replaceChildren();
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML='<path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 13v4h-3v4h4M6 6h1v1H6zM17 6h1v1h-1zM6 17h1v1H6zM13 20h1"/>';qr.append(svg);controls.replaceChildren(qr,trigger);top.append(controls);
+  const nav=document.querySelector('.phase-navigation'),navAnchor=document.createComment('main navigation');nav.before(navAnchor);
+  const menu=document.createElement('dialog');menu.className='ux-menu-dialog';menu.id='uxStoryMenu';menu.setAttribute('aria-labelledby','uxMenuTitle');
+  menu.innerHTML='<div class="ux-menu-head"><h2 id="uxMenuTitle" data-i18n="phaseMenu"></h2><button type="button" data-i18n="mapClose"></button></div>';
+  const menuTrigger=document.createElement('button');menuTrigger.type='button';menuTrigger.className='ux-menu-trigger';menuTrigger.setAttribute('aria-haspopup','dialog');menuTrigger.setAttribute('aria-controls',menu.id);
+  const lines=document.createElement('span');lines.className='ux-menu-lines';lines.setAttribute('aria-hidden','true');menuTrigger.append(lines);top.prepend(menuTrigger);document.body.append(menu);
+  menuTrigger.onclick=()=>menu.showModal();menu.querySelector('button').onclick=()=>menu.close();
+  menu.addEventListener('click',e=>{if(e.target===menu||e.target.closest('[data-phase-menu]'))menu.close();});
+  function menuLayout(){if(document.body.dataset.browseView==='story')menu.append(nav);else {menu.close();navAnchor.after(nav);}}
+  document.addEventListener('musubu:browse-view',menuLayout);menuLayout();
+  qr.addEventListener('click',e=>{if(document.body.dataset.browseView!=='story')return;const popup=window.open(qr.href,'musubu-qr','popup,width=560,height=720');if(popup)e.preventDefault();});
   function labels(){
    const name=window.MUSUBU_MAP_CONFIG.regions[R.current][I.lang==='ja'?'name_ja':'name_ko'];
    trigger.replaceChildren(window.MUSUBU_PHASE_ONE.icon('globe'));
-   const text=document.createElement('span');text.textContent=name+' · '+(I.lang==='ja'?'日本語':I.lang==='ko'?'한국어':'English')+' ▾';trigger.append(text);trigger.setAttribute('aria-label',I.t('uxSettings'));qr.setAttribute('aria-label',I.t('qrButton'));I.apply(dialog);
+   const text=document.createElement('span');text.textContent=name+' · '+(I.lang==='ja'?'日本語':I.lang==='ko'?'한국어':'English')+' ▾';trigger.append(text);trigger.setAttribute('aria-label',I.t('uxSettings'));qr.setAttribute('aria-label',I.t('qrButton'));I.apply(dialog);I.apply(menu);menuTrigger.setAttribute('aria-label',I.t('phaseMenu'));
   }
   ['musubu:languagechange','musubu:regionchange'].forEach(event=>document.addEventListener(event,labels));labels();
  });

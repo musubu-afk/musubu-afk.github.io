@@ -45,18 +45,18 @@ const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),bu
 
  const text=el('span','discovery-copy'),cat=el('small','phase-card-category');cat.append(el('span','phase-category-chip',t([...placeCategories,...shopCategories].find(([id])=>id===group(p))?.[1]||'mapCategory_local')));
  if(p.shop_id||M.business(p)||M.userPlace(p))cat.append(el('span','phase-origin',t(M.origin(p))));
- if(p.is_demo||p.is_example)cat.append(el('span','phase-demo',t(p.is_demo?'phaseDemoShop':'phaseDemo')));
+ if(!options.story&&(p.is_demo||p.is_example))cat.append(el('span','phase-demo',t(p.is_demo?'phaseDemoShop':'phaseDemo')));
  const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.dataset.unavailable=String(!window.MUSUBU_LOCATION?.available(p));dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
+ const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);
  if(options.story){
-  const address=typeof v.address==='string'?v.address.trim():'';
-  const actualDistance=window.MUSUBU_LOCATION?.available(p)?U.distance(rawDistance):'';
-  const locationText=[address,actualDistance].filter(Boolean).join(' · ');
-  dist.classList.add('story-location');dist.removeAttribute('data-unavailable');
-  dist.title=locationText;dist.setAttribute('aria-label',locationText);dist.replaceChildren();
-  if(locationText)dist.append(U.icon('pin'),el('span','story-location-text',locationText));
-  else dist.setAttribute('aria-hidden','true');
- }
- const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);meta.append(stat,dist);text.append(el('strong','',v.name),cat,meta);
+  dist.hidden=!window.MUSUBU_LOCATION?.available(p);
+  stat.hidden=metrics(p).count===0;
+  meta.hidden=dist.hidden&&stat.hidden;
+  if(!stat.hidden)meta.append(stat);
+  if(!stat.hidden&&!dist.hidden){const divider=el('span','story-meta-divider','|');divider.setAttribute('aria-hidden','true');meta.append(divider);}
+  if(!dist.hidden)meta.append(dist);
+ }else meta.append(stat,dist);
+ text.append(el('strong','',v.name),cat,meta);
  if(showNew&&M.userPlace(p)){if(M.isNew(p))cat.prepend(el('span','ux-new-badge',t('uxNewBadge')));const ms=M.publicDate(p);if(ms!==null){const date=new Date(ms),time=el('time','ux-date',date.toLocaleDateString(I.locale));time.dateTime=date.toISOString();text.append(time);}else text.append(el('small','ux-date',t('uxDateUnknown')));}button.append(text);
  const heart=el('button','discovery-heart ux-bookmark');heart.append(U.icon('bookmark'));heart.type='button';heart.setAttribute('aria-label',v.name+' · '+t(favorite(p)?'favoriteSaved':'favoriteAdd'));heart.setAttribute('aria-pressed',String(favorite(p)));heart.disabled=saving||(!!p.shop_id&&!shopLoaded);heart.onclick=()=>toggle(p,heart);card.append(button);if(options.favorite!==false)card.append(heart);return card;
 }

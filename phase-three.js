@@ -16,10 +16,11 @@ class Carousel {
  }
  new IntersectionObserver(entries=>this.hold('offscreen',!entries[0].isIntersecting)).observe(root);document.addEventListener('visibilitychange',()=>this.update());this.motion.addEventListener('change',()=>this.update());new MutationObserver(()=>this.hold('dialog',!!document.querySelector('dialog[open]'))).observe(document.body,{attributes:true,attributeFilter:['open'],subtree:true});
  }
+ autoMinimum(){return 2;}
  hold(key,on){on?this.pauses.add(key):this.pauses.delete(key);this.update();}
  set(items){const id=this.items[this.index]?.id||this.items[this.index]?.shop_id;this.items=items;this.index=Math.max(0,items.findIndex(p=>(p.id||p.shop_id)===id));this.root.hidden=!items.length;this.paint();}
  paint(){this.body.replaceChildren();for(let n=0;n<Math.min(this.pageSize(),this.items.length);n++)this.body.append(this.draw(this.items[(this.index+n)%this.items.length]));this.update();}
- update(){clearTimeout(this.timer);this.controls.hidden=this.items.length<2;this.counter.textContent=t('p3Slide',{current:this.index+1,total:this.items.length});I.apply(this.controls);this.pause.textContent=this.manual?'▶':'Ⅱ';this.pause.setAttribute('aria-label',t(this.manual?'p3Play':'p3Pause'));this.pause.removeAttribute('data-i18n');this.pause.setAttribute('aria-pressed',String(!!this.manual));if(this.items.length>1&&!this.manual&&!this.motion.matches&&!document.hidden&&!this.root.hidden&&!this.pauses.size)this.timer=setTimeout(()=>this.move(1),3000);}
+ update(){this.controls.hidden=this.items.length<2;this.counter.textContent=t('p3Slide',{current:this.index+1,total:this.items.length});I.apply(this.controls);this.pause.textContent=this.manual?'▶':'Ⅱ';this.pause.setAttribute('aria-label',t(this.manual?'p3Play':'p3Pause'));this.pause.removeAttribute('data-i18n');this.pause.setAttribute('aria-pressed',String(!!this.manual));const running=this.items.length>=this.autoMinimum()&&!this.manual&&!this.motion.matches&&!document.hidden&&!this.root.hidden&&!this.pauses.size;if(running){if(!this.timer)this.timer=setTimeout(()=>{this.timer=null;this.move(1);},3000);}else{clearTimeout(this.timer);this.timer=null;}}
  move(delta){if(this.items.length<2)return;this.index=(this.index+delta+this.items.length)%this.items.length;this.paint();if(!this.motion.matches){this.body.classList.remove('p3-enter');void this.body.offsetWidth;this.body.classList.add('p3-enter');this.body.animate([{transform:'translateX('+ (delta>0?'8%':'-8%') +')',opacity:.4},{transform:'translateX(0)',opacity:1}],{duration:240,easing:'ease-out'});}}
 }
 class RecommendationCarousel extends Carousel {
@@ -32,11 +33,16 @@ class RecommendationCarousel extends Carousel {
   this.viewport.tabIndex=0;this.viewport.setAttribute('role','group');
   this.viewport.setAttribute('aria-roledescription','carousel');
   this.body.addEventListener('dragstart',e=>e.preventDefault());
-  this.body.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.swiped=false;this.start={x:e.clientX,y:e.clientY,id:e.pointerId};this.hold('touch',true);});
+  this.body.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.swiped=false;this.start={x:e.clientX,y:e.clientY,id:e.pointerId};this.body.setPointerCapture(e.pointerId);this.hold('touch',true);});
   this.body.addEventListener('pointermove',e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.4){this.body.setPointerCapture(e.pointerId);this.body.classList.add('ux-dragging');}});
   const finish=e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;this.swiped=e.type==='pointerup'&&Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4;this.start=null;this.body.classList.remove('ux-dragging');if(this.body.hasPointerCapture(e.pointerId))this.body.releasePointerCapture(e.pointerId);if(this.swiped)this.move(dx<0?1:-1);this.hold('touch',false);};
   for(const event of ['pointerup','pointercancel','lostpointercapture'])this.body.addEventListener(event,finish);
   this.body.addEventListener('click',e=>{if(this.swiped){e.preventDefault();e.stopPropagation();this.swiped=false;}},true);
+  const release=()=>{if(!this.start)return;this.start=null;this.body.classList.remove('ux-dragging');this.hold('touch',false);};
+  window.addEventListener('pointerup',release);
+  window.addEventListener('pointercancel',release);
+  window.addEventListener('blur',release);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
   this.viewport.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();this.hold('keyboard',true);this.move(e.key==='Home'?-this.index:e.key==='End'?this.items.length-1-this.index:e.key==='ArrowRight'?1:-1);});
   this.viewport.addEventListener('keyup',()=>this.hold('keyboard',false));
   this.viewport.addEventListener('focusout',()=>this.hold('keyboard',false));
@@ -49,6 +55,7 @@ class RecommendationCarousel extends Carousel {
   this.items=items;if(changed)this.index=0;
   this.root.hidden=!items.length;this.paint();
  }
+ autoMinimum(){return 3;}
  canMove(){return this.items.length>1&&!!this.viewport;}
  paint(){
   clearTimeout(this.transitionTimer);this.transitionTimer=null;
@@ -61,7 +68,7 @@ class RecommendationCarousel extends Carousel {
 
  update(){
   super.update();if(!this.dots)return;
-  const movable=this.canMove();if(!movable)clearTimeout(this.timer);
+  const movable=this.canMove();if(!movable){clearTimeout(this.timer);this.timer=null;}
   this.controls.hidden=!movable;
   this.viewport.setAttribute('aria-label',this.root.querySelector('h2').textContent);
   if(this.dots.children.length!==this.items.length){this.dots.replaceChildren();this.items.forEach((item,i)=>{const dot=el('button','ux-slide-dot');dot.type='button';dot.onclick=()=>{if(this.transitionTimer)this.paint();this.move(i-this.index);this.update();};this.dots.append(dot);});}
@@ -90,15 +97,14 @@ class RecommendationCarousel extends Carousel {
 }
 // Festival gestures must release their pause even when the mouse leaves the track.
 class TravelCarousel extends RecommendationCarousel {
+ autoMinimum(){return 2;}
  constructor(root,draw){
   super(root,draw);
-  const release=()=>{if(!this.start)return;this.start=null;this.body.classList.remove('ux-dragging');this.hold('touch',false);};
-  this.body.addEventListener('pointerdown',e=>{if(e.button===0)this.body.setPointerCapture(e.pointerId);});
-  window.addEventListener('pointerup',release);
-  window.addEventListener('pointercancel',release);
-  window.addEventListener('blur',release);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
-  root.addEventListener('focusin',()=>this.hold('festivalFocus',true));
+  root.addEventListener('pointerdown',()=>this.hold('festivalFocus',false));
+  root.addEventListener('mouseenter',()=>this.hold('hover',true));
+  root.addEventListener('mouseleave',()=>this.hold('hover',false));
+  root.addEventListener('focusin',()=>this.hold('festivalFocus',!!document.activeElement?.matches(':focus-visible')));
+  root.addEventListener('keydown',()=>this.hold('festivalFocus',true));
   root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('festivalFocus',root.contains(document.activeElement))));
  }
 }

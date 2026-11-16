@@ -42,7 +42,7 @@
   const lines=document.createElement('span');lines.className='ux-menu-lines';lines.setAttribute('aria-hidden','true');menuTrigger.append(lines);top.prepend(menuTrigger);document.body.append(menu);
   menuTrigger.onclick=()=>menu.showModal();menu.querySelector('button').onclick=()=>menu.close();
   menu.addEventListener('click',e=>{if(e.target===menu||e.target.closest('[data-phase-menu]'))menu.close();});
-  const homeMenu=document.createElement('button');homeMenu.type='button';homeMenu.dataset.phaseMenu='home';homeMenu.dataset.i18n='uiHome';homeMenu.onclick=()=>window.MUSUBU_UI.go('home');nav.prepend(homeMenu);
+  const homeMenu=document.createElement('button');homeMenu.type='button';homeMenu.dataset.phaseMenu='home';const homeLabel=document.createElement('span');homeLabel.dataset.i18n='uiHome';homeMenu.append(window.MUSUBU_PHASE_ONE.icon('home'),homeLabel);homeMenu.onclick=()=>window.MUSUBU_UI.go('home');nav.prepend(homeMenu);
   function menuLayout(){const view=document.body.dataset.browseView;const subpage=['story','new','discover','coupon'].includes(view);homeMenu.hidden=!subpage;if(subpage)menu.append(nav);else {menu.close();navAnchor.after(nav);if(view==='home'){const preview=document.querySelector('.p3-preview');if(preview)nav.after(preview);}}nav.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.phaseMenu===view?'page':'false')));}
   document.addEventListener('musubu:browse-view',menuLayout);menuLayout();
   qr.addEventListener('click',e=>{if(!['story','new','discover','coupon'].includes(document.body.dataset.browseView))return;const popup=window.open(qr.href,'musubu-qr','popup,width=560,height=720');if(popup)e.preventDefault();});

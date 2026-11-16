@@ -96,7 +96,7 @@ body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discov
 .ux-menu-dialog{width:min(340px,calc(100% - 32px));padding:20px;border:1px solid var(--musubu-border);border-radius:18px;color:var(--musubu-primary)}
 .ux-menu-dialog::backdrop{background:#132e2466}
 .ux-menu-dialog .phase-navigation{display:grid!important;grid-template-columns:1fr;margin:12px 0 0;padding:0}
-.ux-menu-dialog .phase-navigation button{flex-direction:row;justify-content:flex-start;min-height:48px;padding:10px 14px}
+.ux-menu-dialog .phase-navigation button{flex-direction:row;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:10px 14px}
 .ux-menu-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .ux-menu-head h2{font-size:20px;margin:0}
 .ux-menu-head button{min-height:44px;padding:8px 12px;border:1px solid var(--musubu-border);border-radius:10px;background:white;color:var(--musubu-primary)}
@@ -137,3 +137,7 @@ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .ux-boo
 .ux-menu-dialog .phase-navigation button[hidden]{display:none}
 .ux-menu-dialog .phase-navigation button[aria-current=page]{background:var(--musubu-primary);color:white}
 body[data-browse-view=discover] #discovery .phase-demo{font-size:10px;line-height:1.4;white-space:normal}
+
+.ux-menu-dialog .phase-navigation button svg{flex:none;color:inherit;stroke:currentColor}
+/* Keep recommendation cards compact while leaving one item offscreen at three items. */
+@media(min-width:601px){.p3-preview:not([data-item-count="1"]):not([data-item-count="2"]) .ux-recommend-viewport{max-width:704px}.p3-preview:not([data-item-count="1"]):not([data-item-count="2"]) .ux-recommend-card{flex-basis:calc((100% - 12px)/2)}}

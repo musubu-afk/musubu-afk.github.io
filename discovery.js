@@ -48,7 +48,7 @@ const v=p.shop_id?I.shopView(p):X.view(p),card=el('article','discovery-card'),bu
  if(!options.story&&(p.is_demo||p.is_example))cat.append(el('span','phase-demo',t(p.is_demo?'phaseDemoShop':'phaseDemo')));
  const meta=el('span','phase-card-meta'),rawDistance=distance(p),dist=el('small','phase-distance');dist.dataset.unavailable=String(!window.MUSUBU_LOCATION?.available(p));dist.title=rawDistance;dist.setAttribute('aria-label',rawDistance);dist.append(U.icon('pin'),document.createTextNode(U.distance(rawDistance)));
  const stat=el('span','discovery-summary',U.stats(summary(p)));stat.title=summary(p);
- if(options.story){
+ if(options.story||options.shopGallery){
   dist.hidden=!window.MUSUBU_LOCATION?.available(p);
   stat.hidden=metrics(p).count===0;
   meta.hidden=dist.hidden&&stat.hidden;
@@ -66,7 +66,7 @@ function renderCards(){cards.replaceChildren();let list;
  else if(recommendation==='popular')list=ranked();
  else if(recommendation==='new')list=M.newest(X.places.filter(p=>p.region===region()));
  else list=allPlaces().filter(p=>p.region===region()&&M.business(p));
- list=list.filter(matches);list.forEach(p=>cards.append(createCard(p,source==='new',{story:source==='places'})));
+ list=list.filter(matches);list.forEach(p=>cards.append(createCard(p,source==='new',{story:source==='places',shopGallery:source==='shops'})));
  if(!list.length)cards.append(el('p','notice',t('discoverEmpty')));
  document.dispatchEvent(new Event('musubu:discovery-rendered'));
 }
@@ -93,3 +93,4 @@ function selectSource(next){recommendation=next==='new'?'latest':'business';sour
 window.MUSUBU_DISCOVERY={favorite,toggle,setMapMode,matches,listCategories,get filter(){return filter;},get mapMode(){return mapMode;},selectSource,createCard,allPlaces,ranked,metrics,group,open,get source(){return source;}};
 X.setFilter(matches);labels();loadShopFavorites();
 })();
+

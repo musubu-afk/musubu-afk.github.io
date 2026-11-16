@@ -88,6 +88,20 @@ class RecommendationCarousel extends Carousel {
  }
 
 }
+// Festival gestures must release their pause even when the mouse leaves the track.
+class TravelCarousel extends RecommendationCarousel {
+ constructor(root,draw){
+  super(root,draw);
+  const release=()=>{if(!this.start)return;this.start=null;this.body.classList.remove('ux-dragging');this.hold('touch',false);};
+  this.body.addEventListener('pointerdown',e=>{if(e.button===0)this.body.setPointerCapture(e.pointerId);});
+  window.addEventListener('pointerup',release);
+  window.addEventListener('pointercancel',release);
+  window.addEventListener('blur',release);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
+  root.addEventListener('focusin',()=>this.hold('festivalFocus',true));
+  root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('festivalFocus',root.contains(document.activeElement))));
+ }
+}
 function travelCard(f){
  const ja=I.lang==='ja',card=el('article','ux-travel-card');card.dataset.bannerId=f.id;
  const img=el('img');img.src=f.image_url;img.alt='';img.draggable=false;img.style.objectPosition=f.image_position||'center';img.onerror=()=>img.hidden=true;
@@ -130,7 +144,7 @@ function searchRender(){if(!search)return;document.querySelector('.p3-search-cle
 function update(){if(!search)return;I.apply(searchRoot);search.placeholder=t('p3SearchHint');search.setAttribute('aria-label',t('p3Search'));searchRegion.setAttribute('aria-label',t('p3SearchRegion'));[...searchRegion.options].forEach(o=>o.textContent=o.value==='all'?t('p3AllRegions'):(I.lang==='ja'?window.MUSUBU_MAP_CONFIG.regions[o.value].name_ja:window.MUSUBU_MAP_CONFIG.regions[o.value].name_ko));const view=document.body.dataset.browseView||'home';previewRoot.querySelector('h2').textContent=t(view==='discover'?'uxRecommendShops':'uxRecommend');preview.set(D.ranked(view==='discover').slice(0,6));if(view==='home')document.querySelector('.phase-navigation').after(previewRoot);else document.querySelector('footer').before(previewRoot);previewRoot.hidden=['coupon','review'].includes(view)||X.picking;previewRoot.querySelector('.ux-recommend-empty').hidden=preview.items.length>0;previewRoot.querySelector('.ux-recommend-empty').textContent=t('uxRecommendEmpty');festivalRoot.querySelector('h2').textContent=I.lang==='ja'?'地域のイベント・旅案内':'지역 행사·여행 안내';festival.set(banners());searchRender();}
 document.addEventListener('DOMContentLoaded',()=>{
  const nav=document.querySelector('.phase-navigation');searchRoot=el('section','p3-search');searchRoot.setAttribute('role','search');const row=el('div','p3-search-row');search=el('input');search.type='search';search.maxLength=120;searchRegion=el('select');for(const value of [R.current,...Object.keys(window.MUSUBU_MAP_CONFIG.regions).filter(k=>k!==R.current),'all']){const option=el('option');option.value=value;searchRegion.append(option);}const clear=button('p3Clear',()=>{search.value='';searchRender();search.focus();});clear.classList.add('p3-search-clear');clear.hidden=true;row.append(search,clear);resultBox=el('section','p3-results');resultBox.hidden=true;resultTitle=el('h2');resultTitle.setAttribute('role','status');resultCards=el('div','discovery-cards');resultBox.append(resultTitle,resultCards);searchRoot.append(row,resultBox);nav.before(searchRoot);
- festivalRoot=el('section','p3-festival ux-travel-carousel');festivalRoot.append(el('h2'));festivalRoot.hidden=true;searchRoot.after(festivalRoot);festival=new RecommendationCarousel(festivalRoot,travelCard);
+ festivalRoot=el('section','p3-festival ux-travel-carousel');festivalRoot.append(el('h2'));festivalRoot.hidden=true;searchRoot.after(festivalRoot);festival=new TravelCarousel(festivalRoot,travelCard);
  previewRoot=el('section','p3-preview');previewRoot.append(el('h2'));nav.after(previewRoot);preview=new RecommendationCarousel(previewRoot,p=>{const card=D.createCard(p,false,{favorite:false});card.classList.add('ux-recommend-card');return card;});const empty=el('p','notice ux-recommend-empty');empty.dataset.i18n='uxRecommendEmpty';previewRoot.append(empty);
  search.addEventListener('input',searchRender);searchRegion.onchange=searchRender;window.addEventListener('resize',()=>preview.paint());
  const suggest=button('p3Suggest',()=>{$('registerPlaces').click();$('storyMap').scrollIntoView({block:'center'});});suggest.id='p3Suggest';$('discovery').append(suggest);
@@ -149,3 +163,4 @@ function renderRoute(p){routeMap?.remove();routeMap=null;routeSection?.remove();
 document.addEventListener('musubu:place-detail',e=>queueMicrotask(()=>renderRoute(e.detail.place)));
 $('placeDialog').addEventListener('close',()=>{routeMap?.remove();routeMap=null;routeSection?.remove();routeSection=null;});
 })();
+

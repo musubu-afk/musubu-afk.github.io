@@ -34,7 +34,7 @@ html,body{overflow-x:clip}
 /* Home/story structure: one exploration surface at a time. */
 .ux-promo{height:220px}.ux-promo>div{padding:28px}.ux-promo p{margin-bottom:0}
 .ux-story-intro{margin:0 0 12px;color:var(--musubu-muted);font-size:14px;line-height:1.6}.ux-story-intro[hidden]{display:none}
-body[data-browse-view=story] #discovery>.discovery-heading,body[data-browse-view=story] #discovery>.location-tools{display:none!important}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery>.discovery-heading,body:is([data-browse-view=story],[data-browse-view=discover]) #discovery>.location-tools{display:none!important}
 #discovery .ux-bookmark{display:grid;place-items:center;right:5px;top:7px;width:36px;min-width:36px;height:40px;min-height:40px;padding:8px;border:0;border-radius:8px;background:transparent;color:var(--musubu-primary)}
 .ux-bookmark svg{width:20px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}.ux-bookmark[aria-pressed=true] svg{fill:currentColor}.ux-bookmark:focus-visible{outline:2px solid var(--musubu-primary);outline-offset:1px}
 @media(max-width:600px){.ux-promo{height:175px}.ux-promo>div{padding:18px}.ux-promo h3{font-size:20px}.ux-story-intro{font-size:13px;margin-bottom:10px}}
@@ -74,7 +74,7 @@ body[data-browse-view=home] .app>footer{display:none}
 @media(prefers-reduced-motion:reduce){.ux-travel-carousel .p3-slide,.p3-preview .p3-slide{transition:none!important}}
 
 /* Story-only browsing surface. Registration continues to own its Leaflet map. */
-body[data-browse-view=story] #discovery .discovery-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
 .ux-story-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 16px}
 .ux-story-actions[hidden]{display:none!important}
 .ux-story-actions #locateVisitor,.ux-story-actions #browseRegister{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:44px;margin:0;padding:9px 6px;border:1px solid var(--musubu-primary);border-radius:999px;font:inherit;font-size:14px;font-weight:700;white-space:nowrap;background:white;color:var(--musubu-primary)}
@@ -83,14 +83,14 @@ body[data-browse-view=story] #discovery .discovery-cards{grid-template-columns:r
 .ux-story-actions .notice{display:none;grid-column:1/-1;margin:0;font-size:13px}
 .ux-story-actions[data-status=locationDenied] .notice,.ux-story-actions[data-status=locationUnavailable] .notice{display:block}
 
-body[data-browse-view=story] #discovery .discovery-filters{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:8px;padding:3px 0 12px}
-body[data-browse-view=story] #discovery .discovery-filters button{flex-shrink:0;white-space:nowrap;min-height:40px}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-filters{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:8px;padding:3px 0 12px}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-filters button{flex-shrink:0;white-space:nowrap;min-height:40px}
 /* Compact story gallery; other browsing screens keep their existing styles. */
-body[data-browse-view=story] .brand-home,body[data-browse-view=story] .ux-story-intro{display:none!important}
+body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon]) .brand-home,body[data-browse-view=story] .ux-story-intro{display:none!important}
 body[data-browse-view=story] .browse-title{margin:4px 0 14px}
-body[data-browse-view=story] .hero-top{justify-content:space-between}
+body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon]) .hero-top{justify-content:space-between}
 .ux-menu-trigger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border:0;background:white;color:var(--musubu-primary);border-radius:10px}
-body[data-browse-view=story] .ux-menu-trigger{display:flex}
+body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon]) .ux-menu-trigger{display:flex}
 .ux-menu-lines{width:24px;height:18px;border-block:2px solid currentColor;position:relative}
 .ux-menu-lines::after{content:'';position:absolute;left:0;right:0;top:6px;border-top:2px solid currentColor}
 .ux-menu-dialog{width:min(340px,calc(100% - 32px));padding:20px;border:1px solid var(--musubu-border);border-radius:18px;color:var(--musubu-primary)}
@@ -100,30 +100,40 @@ body[data-browse-view=story] .ux-menu-trigger{display:flex}
 .ux-menu-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .ux-menu-head h2{font-size:20px;margin:0}
 .ux-menu-head button{min-height:44px;padding:8px 12px;border:1px solid var(--musubu-border);border-radius:10px;background:white;color:var(--musubu-primary)}
-body[data-browse-view=story] #discovery .discovery-cards{grid-template-columns:repeat(3,minmax(0,1fr));max-width:1040px;margin-inline:auto;gap:16px;align-items:stretch}
-body[data-browse-view=story] #discovery .discovery-card{border:1px solid var(--musubu-border);border-radius:16px;background:white;box-shadow:0 2px 5px #173d2510}
-body[data-browse-view=story] #discovery .discovery-open{display:flex;flex-direction:column;height:100%;min-height:0;text-align:center;align-items:stretch;justify-content:flex-start}
-body[data-browse-view=story] #discovery .discovery-open>img,body[data-browse-view=story] #discovery .discovery-no-photo{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:15px 15px 0 0;flex:none}
-body[data-browse-view=story] #discovery .discovery-no-photo{display:grid;place-items:center}
-body[data-browse-view=story] #discovery .discovery-copy{padding:10px 8px 14px;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:7px;min-height:0;flex:none}
-body[data-browse-view=story] #discovery .discovery-copy strong{padding:0;margin:0;min-height:0;font-size:18px;line-height:1.35;width:100%;overflow-wrap:anywhere}
-body[data-browse-view=story] #discovery .phase-card-category{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px;min-height:0;margin:0;line-height:1.4}
-body[data-browse-view=story] #discovery .phase-card-meta{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;flex:none;margin:2px 0 0}
-body[data-browse-view=story] #discovery .phase-card-meta[hidden]{display:none}
-body[data-browse-view=story] #discovery .discovery-summary{font-size:14px;line-height:20px;min-height:0;white-space:nowrap;text-align:center}
-body[data-browse-view=story] #discovery .phase-category-chip{font-size:12px;padding:3px 8px}
-body[data-browse-view=story] #discovery .phase-origin{font-size:11px}
-body[data-browse-view=story] #discovery .phase-distance{display:inline-flex;align-items:center;gap:4px;margin:0;font-size:14px;line-height:20px;color:var(--musubu-primary);white-space:nowrap}
-body[data-browse-view=story] #discovery .phase-distance svg{width:15px;height:17px;flex:none}
-body[data-browse-view=story] #discovery .ux-bookmark{top:6px;right:6px;width:44px;min-width:44px;height:44px;min-height:44px;padding:11px;border-radius:50%;background:white;box-shadow:0 1px 5px #0001}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-cards{grid-template-columns:repeat(3,minmax(0,1fr));max-width:1040px;margin-inline:auto;gap:16px;align-items:stretch}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-card{border:1px solid var(--musubu-border);border-radius:16px;background:white;box-shadow:0 2px 5px #173d2510}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-open{display:flex;flex-direction:column;height:100%;min-height:0;text-align:center;align-items:stretch;justify-content:flex-start}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-open>img,body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-no-photo{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:15px 15px 0 0;flex:none}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-no-photo{display:grid;place-items:center}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-copy{padding:10px 8px 14px;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:7px;min-height:0;flex:none}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-copy strong{padding:0;margin:0;min-height:0;font-size:18px;line-height:1.35;width:100%;overflow-wrap:anywhere}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-card-category{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px;min-height:0;margin:0;line-height:1.4}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-card-meta{display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;flex:none;margin:2px 0 0}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-card-meta[hidden]{display:none}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-summary{font-size:14px;line-height:20px;min-height:0;white-space:nowrap;text-align:center}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-category-chip{font-size:12px;padding:3px 8px}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-origin{font-size:11px}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-distance{display:inline-flex;align-items:center;gap:4px;margin:0;font-size:14px;line-height:20px;color:var(--musubu-primary);white-space:nowrap}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-distance svg{width:15px;height:17px;flex:none}
+body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .ux-bookmark{top:6px;right:6px;width:44px;min-width:44px;height:44px;min-height:44px;padding:11px;border-radius:50%;background:white;box-shadow:0 1px 5px #0001}
 @media(max-width:767px){
  body[data-browse-view=story] .browse-title{margin:2px 0 12px}
- body[data-browse-view=story] #discovery .discovery-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
- body[data-browse-view=story] #discovery .discovery-copy{padding:8px 5px 11px;gap:6px}
- body[data-browse-view=story] #discovery .discovery-copy strong{font-size:15px}
- body[data-browse-view=story] #discovery .phase-category-chip{font-size:11px;padding:3px 6px}
- body[data-browse-view=story] #discovery .phase-origin{font-size:10px}
- body[data-browse-view=story] #discovery .discovery-summary,body[data-browse-view=story] #discovery .phase-distance{font-size:11px}
- body[data-browse-view=story] #discovery .phase-card-meta{gap:4px}
- body[data-browse-view=story] #discovery .ux-bookmark{top:4px;right:4px;width:40px;min-width:40px;height:40px;min-height:40px;padding:10px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-copy{padding:8px 5px 11px;gap:6px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-copy strong{font-size:15px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-category-chip{font-size:11px;padding:3px 6px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-origin{font-size:10px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .discovery-summary,body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-distance{font-size:11px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .phase-card-meta{gap:4px}
+ body:is([data-browse-view=story],[data-browse-view=discover]) #discovery .ux-bookmark{top:4px;right:4px;width:40px;min-width:40px;height:40px;min-height:40px;padding:10px}
 }
+
+
+/* Shared A-style back control: icon geometry centered inside a 44px target. */
+.browse-title{display:flex;align-items:center;gap:8px}
+.browse-title>button:first-child{display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:10px;border:0;border-radius:0;background:transparent;color:var(--musubu-primary);box-shadow:none}
+.browse-title>button:first-child[hidden]{display:none}
+.browse-title>button:first-child svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ux-menu-dialog .phase-navigation button[hidden]{display:none}
+.ux-menu-dialog .phase-navigation button[aria-current=page]{background:var(--musubu-primary);color:white}
+body[data-browse-view=discover] #discovery .phase-demo{font-size:10px;line-height:1.4;white-space:normal}

@@ -2,18 +2,34 @@
 (() => {
 'use strict';
 const I=window.MUSUBU_I18N,D=window.MUSUBU_DISCOVERY;
-let view='home',navigating=false,back,title,registrationCategory=null;
+let view='home',navigating=false,back,title,registrationCategory=null, registrationOrigin=null;
 const valid=v=>['home','story','new','discover','coupon','review'].includes(v);
 function read(){const v=new URL(location.href).searchParams.get('view');return valid(v)?v:location.hash.includes('shops')||location.hash.includes('voucher')?'coupon':location.hash.includes('review')?'review':'home';}
-function paint(){document.body.dataset.browseView=view;if(!back)return;back.hidden=view==='home';back.setAttribute('aria-label',I.t('uiHome'));title.textContent=I.t(view==='new'?'uxNew':view==='discover'?'uxShops':view==='coupon'?'phaseCoupon':view==='review'?'phaseReviews':'phaseStory');document.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===view?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';const reg=document.getElementById('browseRegister');if(reg){reg.hidden=!['story','new','discover'].includes(view);reg.textContent=I.t(view==='discover'?'p3Suggest':'uxRegister');}document.dispatchEvent(new CustomEvent('musubu:browse-view',{detail:{view}}));}
-function go(next,restore=false){if(!valid(next))return;navigating=true;view=next;if(next==='story'||next==='discover'||next==='new')D.selectSource(next==='story'?'places':next==='new'?'new':'shops');if(!restore)window.MUSUBU_SCREENS.go(next==='coupon'?'shops':next==='review'?'review':'story');const url=new URL(location.href);url.searchParams.set('view',view);history.replaceState(history.state,'',url);navigating=false;paint();requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));}
+function paint(){document.body.dataset.browseView=view;if(!back)return;back.hidden=view==='home';back.setAttribute('aria-label',I.t('uiHome'));title.textContent=I.t(view==='new'?'uxNew':view==='discover'?'uxShops':view==='coupon'?'phaseCoupon':view==='review'?'phaseReviews':'phaseStory');document.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===view?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';const reg=document.getElementById('browseRegister');if(reg){reg.hidden=!!window.MUSUBU_EXPLORE.picking||!['story','new','discover'].includes(view);reg.textContent=I.t(view==='discover'?'p3Suggest':'uxRegister');}document.dispatchEvent(new CustomEvent('musubu:browse-view',{detail:{view}}));}
+function go(next,restore=false){if(!valid(next))return;if(!restore)registrationOrigin=null;navigating=true;view=next;if(next==='story'||next==='discover'||next==='new')D.selectSource(next==='story'?'places':next==='new'?'new':'shops');if(!restore)window.MUSUBU_SCREENS.go(next==='coupon'?'shops':next==='review'?'review':'story');const url=new URL(location.href);url.searchParams.set('view',view);history.replaceState(history.state,'',url);navigating=false;paint();requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));}
 window.MUSUBU_UI={go};
-document.addEventListener('DOMContentLoaded',()=>{const bar=document.createElement('div');bar.className='browse-title';back=document.createElement('button');back.type='button';back.append(window.MUSUBU_PHASE_ONE.icon('back'));back.onclick=()=>go('home');title=document.createElement('h1');bar.append(back,title);document.querySelector('.p3-search').before(bar);const brand=document.querySelector('.brand'),home=document.createElement('button');home.className='brand-home';home.type='button';brand.before(home);home.append(brand);home.onclick=()=>go('home');const qr=document.querySelector('.qrbtn');const qrArea=document.createElement('div');qrArea.className='browse-qr';qrArea.append(qr);document.querySelector('footer').before(qrArea);const reg=document.createElement('button');reg.id='browseRegister';reg.className='p3-button';reg.type='button';reg.onclick=()=>{const shop=view==='discover';document.getElementById('registerPlaces').click();registrationCategory=shop?'meal':null;};document.getElementById('recommendForm').addEventListener('reset',()=>{if(!registrationCategory)return;const category=registrationCategory;registrationCategory=null;queueMicrotask(()=>{document.getElementById('placeCategory').value=category;});});document.addEventListener('musubu:draft-cleared',()=>registrationCategory=null);bar.append(reg);view=read();go(view,true);});
+function leaveRegistration(){
+ if(registrationOrigin && !window.MUSUBU_EXPLORE.registration.sending)history.back();
+}
+document.addEventListener('click',e=>{
+ if(!registrationOrigin||!e.target.closest('#cancelPick,#closeRecommend'))return;
+ e.preventDefault();e.stopPropagation();leaveRegistration();
+},true);
+window.addEventListener('popstate',()=>{
+ if(!registrationOrigin)return;
+ const origin=registrationOrigin;registrationOrigin=null;
+ const dialog=document.getElementById('recommendDialog');
+ if(dialog.open)dialog.close();
+ document.getElementById('cancelPick').click();
+ go(origin,true);
+},true);
+document.addEventListener('DOMContentLoaded',()=>{const bar=document.createElement('div');bar.className='browse-title';back=document.createElement('button');back.type='button';back.append(window.MUSUBU_PHASE_ONE.icon('back'));back.onclick=()=>registrationOrigin?leaveRegistration():go('home');title=document.createElement('h1');bar.append(back,title);document.querySelector('.p3-search').before(bar);const brand=document.querySelector('.brand'),home=document.createElement('button');home.className='brand-home';home.type='button';brand.before(home);home.append(brand);home.onclick=()=>go('home');const qr=document.querySelector('.qrbtn');const qrArea=document.createElement('div');qrArea.className='browse-qr';qrArea.append(qr);document.querySelector('footer').before(qrArea);const reg=document.createElement('button');reg.id='browseRegister';reg.className='p3-button';reg.type='button';reg.onclick=()=>{const shop=view==='discover';registrationOrigin=view;history.pushState({registration:true},'');go('story',true);document.getElementById('registerPlaces').click();registrationCategory=shop?'meal':null;};document.getElementById('recommendForm').addEventListener('reset',()=>{if(!registrationCategory)return;const category=registrationCategory;registrationCategory=null;queueMicrotask(()=>{document.getElementById('placeCategory').value=category;});});document.addEventListener('musubu:draft-cleared',()=>registrationCategory=null);bar.append(reg);view=read();go(view,true);});
 document.addEventListener('musubu:navigate',e=>{if(!navigating){view=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':D.source==='new'?'new':D.source==='shops'?'discover':'story';const u=new URL(location.href);u.searchParams.set('view',view);history.replaceState(history.state,'',u);paint();}});
 document.addEventListener('musubu:screenchange',e=>{if(navigating||!back)return;const wanted=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':D.source==='new'?'new':D.source==='shops'?'discover':'story';if(e.detail.screen!== 'story'||view!=='home')view=wanted;paint();});
 window.addEventListener('popstate',()=>{view=read();if(view==='story'||view==='discover'||view==='new'){navigating=true;D.selectSource(view==='story'?'places':view==='new'?'new':'shops');navigating=false;}paint();});
 document.addEventListener('musubu:languagechange',paint);
 document.addEventListener('musubu:regionchange',()=>{view=read();paint();});
-document.addEventListener('musubu:picking',paint);
+document.addEventListener('musubu:picking',e=>{if(!e.detail.picking && !history.state?.registration)registrationOrigin=null;paint();});
+document.addEventListener('musubu:reward-earned',()=>{if(registrationOrigin && history.state?.registration)history.back();});
 })();
 

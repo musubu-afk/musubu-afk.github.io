@@ -33,7 +33,7 @@ class RecommendationCarousel extends Carousel {
   this.viewport.tabIndex=0;this.viewport.setAttribute('role','group');
   this.viewport.setAttribute('aria-roledescription','carousel');
   this.body.addEventListener('dragstart',e=>e.preventDefault());
-  this.body.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.swiped=false;this.start={x:e.clientX,y:e.clientY,id:e.pointerId};this.body.setPointerCapture(e.pointerId);this.hold('touch',true);});
+  this.body.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.swiped=false;this.start={x:e.clientX,y:e.clientY,id:e.pointerId};this.hold('touch',true);});
   this.body.addEventListener('pointermove',e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.4){this.body.setPointerCapture(e.pointerId);this.body.classList.add('ux-dragging');}});
   const finish=e=>{if(!this.start)return;const dx=e.clientX-this.start.x,dy=e.clientY-this.start.y;this.swiped=e.type==='pointerup'&&Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4;this.start=null;this.body.classList.remove('ux-dragging');if(this.body.hasPointerCapture(e.pointerId))this.body.releasePointerCapture(e.pointerId);if(this.swiped)this.move(dx<0?1:-1);this.hold('touch',false);};
   for(const event of ['pointerup','pointercancel','lostpointercapture'])this.body.addEventListener(event,finish);
@@ -62,7 +62,7 @@ class RecommendationCarousel extends Carousel {
   this.body.style.transition='none';this.body.style.transform='translateX(0)';
   const ordered=this.items.map((_,i)=>this.items[(this.index+i)%this.items.length]);
   this.body.replaceChildren(...ordered.map(this.draw));
-  if(this.root.classList.contains('ux-travel-carousel'))[...this.body.children].forEach((card,i)=>{if(i)card.setAttribute('aria-hidden','true');});
+  if(this.root.classList.contains('ux-travel-carousel'))[...this.body.children].forEach((card,i)=>{if(i){card.setAttribute('aria-hidden','true');card.inert=true;}});
   this.root.dataset.itemCount=String(this.items.length);this.update();
  }
 
@@ -117,15 +117,27 @@ function travelCard(f){
  if(f.start_date&&f.end_date){const format=d=>new Intl.DateTimeFormat(ja?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));copy.append(el('p','ux-travel-date',format(f.start_date)+' ～ '+format(f.end_date)));}
  if(f.venue_ko)copy.append(el('p','ux-travel-venue',ja?f.venue_ja:f.venue_ko));
  copy.append(el('small','ux-travel-note',ja?'AI演出画像 · 実際の現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
- card.append(img,copy);return card;
+ const trigger=el('button','travel-detail-trigger');
+ trigger.type='button';trigger.setAttribute('aria-label',ja?f.title_ja:f.title_ko);
+ trigger.onclick=()=>openFestival(f);
+ card.append(img,copy,trigger);return card;
 }
 let festivalDialog,openedFestival;
 function closeFestival(){festivalDialog?.close();openedFestival=null;}
 function openFestival(f){
  if(!festivalDialog){festivalDialog=el('dialog','festival-dialog');festivalDialog.setAttribute('aria-labelledby','festivalDialogTitle');document.body.append(festivalDialog);festivalDialog.addEventListener('click',e=>{if(e.target===festivalDialog)closeFestival();});festivalDialog.addEventListener('close',()=>openedFestival=null);}
- openedFestival=f;festivalDialog.replaceChildren();const close=button('festivalClose',closeFestival);close.classList.add('festival-close');const h=el('h2','',localized(f,'name'));h.id='festivalDialogTitle';festivalDialog.append(close,h);
+ openedFestival=f;festivalDialog.replaceChildren();const close=button('festivalClose',closeFestival);close.classList.add('festival-close');const h=el('h2','',localized(f,'name'));if(f.content_type)h.textContent=I.lang==='ja'?f.title_ja:f.title_ko;h.id='festivalDialogTitle';festivalDialog.append(close,h);
+ if(f.content_type){
+  const ja=I.lang==='ja',event=f.content_type==='event';
+  if(event){
+   festivalDialog.append(el('p','',festivalDates(f)),el('p','',ja?f.venue_ja:f.venue_ko));
+  }
+  const text=event?(ja?f.description_ja:f.description_ko):(ja?'冬の旅をテーマにしたイメージです。実際の開催情報ではありません。':'겨울 여행을 주제로 한 예시 콘텐츠입니다. 실제 행사 일정은 없습니다.');
+  festivalDialog.append(el('p','',text),el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+ }else{
  if(f.demo||festivalPreview)festivalDialog.append(el('p','festival-test-note',t(f.demo?'festivalDemoNote':'festivalPreviewNote')));
  festivalDialog.append(el('p','',festivalDates(f)),el('p','',localized(f,'schedule')),el('p','',localized(f,'location')),el('p','',localized(f,'description')),el('small','',t('festivalOperatorNote')));
+ }
  if(!festivalDialog.open)festivalDialog.showModal();
 }
 function festivalDates(f){return f.start_date&&f.end_date?f.start_date+' ~ '+f.end_date:t('festivalDatePending');}

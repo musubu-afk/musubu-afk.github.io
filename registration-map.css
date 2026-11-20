@@ -27,4 +27,4 @@ body>.r42-full #storyMap{height:100%!important;min-height:0!important;width:100%
 @media(max-width:600px){.r42-map #storyMap{height:70dvh;min-height:530px}.r42-map .r42-selection{padding:12px}.r42-searchbox{gap:4px}.r42-searchbox>button{padding:8px;font-size:13px}.r42-heading h2{font-size:21px}}
 @media(max-height:500px){.r42-full .r42-selection{left:12px;right:70px;bottom:26px;max-height:125px}.r42-full .r42-help{display:none}.r42-full .r42-selection>p:not(#selectedAddress){display:none}}
 
-.r42-map .r42-selected-pin span{box-shadow:0 0 0 4px white,0 0 0 7px #285947,0 4px 12px #173b4155;transform:rotate(-45deg) scale(1.12)}
+.r42-map .r42-selected-pin span{width:28px;height:28px;box-sizing:border-box;margin:6px auto 0;border-width:2px;box-shadow:0 2px 5px #173b4140}

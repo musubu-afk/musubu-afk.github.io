@@ -100,8 +100,8 @@ $('pickCenter').onclick=()=>{if(map)pick(map.getCenter());};
 function clearDraft(){formStarted=false;document.dispatchEvent(new Event('musubu:draft-cleared'));addressVersion++;addressRequest?.abort();if(draftMarker){draftMarker.remove();draftMarker=null;}point=null;pointAddress='';pointOriginal='';addressPartial=false;$('continuePick').disabled=true;I.clear($('selectedAddress'));}
 function showOriginal(){const box=$('addressOriginalBox');box.hidden=!pointOriginal||pointOriginal===$('placeAddress').value;$('addressOriginalText').textContent=pointOriginal;}
 function showAddress(){
- const el=$('selectedAddress');I.clear(el);el.textContent=(pointAddress||t('mapAddressFallback'))+(point?' · '+point.lat.toFixed(6)+', '+point.lng.toFixed(6):'');
- $('chosenPoint').textContent=t('mapSelected')+' · '+(C.regions[formRegion]['name_'+I.lang]||(I.lang==='en'?formRegion:C.regions[formRegion].name_ko))+(point?' · '+point.lat.toFixed(6)+', '+point.lng.toFixed(6):'');
+ const el=$('selectedAddress');I.clear(el);el.textContent=(pointAddress||t('mapAddressFallback'));
+ $('chosenPoint').textContent=t('mapSelected')+' · '+(C.regions[formRegion]['name_'+I.lang]||(I.lang==='en'?formRegion:C.regions[formRegion].name_ko));
  document.dispatchEvent(new Event('musubu:draft-location'));
 }
 function pick(latlng){addressVersion++;addressRequest?.abort();

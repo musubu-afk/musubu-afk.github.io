@@ -19,16 +19,42 @@ class Detail {
  this.reviews=make('section','p2-recent');this.preview=this.more.querySelector('.review-preview');this.empty=make('p','notice');this.emptyTitle=make('h3');this.all=button('allReviews',()=>this.showReviews());this.reviews.append(this.emptyTitle,this.empty,this.preview,this.all);
  this.bottom=make('div','p2-bottom');this.bottomHeart=button('favoriteAdd',()=>this.nativeHeart.click());this.bottom.append(this.bottomHeart,button('p2Reviews',()=>this.showReviews()));
  this.root.append(this.hero,this.noPhoto,this.heading,this.chips,this.meta,this.intro,this.expand,this.actions,this.status,this.gallery,this.reviews,this.bottom);this.scroll.append(this.root,this.more);
+ if(!shop){
+  this.players=new Map();
+  this.audioSlot=make('div','detail-audio');this.intro.after(this.audioSlot);
+  for(const article of $('officialStories').querySelectorAll('.destination-story')){
+   const player=article.querySelector('.audioBox');
+   if(player?.querySelector('audio[src]'))this.players.set(article.id,player);
+  }
+  this.manage=make('section','place-management');
+  this.manageTitle=make('h3');this.suggest=make('a','community-button');this.suggest.target='_blank';this.suggest.rel='noopener noreferrer';
+  this.suggestNote=make('small','suggest-note');
+  this.manage.append(this.manageTitle,this.suggest,this.more.querySelector('.delete-request'));
+  this.manage.append(this.suggestNote);this.more.after(this.manage);
+ }
  this.topHeart.classList.add('ux-bookmark');this.expand.remove();this.all.remove();this.bottom.remove();
  if(shop){this.more.querySelector('.detail-actions').hidden=true;this.more.querySelector('.cover-wrap').hidden=true;$('detailCategory').hidden=true;$('detailStats').hidden=true;}this.nativeHeart.classList.add('p2-original-heart');
  new MutationObserver(()=>this.syncHeart()).observe(this.nativeHeart,{attributes:true,childList:true,subtree:true});
  new MutationObserver(()=>this.updateStats()).observe(this.preview,{attributes:true,attributeFilter:['hidden'],subtree:true,childList:true});
- this.dialog.addEventListener('close',()=>{this.more.open=false;});
+ this.dialog.addEventListener('close',()=>{this.more.open=false;this.audioSlot?.querySelector('audio')?.pause();});
  }
  syncHeart(){const on=this.nativeHeart.getAttribute('aria-pressed')==='true';for(const b of [this.topHeart,this.bottomHeart]){b.disabled=this.nativeHeart.disabled;b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',t(on?'favoriteSaved':'favoriteAdd'));b.replaceChildren(U.icon('bookmark'));if(b!==this.topHeart)b.append(document.createTextNode(t(on?'favoriteSaved':'favoriteAdd')));}}
  showReviews(){if(this.shop){this.more.open=true;$('detailReviews').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});$('reviewsHeading').focus({preventScroll:true});}else $('communityActions').querySelector('button:last-child').click();}
- updateStats(){if(!this.p)return;const rows=stats.filter(r=>r.place_id===this.p.id);const raw=this.shop?A.summary(this.p.shop_id):rows.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):this.preview.querySelector('.review-preview-stats').textContent;this.rating.textContent=U.stats(raw);this.rating.title=raw;this.empty.hidden=this.emptyTitle.hidden=!this.preview.hidden;}
+ updateStats(){if(!this.p)return;const rows=stats.filter(r=>r.place_id===this.p.id);const raw=this.shop?A.summary(this.p.shop_id):rows.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):this.preview.querySelector('.review-preview-stats').textContent;this.rating.textContent=U.stats(raw);this.rating.title=raw;if(!this.shop)this.rating.hidden=!rows.length&&(!raw||this.preview.hidden);this.empty.hidden=this.emptyTitle.hidden=!this.preview.hidden;}
  render(p){this.p=p;if(this.shop){const notice=this.more.querySelector('[data-i18n=linksNotice],.p2-business-notice');notice.removeAttribute('data-i18n');notice.classList.add('p2-business-notice');notice.hidden=!p.is_demo;notice.textContent=t('p2DemoInfo');}const v=this.shop?I.shopView(p):X.view(p);this.name=v.name;this.status.textContent='';this.moreTitle.textContent=t(this.shop?'p2ShopInfo':'p2StoryInfo');this.root.querySelectorAll('[data-p2label]').forEach(b=>{const label=t(b.dataset.p2label);const s=b.querySelector('span');if(s)s.textContent=label;b.setAttribute('aria-label',label);});this.directions.querySelector('span').textContent=t('p2Directions');this.directions.setAttribute('aria-label',t('p2Directions'));this.directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.latitude+','+p.longitude);this.directions.title=t(this.shop?'p2DemoRoute':'p2Directions');
+ if(!this.shop){
+  const player=this.players.get('story-'+p.story_key);
+  if(this.audioSlot.firstChild!==player){this.audioSlot.querySelector('audio')?.pause();this.audioSlot.replaceChildren(...(player?[player]:[]));}
+  this.audioSlot.hidden=!player;
+  const issue=new URL('https://github.com/musubu-afk/musubu-afk.github.io/issues/new');
+  issue.searchParams.set('title',(I.lang==='ja'?'スポット情報の修正提案: ':'장소 정보 수정 제안: ')+this.name);
+  issue.searchParams.set('body',(I.lang==='ja'?'スポット':'장소')+' ID: '+p.id+'\n\n'+(I.lang==='ja'?'修正したい内容と根拠をご記入ください。':'수정할 내용과 근거를 적어 주세요.'));
+  this.suggest.href=issue.href;
+  this.suggestNote.textContent=I.lang==='ja'?'GitHub にログインして公開の提案を送信します。内容は管理者が確認します。':'GitHub에 로그인해 공개 제안을 제출합니다. 관리자가 내용을 검토합니다.';
+  this.moreTitle.textContent=I.lang==='ja'?'スポット情報':'장소 정보';
+  this.manageTitle.textContent=I.lang==='ja'?'スポット情報の管理':'장소 정보 관리';
+  this.suggest.textContent=I.lang==='ja'?'スポット情報の修正を提案':'장소 정보 수정 제안';
+ }
  const pics=photos(p);this.galleryAll.hidden=!pics.length;this.hero.hidden=!pics.length;this.noPhoto.hidden=!!pics.length;this.noPhoto.textContent=t('discoverNoPhoto');if(pics.length){this.hero.src=pics[0];this.hero.alt=v.name;this.hero.onerror=()=>{this.hero.hidden=true;this.noPhoto.hidden=false;};}
  this.chips.replaceChildren(make('span','',t(category(p))));if(this.shop||window.MUSUBU_PHASE_THREE_MODEL.business(p))this.chips.append(make('span','',t(window.MUSUBU_PHASE_THREE_MODEL.origin(p))));if(p.is_demo)this.chips.append(make('span','',t('phaseDemoShop')));else if(p.is_example)this.chips.append(make('span','',t('phaseDemo')));
  const raw=window.MUSUBU_LOCATION.label(p);this.dist.replaceChildren(U.icon('pin'),document.createTextNode(U.distance(raw)));this.dist.title=raw;this.dist.setAttribute('aria-label',raw);

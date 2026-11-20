@@ -1,0 +1,35 @@
+.ux-settings{box-sizing:border-box;padding:22px clamp(16px,5vw,32px);width:min(360px,calc(100% - 24px));text-align:center}
+.ux-settings .place-head{position:absolute;inset:4px 4px auto auto;padding:0;border:0;background:transparent}
+.ux-settings .modal-x,.travel-detail .festival-close{width:44px;height:44px;min-width:44px;line-height:1;padding:0;background:transparent;color:#245b3d;border:0;font-size:29px;font-weight:400}
+.ux-settings h3{margin:12px 0 9px;color:#193726}
+.ux-settings :is(.region-switch,.ux-languages){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:0;background:none;padding:0}
+.ux-settings :is([data-region],[data-language]){border:0;background:#e8f3e5;color:#224632}
+.ux-settings button[aria-pressed=true]{background:#235c3b;color:white}
+.festival-dialog.travel-detail{padding:0;width:min(870px,calc(100% - 24px));box-sizing:border-box}
+.travel-detail[open]{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.travel-detail .festival-close{position:absolute;top:4px;right:4px;z-index:1}
+.festival-detail-image{align-self:stretch;width:100%;height:100%;max-height:65vh;min-height:0;background:#eef3ed;object-fit:contain}
+.festival-info{text-align:center;padding:44px 22px 22px;color:#244a34}
+.festival-info h2{margin:0 0 8px;padding:0;font-size:clamp(20px,2.4vw,28px)}
+.festival-subtitle{display:inline-block;background:#285c40;color:white;border-radius:20px;padding:4px 12px;margin-bottom:14px;font-size:13px}
+.festival-fact{display:flex;align-items:center;text-align:left;gap:12px;background:#eff5ef;padding:8px 12px}.festival-fact svg{width:22px;flex:none}.festival-fact strong{font-size:13px}
+.travel-detail small{background:#eff6ed;border-radius:10px;padding:8px;margin-top:10px}
+#placeDialog .p2-title{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:0;margin:10px 0 2px;align-items:center}
+#placeDetailTitle{grid-column:2;text-align:center;font-size:clamp(19px,2.5vw,24px)}
+#placeDialog .p2-title .ux-bookmark{grid-column:3;width:44px;height:44px;border:0;background:transparent;box-shadow:none;color:#285b43}
+#placeDialog .p2-chips,#placeDialog .p2-meta{justify-content:center}
+#placeDialog .p2-intro{display:block;text-align:left;overflow:visible}
+#placeDialog .detail-audio .audioBox{margin:12px 0;padding:12px;background:#edf5eb;border:0;border-radius:14px}
+.detail-audio strong{font-size:14px;color:#235837}.detail-audio audio{display:block;width:100%;margin:5px 0 0}.detail-audio audio::-webkit-media-controls-panel{background:#edf5eb}.detail-audio .listenBtn,.detail-audio .audioBox>p{display:none}
+#placeDialog .p2-more #officialStories,#placeDialog .p2-more #communityActions,#placeDialog .p2-more [data-i18n=wikiNotice]{display:none}
+.place-management{margin:16px 0}.place-management h3{font-size:16px}
+@media(max-width:600px){.travel-detail[open]{grid-template-columns:1fr}.festival-detail-image{height:auto;max-height:27dvh}.festival-info{padding:15px}.travel-detail[open]{padding-top:44px}}
+
+.place-management .suggest-note{display:block;color:#526459;margin:8px 0}
+.place-management a.community-button{display:inline-block;text-decoration:none}
+.detail-audio audio::-webkit-media-controls-play-button{display:none}
+.detail-audio .audioBox{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center}
+.detail-audio strong{grid-column:1/-1}
+.detail-audio .listenBtn{display:grid;place-items:center;width:44px;height:44px;background:transparent;border:0;border-radius:0;padding:0;font-size:0;color:#245b3d}
+.detail-audio .listenBtn::before{content:'';border:7px solid transparent;border-left:11px solid currentColor;border-right:0}
+.detail-audio .listenBtn[data-i18n=playing]::before{width:10px;height:13px;border:0;border-inline:3px solid currentColor;box-sizing:border-box}

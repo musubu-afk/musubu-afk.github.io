@@ -127,13 +127,27 @@ function closeFestival(){festivalDialog?.close();openedFestival=null;}
 function openFestival(f){
  if(!festivalDialog){festivalDialog=el('dialog','festival-dialog');festivalDialog.setAttribute('aria-labelledby','festivalDialogTitle');document.body.append(festivalDialog);festivalDialog.addEventListener('click',e=>{if(e.target===festivalDialog)closeFestival();});festivalDialog.addEventListener('close',()=>openedFestival=null);}
  openedFestival=f;festivalDialog.replaceChildren();const close=button('festivalClose',closeFestival);close.classList.add('festival-close');const h=el('h2','',localized(f,'name'));if(f.content_type)h.textContent=I.lang==='ja'?f.title_ja:f.title_ko;h.id='festivalDialogTitle';festivalDialog.append(close,h);
+ festivalDialog.classList.toggle('travel-detail',!!f.content_type);
  if(f.content_type){
   const ja=I.lang==='ja',event=f.content_type==='event';
-  if(event){
-   festivalDialog.append(el('p','',festivalDates(f)),el('p','',ja?f.venue_ja:f.venue_ko));
+  const image=el('img','festival-detail-image');image.src=f.image_url;image.alt='';
+  const info=el('section','festival-info');
+  close.removeAttribute('data-i18n');close.setAttribute('aria-label',t('festivalClose'));close.textContent='×';
+  info.append(h,el('span','festival-subtitle',event?(ja?'地域の祭り':'지역 축제'):(ja?'旅のコンセプト':'여행 콘셉트')));
+  function fact(shape,label,value){
+   if(!value)return;
+   const row=el('div','festival-fact'),valueBox=el('div');
+   valueBox.append(el('strong','',label),el('div','',value));
+   row.append(window.MUSUBU_PHASE_ONE.icon(shape),valueBox);info.append(row);
   }
-  const text=event?(ja?f.description_ja:f.description_ko):(ja?'冬の旅をテーマにしたイメージです。実際の開催情報ではありません。':'겨울 여행을 주제로 한 예시 콘텐츠입니다. 실제 행사 일정은 없습니다.');
-  festivalDialog.append(el('p','',text),el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+  if(event){
+   if(f.start_date&&f.end_date)fact('calendar',ja?'開催期間':'행사 일정',festivalDates(f));
+   fact('pin',ja?'会場':'행사 장소',ja?f.venue_ja:f.venue_ko);
+  }
+  const description=event?(ja?f.description_ja:f.description_ko):(ja?'冬の旅をテーマにしたイメージです。実際の開催情報ではありません。':'겨울 여행을 주제로 한 예시 콘텐츠입니다. 실제 행사 일정은 없습니다.');
+  if(description)info.append(el('p','',description));
+  info.append(el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+  festivalDialog.append(image,info);
  }else{
  if(f.demo||festivalPreview)festivalDialog.append(el('p','festival-test-note',t(f.demo?'festivalDemoNote':'festivalPreviewNote')));
  festivalDialog.append(el('p','',festivalDates(f)),el('p','',localized(f,'schedule')),el('p','',localized(f,'location')),el('p','',localized(f,'description')),el('small','',t('festivalOperatorNote')));

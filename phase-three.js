@@ -132,7 +132,7 @@ function openFestival(f){
   const ja=I.lang==='ja',event=f.content_type==='event';
   const image=el('img','festival-detail-image');image.src=f.image_url;image.alt='';
   const info=el('section','festival-info');
-  close.removeAttribute('data-i18n');close.setAttribute('aria-label',t('festivalClose'));close.textContent='×';
+  close.removeAttribute('data-i18n');close.setAttribute('aria-label',t('festivalClose'));close.replaceChildren(window.MUSUBU_PHASE_ONE.icon('close'));
   info.append(h,el('span','festival-subtitle',event?(ja?'地域の祭り':'지역 축제'):(ja?'旅のコンセプト':'여행 콘셉트')));
   function fact(shape,label,value){
    if(!value)return;
@@ -146,8 +146,12 @@ function openFestival(f){
   }
   const description=event?(ja?f.description_ja:f.description_ko):(ja?'冬の旅をテーマにしたイメージです。実際の開催情報ではありません。':'겨울 여행을 주제로 한 예시 콘텐츠입니다. 실제 행사 일정은 없습니다.');
   if(description)info.append(el('p','',description));
-  info.append(el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
-  festivalDialog.append(image,info);
+  if(/^assets\/travel\/(yangchon|winter-market|winter-ice|hakata-christmas|fukuoka-walk|fukuoka-night)\.webp$/.test(f.image_url))info.append(el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+  const media=el('div','festival-media');
+  const ambient=image.cloneNode(false);
+  ambient.className='festival-ambient';
+  media.append(ambient,image);
+  festivalDialog.append(media,info);
  }else{
  if(f.demo||festivalPreview)festivalDialog.append(el('p','festival-test-note',t(f.demo?'festivalDemoNote':'festivalPreviewNote')));
  festivalDialog.append(el('p','',festivalDates(f)),el('p','',localized(f,'schedule')),el('p','',localized(f,'location')),el('p','',localized(f,'description')),el('small','',t('festivalOperatorNote')));

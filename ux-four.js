@@ -26,6 +26,7 @@
   const oldLanguage=controls.querySelector('.language-switch');
   const dialog=document.createElement('dialog');dialog.className='ux-settings';dialog.setAttribute('aria-labelledby','uxSettingsTitle');
   dialog.innerHTML='<div class="place-head"><h2 hidden id="uxSettingsTitle" data-i18n="uxSettings"></h2><button class="modal-x" type="button" data-i18n-aria="mapClose">×</button></div><h3 data-i18n="uxRegion"></h3><div class="ux-regions"></div><h3 data-i18n="uxLanguage"></h3><div class="ux-languages"></div>';
+  dialog.querySelector('.modal-x').replaceChildren(window.MUSUBU_PHASE_ONE.icon('close'));
   dialog.querySelector('.ux-regions').append(region);
   for(const [code,label] of [['ko','한국어'],['ja','日本語']]){
    const b=document.createElement('button');b.type='button';b.dataset.language=code;b.lang=code;b.textContent=label;dialog.querySelector('.ux-languages').append(b);

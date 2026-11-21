@@ -8,7 +8,7 @@ const safeUrl=value=>{try{const u=new URL(value,location.href);return ['https:',
 const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'});
 const festivalPreview=new URL(location.href).searchParams.get('festival_preview')==='1';
 const festivals=()=>M.activeFestivals(window.MUSUBU_FESTIVALS,R.current,today(),festivalPreview);
-const banners=()=>window.MUSUBU_TRAVEL_BANNERS.filter(f=>f.region===R.current&&f.is_active&&(!f.end_date||f.end_date>=today())).sort((a,b)=>a.display_order-b.display_order);
+const banners=()=>window.MUSUBU_TRAVEL_BANNERS.filter(f=>f.region===R.current&&f.is_active&&(!(f.end_date||f.start_date)||(f.end_date||f.start_date)>=today())).sort((a,b)=>a.display_order-b.display_order);
 class Carousel {
  constructor(root,draw,gesture=false){this.root=root;this.draw=draw;this.pageSize=()=>root.classList.contains('p3-preview')?(matchMedia('(min-width:900px)').matches?3:2):1;this.items=[];this.index=0;this.pauses=new Set();this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.body=el('div','p3-slide');this.controls=el('div','p3-carousel-controls');this.prev=button('p3Previous',()=>this.move(-1));this.next=button('p3Next',()=>this.move(1));this.pause=button('p3Pause',()=>{this.manual=!this.manual;this.update();});this.counter=el('span','p3-counter');this.controls.append(this.prev,this.counter,this.next,this.pause);root.append(this.body,this.controls);
  if(!gesture){root.addEventListener('focusin',()=>this.hold('focus',true));root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('focus',root.contains(document.activeElement))));root.addEventListener('mouseenter',()=>this.hold('hover',true));root.addEventListener('mouseleave',()=>this.hold('hover',false));
@@ -108,15 +108,21 @@ class TravelCarousel extends RecommendationCarousel {
   root.addEventListener('focusout',()=>queueMicrotask(()=>this.hold('festivalFocus',root.contains(document.activeElement))));
  }
 }
+function travelDates(f){
+ const range=[f.start_date,f.end_date].filter(Boolean).join(' ~ ');
+ const provisional=f.start_date>today()||['planned','tentative'].includes(f.event_status);
+ return range+(provisional?(I.lang==='ja'?'（予定）':' (예정)'):'');
+}
+function aiNotice(){return I.lang==='ja'?'AI生成によるイメージ画像です。実際の現地写真ではありません。':'AI 연출 이미지 · 실제 현장 사진이 아닙니다.';}
 function travelCard(f){
  const ja=I.lang==='ja',card=el('article','ux-travel-card');card.dataset.bannerId=f.id;
- const img=el('img');img.src=f.image_url;img.alt='';img.draggable=false;img.style.objectPosition=f.image_position||'center';img.onerror=()=>img.hidden=true;
+ const img=el('img');img.src=f.banner_image_url||f.image_url;img.alt='';img.draggable=false;img.style.objectPosition=f.image_position||'center';img.onerror=()=>img.hidden=true;
  const copy=el('div','ux-travel-copy');
- copy.append(el('small','ux-travel-type',f.content_type==='event'?(ja?(f.start_date>today()?'開催予定':'開催中'):(f.start_date>today()?'개최 예정':'진행 중')):(ja?'旅のコンセプト':'여행 콘셉트')));
+ copy.append(el('small','ux-travel-type',ja?f.category_ja:f.category_ko));
  copy.append(el('h3','',ja?f.title_ja:f.title_ko));
- if(f.start_date&&f.end_date){const format=d=>new Intl.DateTimeFormat(ja?'ja-JP':'ko-KR',{year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));copy.append(el('p','ux-travel-date',format(f.start_date)+' ～ '+format(f.end_date)));}
+ if(f.start_date)copy.append(el('p','ux-travel-date',travelDates(f)));
  if(f.venue_ko)copy.append(el('p','ux-travel-venue',ja?f.venue_ja:f.venue_ko));
- copy.append(el('small','ux-travel-note',ja?'AI演出画像 · 実際の現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+ if(f.image_is_ai)copy.append(el('small','ux-travel-note',aiNotice()));
  const trigger=el('button','travel-detail-trigger');
  trigger.type='button';trigger.setAttribute('aria-label',ja?f.title_ja:f.title_ko);
  trigger.onclick=()=>openFestival(f);
@@ -130,10 +136,10 @@ function openFestival(f){
  festivalDialog.classList.toggle('travel-detail',!!f.content_type);
  if(f.content_type){
   const ja=I.lang==='ja',event=f.content_type==='event';
-  const image=el('img','festival-detail-image');image.src=f.image_url;image.alt='';
+  const image=el('img','festival-detail-image');image.src=f.detail_image_url||f.image_url;image.alt='';
   const info=el('section','festival-info');
   close.removeAttribute('data-i18n');close.setAttribute('aria-label',t('festivalClose'));close.replaceChildren(window.MUSUBU_PHASE_ONE.icon('close'));
-  info.append(h,el('span','festival-subtitle',event?(ja?'地域の祭り':'지역 축제'):(ja?'旅のコンセプト':'여행 콘셉트')));
+  info.append(h,el('span','festival-subtitle',event?(ja?f.category_ja:f.category_ko):(ja?'旅のコンセプト':'여행 콘셉트')));
   function fact(shape,label,value){
    if(!value)return;
    const row=el('div','festival-fact'),valueBox=el('div');
@@ -141,16 +147,16 @@ function openFestival(f){
    row.append(window.MUSUBU_PHASE_ONE.icon(shape),valueBox);info.append(row);
   }
   if(event){
-   if(f.start_date&&f.end_date)fact('calendar',ja?'開催期間':'행사 일정',festivalDates(f));
-   fact('pin',ja?'会場':'행사 장소',ja?f.venue_ja:f.venue_ko);
+   if(f.start_date)fact('calendar',ja?'開催期間':'행사 일정',[travelDates(f),ja?f.hours_ja:f.hours_ko].filter(Boolean).join('\n'));
+   fact('pin',ja?'会場':'행사 장소',[ja?f.venue_ja:f.venue_ko,ja?f.address_ja:f.address_ko].filter(Boolean).join('\n'));
   }
   const description=event?(ja?f.description_ja:f.description_ko):(ja?'冬の旅をテーマにしたイメージです。実際の開催情報ではありません。':'겨울 여행을 주제로 한 예시 콘텐츠입니다. 실제 행사 일정은 없습니다.');
   if(description)info.append(el('p','',description));
-  if(/^assets\/travel\/(yangchon|winter-market|winter-ice|hakata-christmas|fukuoka-walk|fukuoka-night)\.webp$/.test(f.image_url))info.append(el('small','',ja?'AI演出画像 · 現地写真ではありません':'AI 연출 이미지 · 실제 현장 사진이 아닙니다'));
+  if(f.image_is_ai)info.append(el('small','',aiNotice()));
+  const note=ja?f.note_ja:f.note_ko;
+  if(note)info.append(el('p','festival-event-note',note));
   const media=el('div','festival-media');
-  const ambient=image.cloneNode(false);
-  ambient.className='festival-ambient';
-  media.append(ambient,image);
+  media.append(image);
   festivalDialog.append(media,info);
  }else{
  if(f.demo||festivalPreview)festivalDialog.append(el('p','festival-test-note',t(f.demo?'festivalDemoNote':'festivalPreviewNote')));

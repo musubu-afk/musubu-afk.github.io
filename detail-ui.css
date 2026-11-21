@@ -28,21 +28,20 @@ dialog.ux-settings {
 }
 .travel-detail[open] {display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)}
 .travel-detail .festival-close {position:absolute;top:2px;right:2px;z-index:2}
-.festival-media {display:grid;place-items:center;position:relative;overflow:hidden;isolation:isolate;background:#ecf3ed;border-radius:20px}
-.festival-media .festival-ambient {position:absolute;inset:-6%;width:112%;height:112%;max-width:none;object-fit:cover;filter:blur(14px);opacity:.76;z-index:-1}
+.festival-media {display:grid;place-items:center;position:relative;overflow:hidden;align-self:center;aspect-ratio:1;width:100%;border-radius:20px}
 .festival-media .festival-detail-image {display:block;width:100%;height:auto;object-fit:contain}
 .travel-detail .festival-info {min-width:0;align-self:center;padding:38px 14px 20px;text-align:center;color:#153f29;overflow-wrap:anywhere}
 .festival-info h2 {margin:0 0 8px;padding:0;font-size:clamp(21px,2vw,30px);line-height:1.24}
 .festival-info .festival-subtitle {display:inline-block;background:#204c32;color:white;border-radius:99px;padding:4px 15px;margin-bottom:12px;font-weight:700;font-size:15px}
 .festival-fact {display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:8px;background:#eff5ee;padding:8px 12px;border-radius:15px;line-height:1.4}
 .festival-fact + .festival-fact {margin-top:6px}
+.festival-fact > div {white-space:pre-line}
 .festival-fact svg {width:24px;height:24px;color:#214e32}
 .festival-info p {margin:12px 0;line-height:1.5}
 .festival-info small {display:block;background:#edf4ec;border-radius:16px;padding:7px;margin:10px 0 0;color:#31553e}
 @media(max-width:640px) {
   .travel-detail[open] {grid-template-columns:minmax(0,1fr)}
   .festival-media {margin-top:44px;border-radius:0}
-  .festival-media .festival-ambient {display:none}
   .travel-detail .festival-info {padding:14px}
 }
 #placeDialog .p2-title{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:0;margin:10px 0 2px;align-items:center}

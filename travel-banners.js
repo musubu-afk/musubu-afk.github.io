@@ -1,6 +1,7 @@
 // Dates use the local event calendar (Korea and Japan are both UTC+9).
 window.MUSUBU_TRAVEL_BANNERS = [
   {
+    official_url: 'https://www.shinsegae.com/shopping/list.do?storeCd=SC00060', link_ko: '대전신세계 점포 안내', link_ja: '大田新世界の店舗案内',
     id: 'shinsegae', region: 'nonsan', display_order: 1,
     title_ko: '2026 대전신세계 홀리데이 마켓', title_ja: '2026 大田新世界ホリデーマーケット',
     category_ko: '겨울 마켓', category_ja: '冬のマーケット',
@@ -24,6 +25,7 @@ window.MUSUBU_TRAVEL_BANNERS = [
     source_url: null
   },
   {
+    official_url: 'https://eunjin.nonsan.go.kr/goyeonsan/html/sub03/0302.html?mng_no=6882&mode=V&sch_prog_cd=Prog_cd4', link_ko: '전시 공식 안내', link_ja: '展覧会の公式案内',
     id: 'yeonsan', region: 'nonsan', display_order: 3,
     title_ko: '몽마르트의 작은 거장, 툴루즈 로트렉 레플리카展', title_ja: 'モンマルトルの小さな巨匠、トゥールーズ＝ロートレック レプリカ展',
     category_ko: '기획 전시', category_ja: '特別展',
@@ -36,6 +38,7 @@ window.MUSUBU_TRAVEL_BANNERS = [
     source_url: 'https://www.nonsan.go.kr/goyeonsan/html/sub03/0302.html?mng_no=6882&mode=V&sch_prog_cd=Prog_cd4'
   },
   {
+    official_url: 'https://www.landic.com/projects/nakasu-hikarino-advent/', link_ko: '행사 공식 안내', link_ja: 'イベントの公式案内',
     id: 'nakasu', region: 'fukuoka', display_order: 1,
     title_ko: '나카스 히카리노 어드벤트 2026', title_ja: 'LANDIC presents ナカス ヒカリノ アドベント',
     category_ko: '겨울 일루미네이션', category_ja: '冬のイルミネーション',
@@ -46,6 +49,7 @@ window.MUSUBU_TRAVEL_BANNERS = [
     source_url: 'https://www.landic.com/projects/nakasu-hikarino-advent/'
   },
   {
+    official_url: 'https://www.ohorikouen.jp/', link_ko: '오호리공원 공식 사이트', link_ja: '大濠公園の公式サイト',
     id: 'ohori', region: 'fukuoka', display_order: 2,
     title_ko: '오호리 공원 윈터 일루미네이션 2026', title_ja: '大濠公園ウィンターイルミネーション',
     category_ko: '겨울 조명 행사', category_ja: '冬のライトアップ',
@@ -57,6 +61,7 @@ window.MUSUBU_TRAVEL_BANNERS = [
     source_url: 'https://weathernews.jp/illumi/spot/9009861/'
   },
   {
+    official_url: 'https://hoshinoresorts.com/ja/hotels/kaiyufuin/activities/13846/', link_ko: '숙박시설 프로그램 공식 안내', link_ja: '宿泊施設のプログラム公式案内',
     id: 'yufuin', region: 'fukuoka', display_order: 3,
     title_ko: '가이 유후인 계단식 논 겨울 조명', title_ja: '界 由布院「棚田の冬灯り」',
     category_ko: '숙박시설 겨울 조명 체험', category_ja: '宿泊施設の冬のライトアップ体験',

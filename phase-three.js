@@ -123,9 +123,9 @@ function travelCard(f){
  const tag=el('small','ux-travel-region',regionLabel);
  copy.append(el('h3','',ja?f.title_ja:f.title_ko));
  function bannerFact(shape,cls,value){const row=el('p',cls);row.append(window.MUSUBU_PHASE_ONE.icon(shape),el('span','',value));copy.append(row);}
- if(f.start_date)bannerFact('calendar','ux-travel-date',travelDates(f));
- if(f.venue_ko)bannerFact('pin','ux-travel-venue',ja?f.venue_ja:f.venue_ko);
- if(f.image_is_ai)copy.append(el('small','ux-travel-note',aiNotice()));
+ if(f.start_date)bannerFact('calendar','ux-travel-date',travelDates(f).replaceAll('-', '.'));
+ if(f.venue_ko)bannerFact('pin','ux-travel-venue',ja?(f.address_ja||f.venue_ja):(f.address_ko||f.venue_ko));
+
  const trigger=el('button','travel-detail-trigger');
  trigger.type='button';trigger.setAttribute('aria-label',ja?f.title_ja:f.title_ko);
  trigger.onclick=()=>openFestival(f);
@@ -158,6 +158,18 @@ function openFestival(f){
   if(f.image_is_ai)info.append(el('small','',aiNotice()));
   const note=ja?f.note_ja:f.note_ko;
   if(note)info.append(el('p','festival-event-note',note));
+  if(f.official_url){
+   const link=el('a','festival-official');
+   link.href=f.official_url;
+   link.target='_blank';
+   link.rel='noopener noreferrer';
+   const symbol=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   symbol.setAttribute('viewBox','0 0 24 24');
+   symbol.setAttribute('aria-hidden','true');
+   symbol.innerHTML='<path d="M14 3h7v7m0-7L10 14m0-9H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/>';
+   link.append(symbol,ja?f.link_ja:f.link_ko);
+   info.append(link);
+  }
   const media=el('div','festival-media');
   media.append(image);
   festivalDialog.append(media,info);

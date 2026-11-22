@@ -38,13 +38,17 @@ dialog.ux-settings {
 .festival-fact > div {white-space:pre-line;min-width:0;text-align:center}
 .festival-fact svg {width:24px;height:24px;color:#214e32}
 .festival-info p {margin:12px 0;line-height:1.5}
-.festival-info small {display:block;background:#edf4ec;border-radius:16px;padding:7px;margin:10px 0 0;color:#31553e}
+.festival-info small {display:block;margin:10px 0;color:#587060}
+.festival-official {display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 14px;margin-top:14px;border-radius:16px;background:#e7f0e6;color:#19492e;text-decoration:none;font-weight:750}
+.festival-official svg {width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict}
 @media(max-width:800px) {
   .travel-detail[open] {grid-template-columns:minmax(0,1fr)}
-  .festival-media {margin:10px auto 0;width:min(100% - 88px,30dvh);aspect-ratio:1;border-radius:14px}
+  .festival-media {margin:0;width:100%;aspect-ratio:1;border-radius:20px 20px 14px 14px}
   .travel-detail .festival-info {padding:16px 16px 20px}
-  .festival-info h2 {font-size:22px}
+  .festival-info h2 {font-size:clamp(19px,5.4vw,24px)}
+  .travel-detail .festival-close {top:8px;right:8px;color:white;background:#0009;border-radius:50%}
+  .festival-official {background:#16492e;color:white}
   .festival-fact {grid-template-columns:22px minmax(0,1fr) 22px;padding:10px;gap:6px}
   .festival-fact svg {width:22px;height:22px}
 }

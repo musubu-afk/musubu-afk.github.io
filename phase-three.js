@@ -118,15 +118,18 @@ function travelCard(f){
  const ja=I.lang==='ja',card=el('article','ux-travel-card');card.dataset.bannerId=f.id;
  const img=el('img');img.src=f.banner_image_url||f.image_url;img.alt='';img.draggable=false;img.style.objectPosition=f.image_position||'center';img.onerror=()=>img.hidden=true;
  const copy=el('div','ux-travel-copy');
- copy.append(el('small','ux-travel-type',ja?f.category_ja:f.category_ko));
+ const regionLabels={shinsegae:['대전','大田'],hanbit:['대전','大田'],yeonsan:['논산','論山'],nakasu:['후쿠오카','福岡'],ohori:['후쿠오카','福岡'],yufuin:['유후인','由布院']};
+ const regionLabel=regionLabels[f.id]?.[ja?1:0]||window.MUSUBU_MAP_CONFIG.regions[f.region]?.[ja?'name_ja':'name_ko'];
+ const tag=el('small','ux-travel-region',regionLabel);
  copy.append(el('h3','',ja?f.title_ja:f.title_ko));
- if(f.start_date)copy.append(el('p','ux-travel-date',travelDates(f)));
- if(f.venue_ko)copy.append(el('p','ux-travel-venue',ja?f.venue_ja:f.venue_ko));
+ function bannerFact(shape,cls,value){const row=el('p',cls);row.append(window.MUSUBU_PHASE_ONE.icon(shape),el('span','',value));copy.append(row);}
+ if(f.start_date)bannerFact('calendar','ux-travel-date',travelDates(f));
+ if(f.venue_ko)bannerFact('pin','ux-travel-venue',ja?f.venue_ja:f.venue_ko);
  if(f.image_is_ai)copy.append(el('small','ux-travel-note',aiNotice()));
  const trigger=el('button','travel-detail-trigger');
  trigger.type='button';trigger.setAttribute('aria-label',ja?f.title_ja:f.title_ko);
  trigger.onclick=()=>openFestival(f);
- card.append(img,copy,trigger);return card;
+ card.append(img,tag,copy,trigger);return card;
 }
 let festivalDialog,openedFestival;
 function closeFestival(){festivalDialog?.close();openedFestival=null;}

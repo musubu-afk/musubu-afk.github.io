@@ -23,26 +23,30 @@ dialog.ux-settings {
 }
 .ux-settings button[aria-pressed=true] {background:#294c28;color:white}
 .festival-dialog.travel-detail {
-  margin:auto;padding:0;width:min(930px,calc(100% - 24px));max-height:92dvh;
+  margin:auto;padding:0;width:min(1080px,calc(100% - 24px));max-height:92dvh;
   overflow:auto;box-sizing:border-box;border-radius:22px;background:white;
 }
-.travel-detail[open] {display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)}
+.travel-detail[open] {display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
 .travel-detail .festival-close {position:absolute;top:2px;right:2px;z-index:2}
 .festival-media {display:grid;place-items:center;position:relative;overflow:hidden;align-self:center;aspect-ratio:1;width:100%;border-radius:20px}
 .festival-media .festival-detail-image {display:block;width:100%;height:auto;object-fit:contain}
-.travel-detail .festival-info {min-width:0;align-self:center;padding:38px 14px 20px;text-align:center;color:#153f29;overflow-wrap:anywhere}
-.festival-info h2 {margin:0 0 8px;padding:0;font-size:clamp(21px,2vw,30px);line-height:1.24}
+.travel-detail .festival-info {min-width:0;align-self:center;padding:42px 24px 24px;text-align:center;color:#153f29;word-break:keep-all;overflow-wrap:anywhere}
+.festival-info h2 {margin:0 0 8px;padding:0;font-size:clamp(21px,1.8vw,26px);line-height:1.35;text-wrap:pretty}
 .festival-info .festival-subtitle {display:inline-block;background:#204c32;color:white;border-radius:99px;padding:4px 15px;margin-bottom:12px;font-weight:700;font-size:15px}
-.festival-fact {display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:8px;background:#eff5ee;padding:8px 12px;border-radius:15px;line-height:1.4}
+.festival-fact {display:grid;grid-template-columns:26px minmax(0,1fr) 26px;align-items:center;gap:8px;background:#eff5ee;padding:8px 12px;border-radius:15px;line-height:1.4}
 .festival-fact + .festival-fact {margin-top:6px}
-.festival-fact > div {white-space:pre-line}
+.festival-fact > div {white-space:pre-line;min-width:0;text-align:center}
 .festival-fact svg {width:24px;height:24px;color:#214e32}
 .festival-info p {margin:12px 0;line-height:1.5}
 .festival-info small {display:block;background:#edf4ec;border-radius:16px;padding:7px;margin:10px 0 0;color:#31553e}
-@media(max-width:640px) {
+html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict}
+@media(max-width:800px) {
   .travel-detail[open] {grid-template-columns:minmax(0,1fr)}
-  .festival-media {margin-top:44px;border-radius:0}
-  .travel-detail .festival-info {padding:14px}
+  .festival-media {margin:10px auto 0;width:min(100% - 88px,30dvh);aspect-ratio:1;border-radius:14px}
+  .travel-detail .festival-info {padding:16px 16px 20px}
+  .festival-info h2 {font-size:22px}
+  .festival-fact {grid-template-columns:22px minmax(0,1fr) 22px;padding:10px;gap:6px}
+  .festival-fact svg {width:22px;height:22px}
 }
 #placeDialog .p2-title{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:0;margin:10px 0 2px;align-items:center}
 #placeDetailTitle{grid-column:2;text-align:center;font-size:clamp(19px,2.5vw,24px)}

@@ -4,6 +4,11 @@ const I=window.MUSUBU_I18N,X=window.MUSUBU_EXPLORE,A=window.MUSUBU_SHOP_APP,U=wi
 const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'';if(text)e.textContent=text;return e;};
 let stats=[];
 function icon(kind){if(kind==='pin')return U.icon('pin');const s=U.icon('pin');s.querySelector('path').setAttribute('d',kind==='share'?'M12 16V3m-4 4 4-4 4 4M5 11H3v10h18V11h-2':'m21 3-7 18-4-7-7-4 18-7Zm0 0L10 14');return s;}
+function managementIcon(kind){
+ const svg=U.icon('pin');
+ svg.querySelector('path').setAttribute('d',kind==='edit'?'M4 16 16 4l4 4L8 20l-5 1z M14 6l4 4':'M3 6h18 M9 6V3h6v3 M6 6l1 15h10l1-15 M10 10v7 M14 10v7');
+ return svg;
+}
 function button(key,fn,shape){const b=make('button','p2-button');b.type='button';b.dataset.p2label=key;if(shape)b.append(icon(shape));b.append(make('span','',t(key)));b.setAttribute('aria-label',t(key));b.onclick=fn;return b;}
 function photos(p){const story=p.story_key&&$('story-'+p.story_key);return [...new Set([p.image_url,p.photo_url,...(Array.isArray(p.photos)?p.photos.filter(x=>typeof x==='string'):[]),...(story?[...story.querySelectorAll('img')].map(x=>x.getAttribute('src')):[])].filter(x=>typeof x==='string'&&/^(https?:\/\/|assets\/)/.test(x)))];}
 function category(p){return (p.shop_id||window.MUSUBU_PHASE_THREE_MODEL.business(p))?'phase'+({meal:'Meal',dessert:'Dessert',gift:'Gift',stay:'Stay'}[p.category]||'Discover'):p.story_key==='donam'?'phaseHistory':['walk','photo'].includes(p.category)?'phaseWalk':['scenery','rest'].includes(p.category)?'phaseNature':'phaseExperience';}
@@ -27,10 +32,19 @@ class Detail {
    if(player?.querySelector('audio[src]'))this.players.set(article.id,player);
   }
   this.manage=make('section','place-management');
-  this.manageTitle=make('h3');this.suggest=make('a','community-button');this.suggest.target='_blank';this.suggest.rel='noopener noreferrer';
-  this.suggestNote=make('small','suggest-note');
-  this.manage.append(this.manageTitle,this.suggest,this.more.querySelector('.delete-request'));
-  this.manage.append(this.suggestNote);this.more.after(this.manage);
+  const editPlace=$('communityActions').querySelector('button');
+  this.edit=button('editPlace',()=>editPlace.click());
+  this.edit.prepend(managementIcon('edit'));
+  const deletion=this.more.querySelector('.delete-request');
+  const summary=deletion.querySelector('summary');
+  const label=make('span');
+  label.dataset.i18n=summary.dataset.i18n;
+  label.textContent=t(label.dataset.i18n);
+  delete summary.dataset.i18n;
+  summary.replaceChildren(managementIcon('delete'),label);
+  this.manage.append(this.edit,deletion);
+  this.more.hidden=true;
+  this.more.after(this.manage);
  }
  this.topHeart.classList.add('ux-bookmark');this.expand.remove();this.all.remove();this.bottom.remove();
  if(shop){this.more.querySelector('.detail-actions').hidden=true;this.more.querySelector('.cover-wrap').hidden=true;$('detailCategory').hidden=true;$('detailStats').hidden=true;}this.nativeHeart.classList.add('p2-original-heart');
@@ -46,14 +60,9 @@ class Detail {
   const player=this.players.get('story-'+p.story_key);
   if(this.audioSlot.firstChild!==player){this.audioSlot.querySelector('audio')?.pause();this.audioSlot.replaceChildren(...(player?[player]:[]));}
   this.audioSlot.hidden=!player;
-  const issue=new URL('https://github.com/musubu-afk/musubu-afk.github.io/issues/new');
-  issue.searchParams.set('title',(I.lang==='ja'?'スポット情報の修正提案: ':'장소 정보 수정 제안: ')+this.name);
-  issue.searchParams.set('body',(I.lang==='ja'?'スポット':'장소')+' ID: '+p.id+'\n\n'+(I.lang==='ja'?'修正したい内容と根拠をご記入ください。':'수정할 내용과 근거를 적어 주세요.'));
-  this.suggest.href=issue.href;
-  this.suggestNote.textContent=I.lang==='ja'?'GitHub にログインして公開の提案を送信します。内容は管理者が確認します。':'GitHub에 로그인해 공개 제안을 제출합니다. 관리자가 내용을 검토합니다.';
-  this.moreTitle.textContent=I.lang==='ja'?'スポット情報':'장소 정보';
-  this.manageTitle.textContent=I.lang==='ja'?'スポット情報の管理':'장소 정보 관리';
-  this.suggest.textContent=I.lang==='ja'?'スポット情報の修正を提案':'장소 정보 수정 제안';
+  const editLabel=I.lang==='ja'?'スポット情報を編集':'장소 정보 수정';
+  this.edit.querySelector('span').textContent=editLabel;
+  this.edit.setAttribute('aria-label',editLabel);
  }
  const pics=photos(p);this.galleryAll.hidden=!pics.length;this.hero.hidden=!pics.length;this.noPhoto.hidden=!!pics.length;this.noPhoto.textContent=t('discoverNoPhoto');if(pics.length){this.hero.src=pics[0];this.hero.alt=v.name;this.hero.onerror=()=>{this.hero.hidden=true;this.noPhoto.hidden=false;};}
  this.chips.replaceChildren(make('span','',t(category(p))));if(this.shop||window.MUSUBU_PHASE_THREE_MODEL.business(p))this.chips.append(make('span','',t(window.MUSUBU_PHASE_THREE_MODEL.origin(p))));if(p.is_demo)this.chips.append(make('span','',t('phaseDemoShop')));else if(p.is_example)this.chips.append(make('span','',t('phaseDemo')));

@@ -161,3 +161,14 @@ body[data-browse-view=discover] #discovery .phase-demo{font-size:10px;line-heigh
 .ux-menu-dialog .phase-navigation button svg{flex:none;color:inherit;stroke:currentColor}
 /* Keep recommendation cards compact while leaving one item offscreen at three items. */
 @media(min-width:601px){.p3-preview:not([data-item-count="1"]):not([data-item-count="2"]) .ux-recommend-viewport{max-width:704px}.p3-preview:not([data-item-count="1"]):not([data-item-count="2"]) .ux-recommend-card{flex-basis:calc((100% - 12px)/2)}}
+
+/* New-place categories and unobtrusive, accessible bookmark controls. */
+body[data-browse-view=new] #discovery>.discovery-filters:not([hidden]):not(.p3-tabs){display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding:3px 0 12px}
+body[data-browse-view=new] #discovery>.discovery-filters button{flex:none;white-space:nowrap;min-height:40px}
+.discovery-filters button svg{width:16px;height:18px;vertical-align:middle;margin-right:5px;fill:none;stroke:currentColor;flex:none}
+#discovery .discovery-filters button[aria-pressed=true] svg{fill:currentColor}
+body #discovery .discovery-card>.ux-bookmark,body .p3-results .discovery-card>.ux-bookmark{position:absolute;top:6px;right:6px;display:grid;place-items:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:8px;border:0;border-radius:6px;background:transparent!important;box-shadow:none;color:var(--musubu-primary);z-index:2}
+body #discovery .discovery-card>.ux-bookmark svg,body .p3-results .discovery-card>.ux-bookmark svg{width:24px;height:28px;fill:#fff;stroke:var(--musubu-primary);stroke-width:1.7;filter:drop-shadow(0 1px 2px #0005)}
+body #discovery .discovery-card>.ux-bookmark[aria-pressed=true] svg,body .p3-results .discovery-card>.ux-bookmark[aria-pressed=true] svg{fill:var(--musubu-primary);stroke:#fff;stroke-width:1.6}
+body #discovery .discovery-card>.ux-bookmark[data-photo=false] svg,body .p3-results .discovery-card>.ux-bookmark[data-photo=false] svg{filter:none}
+body #discovery .discovery-card>.ux-bookmark:focus-visible,body .p3-results .discovery-card>.ux-bookmark:focus-visible{outline:2px solid var(--musubu-primary);outline-offset:-2px}

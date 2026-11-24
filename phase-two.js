@@ -50,7 +50,7 @@ class Detail {
  if(shop)this.setupShopTabs();this.nativeHeart.classList.add('p2-original-heart');
  new MutationObserver(()=>this.syncHeart()).observe(this.nativeHeart,{attributes:true,childList:true,subtree:true});
  new MutationObserver(()=>this.updateStats()).observe(this.preview,{attributes:true,attributeFilter:['hidden'],subtree:true,childList:true});
- this.dialog.addEventListener('close',()=>{this.more.open=false;this.audioSlot?.querySelector('audio')?.pause();if(this.shop){this.selectShopTab('info');this.setAllShopReviews(false);$('reviewForm').hidden=true;}});
+ this.dialog.addEventListener('close',()=>{this.more.open=false;this.audioSlot?.querySelector('audio')?.pause();if(this.shop){this.selectShopTab('info');$('reviewForm').hidden=true;}});
  }
  setupShopTabs(){
  const content=this.more.querySelector('.detail-content'),info=$('detailAddress').parentElement,menu=$('detailProducts'),menuTitle=menu.previousElementSibling,review=$('detailReviews'),demo=content.querySelector('[data-i18n=linksNotice]');
@@ -79,16 +79,11 @@ class Detail {
  this.preview.hidden=true;this.preview.classList.add('p2-shop-obsolete-preview');
  const fullHeading=$('reviewList').previousElementSibling;if(fullHeading?.dataset.i18n==='allReviews')fullHeading.hidden=true;
  this.reviewNotice=review.querySelector('[data-i18n=reviewsNotice]');const notes=make('details','p2-shop-review-note'),noteTitle=make('summary');noteTitle.dataset.i18n='p2ReviewCriteria';notes.append(noteTitle,this.reviewNotice);review.querySelector('.review-heading').after(notes);
- this.reviewAll=button('allReviews',()=>this.setAllShopReviews(!this.shopAllReviews));$('retryReviews').after(this.reviewAll);
- this.reviewWrite=button('writeReview',()=>{this.openShopReviewForm();$('reviewForm').scrollIntoView({block:'start',behavior:'smooth'});$('reviewText').focus({preventScroll:true});});this.reviewWrite.classList.add('p2-shop-write');$('reviewForm').before(this.reviewWrite);
  this.shopPanels.reviews.append(review);$('reviewForm').hidden=true;
- this.selectShopTab('info');this.setAllShopReviews(false);
- new MutationObserver(()=>this.updateShopReviewCount()).observe($('reviewList'),{childList:true,subtree:true});
+ this.selectShopTab('info');
  I.apply(this.root);
  }
  selectShopTab(key){if(!this.shopPanels?.[key])return;this.shopActiveTab=key;for(const [id,panel] of Object.entries(this.shopPanels)){const active=id===key;panel.hidden=!active;const tab=this.shopTabButtons[id];tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}}
- setAllShopReviews(on){this.shopAllReviews=on;$('reviewList').classList.toggle('p2-shop-all-reviews',on);this.updateShopReviewCount();}
- updateShopReviewCount(){if(!this.reviewAll)return;this.reviewAll.hidden=$('reviewList').querySelectorAll('.review-entry').length<=3;const key=this.shopAllReviews?'p2RecentOnly':'allReviews';this.reviewAll.dataset.p2label=key;this.reviewAll.querySelector('span').textContent=t(key);this.reviewAll.setAttribute('aria-label',t(key));this.reviewAll.setAttribute('aria-expanded',String(this.shopAllReviews));}
  openShopReviewForm(){this.selectShopTab('reviews');$('reviewForm').hidden=false;}
  renderShopTabs(p,v){
  this.shopDemo.hidden=!p.is_demo;this.shopDemo.textContent=t('p2DemoInfo');
@@ -97,7 +92,7 @@ class Detail {
  for(const id of ['detailAddress','detailPhone']){const n=$(id);n.hidden=n.previousElementSibling.hidden=!n.textContent.trim();}
  const hours=$('detailHours');hours.hidden=hours.previousElementSibling.hidden=p.category==='stay'||!hours.textContent.trim();
  const menu=$('detailProducts'),showMenu=p.category!=='stay'&&menu.children.length>0;menu.hidden=menu.previousElementSibling.hidden=!showMenu;this.menuEmpty.hidden=showMenu;this.menuEmpty.textContent=t('p2MenuEmpty');
- this.gallery.hidden=photos(p).length<2;this.shopTabs.setAttribute('aria-label',t('p2ShopTabInfo'));this.updateShopReviewCount();I.apply(this.root);
+ this.gallery.hidden=photos(p).length<2;this.shopTabs.setAttribute('aria-label',t('p2ShopTabInfo'));I.apply(this.root);
  }
  syncHeart(){const on=this.nativeHeart.getAttribute('aria-pressed')==='true';for(const b of [this.topHeart,this.bottomHeart]){b.disabled=this.nativeHeart.disabled;b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',t(on?'favoriteSaved':'favoriteAdd'));b.replaceChildren(U.icon('bookmark'));if(b!==this.topHeart)b.append(document.createTextNode(t(on?'favoriteSaved':'favoriteAdd')));}}
  showReviews(){if(this.shop){this.selectShopTab('reviews');$('detailReviews').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});$('reviewsHeading').focus({preventScroll:true});}else $('communityActions').querySelector('button:last-child').click();}

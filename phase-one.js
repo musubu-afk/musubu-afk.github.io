@@ -8,7 +8,7 @@ function distance(raw){return String(raw).match(/\d+(?:\.\d+)?\s*km/i)?.[0].repl
 window.MUSUBU_PHASE_ONE={icon,stats,distance};
 document.addEventListener('DOMContentLoaded',()=>{
  const $=id=>document.getElementById(id),nav=document.createElement('nav');nav.className='phase-navigation';nav.setAttribute('aria-label',t('phaseMenu'));
- const entries=[['story','phaseStory','story'],['new','uxNew','spark'],['discover','uxShops','shop'],['coupon','phaseCoupon','coupon']];let active='story';
+ const entries=[['story','phaseStory','story'],['new','uxNew','spark'],['discover','uxShops','shop'],['coupon','phaseCoupon','coupon'],['bookmarks','uxBookmarks','bookmark']];let active='story';
  for(const [key,label,shape] of entries){const b=document.createElement('button');b.type='button';b.dataset.phaseMenu=key;const span=document.createElement('span');span.dataset.i18n=label;b.append(icon(shape),span);b.onclick=()=>{
    active=key;
    if(window.MUSUBU_UI){window.MUSUBU_UI.go(key);return;}
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    active=key;paint();
  };nav.append(b);}
  document.querySelector('.hero').after(nav);
- function paint(){active=document.body.dataset.browseView||active;const koreanHome=I.lang==='ko'&&document.body.dataset.browseView==='home';nav.querySelector('[data-phase-menu=story] span').dataset.i18n=koreanHome?'uxNewAttractions':'phaseStory';nav.querySelector('[data-phase-menu=discover] span').dataset.i18n=koreanHome?'uxNewBusinesses':'uxShops';I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';}
+ function paint(){active=document.body.dataset.browseView||active;const koreanHome=I.lang==='ko';nav.querySelector('[data-phase-menu=story] span').dataset.i18n=koreanHome?'uxNewAttractions':'phaseStory';nav.querySelector('[data-phase-menu=discover] span').dataset.i18n=koreanHome?'uxNewBusinesses':'uxShops';I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';}
  // Only replace the top-level globe artwork; its existing language-dialog handler stays attached.
  const globe=document.querySelector('.hero-top .globe-button');if(globe)globe.replaceChildren(icon('globe'));
  document.addEventListener('musubu:browse-view',paint);document.addEventListener('musubu:languagechange',paint);document.addEventListener('musubu:regionchange',()=>{active=window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});

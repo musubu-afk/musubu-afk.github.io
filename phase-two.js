@@ -72,7 +72,7 @@ class Detail {
  this.copyAddress=button('p2CopyAddress',async()=>{try{await navigator.clipboard.writeText($('detailAddress').textContent);this.copyStatus.textContent=t('p2AddressCopied');}catch{this.copyStatus.textContent=t('p2CopyManual')+' '+$('detailAddress').textContent;}});
  this.copyStatus=make('p','p2-status');this.copyStatus.setAttribute('role','status');
  const official=$('officialLink');official.classList.add('p2-shop-official');
- this.shopPanels.info.append(info,this.copyAddress,this.copyStatus,$('stayInfo'),$('stayDemo'),official,this.gallery);
+ this.shopPanels.info.append(info,this.copyAddress,this.copyStatus,$('stayInfo'),$('stayDemo'),official,this.gallery);$('closeDetail').replaceChildren(U.icon('close'));
  this.menuEmpty=make('p','notice');this.menuEmpty.dataset.i18n='p2MenuEmpty';this.shopPanels.menu.append(menuTitle,menu,this.menuEmpty);
  this.preview.hidden=true;this.preview.classList.add('p2-shop-obsolete-preview');
  const fullHeading=$('reviewList').previousElementSibling;if(fullHeading?.dataset.i18n==='allReviews')fullHeading.hidden=true;

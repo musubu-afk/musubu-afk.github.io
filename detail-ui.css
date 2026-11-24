@@ -257,8 +257,8 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
 #shopDialog .p2-shop-review-note summary{cursor:pointer;min-height:32px;line-height:32px}
 #shopDialog .p2-shop-review-note p{margin:0;line-height:1.6}
 #shopDialog .p2-shop-obsolete-preview{display:none!important}
-#shopDialog #reviewList:not(.p2-shop-all-reviews)>.review-entry:nth-of-type(n+4){display:none}
-#shopDialog .p2-shop-write{width:100%;background:#285b43;color:white;margin:12px 0 0;border-radius:12px;font-weight:700}
+/* The review tab displays every review fetched by the existing 20-item query. */
+
 #shopDialog #detailReviews{scroll-margin-top:62px}
 #shopDialog #reviewForm{scroll-margin-top:62px;margin-top:16px}
 #shopDialog .p2-shop-panel .p2-button:focus-visible{outline:2px solid #285b43;outline-offset:2px}
@@ -274,3 +274,7 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
  #shopDialog .p2-shop-panel .product-list li{font-size:14px}
  #shopDialog .p2-shop-tabs [role=tab]{font-size:14px}
 }
+
+/* Shop detail only: main-page language and distance controls are unchanged. */
+#shopDialog .sheet-header .language-switch,#shopDialog .sheet-header .globe-button,#shopDialog .p2-distance{display:none!important}
+#shopDialog .p2-meta:has(>span:first-child[hidden]){display:none}

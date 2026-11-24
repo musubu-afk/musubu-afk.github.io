@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded',()=>{
    active=key;paint();
  };nav.append(b);}
  document.querySelector('.hero').after(nav);
- function paint(){active=document.body.dataset.browseView||active;I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';}
+ function paint(){active=document.body.dataset.browseView||active;const koreanHome=I.lang==='ko'&&document.body.dataset.browseView==='home';nav.querySelector('[data-phase-menu=story] span').dataset.i18n=koreanHome?'uxNewAttractions':'phaseStory';nav.querySelector('[data-phase-menu=discover] span').dataset.i18n=koreanHome?'uxNewBusinesses':'uxShops';I.apply(nav);nav.setAttribute('aria-label',t('phaseMenu'));nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));document.querySelector('.brand').textContent='MUSUBU';}
  // Only replace the top-level globe artwork; its existing language-dialog handler stays attached.
  const globe=document.querySelector('.hero-top .globe-button');if(globe)globe.replaceChildren(icon('globe'));
- document.addEventListener('musubu:languagechange',paint);document.addEventListener('musubu:regionchange',()=>{active=window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
+ document.addEventListener('musubu:browse-view',paint);document.addEventListener('musubu:languagechange',paint);document.addEventListener('musubu:regionchange',()=>{active=window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
  document.addEventListener('musubu:screenchange',e=>{active=e.detail.screen==='shops'?'coupon':e.detail.screen==='review'?'review':window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
  document.addEventListener('musubu:picking',e=>{active=e.detail.picking?'story':window.MUSUBU_DISCOVERY.source==='shops'?'discover':'story';paint();});
  document.addEventListener('musubu:discovery-source',e=>{active=e.detail.source==='shops'?'discover':'story';paint();});

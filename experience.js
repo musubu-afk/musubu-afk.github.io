@@ -3,7 +3,7 @@
 const I=window.MUSUBU_I18N,X=window.MUSUBU_EXPLORE,t=(k,v)=>I.t(k,v),$=id=>document.getElementById(id);
 const header=document.querySelector('.hero'),top=document.querySelector('.hero-top'),scene=document.createElement('div');scene.className='hero-scene';[...header.children].filter(n=>n!==top).forEach(n=>scene.append(n));header.append(scene);
 const photo=document.createElement('img');photo.className='region-hero-photo';photo.id='regionHeroPhoto';photo.decoding='async';scene.prepend(photo);
-const mark=document.createElement('img');mark.src='assets/musubu-sakura.svg';mark.alt='';mark.className='musubu-sakura';const identity=document.createElement('div');identity.className='musubu-identity';identity.append(mark,document.querySelector('.brand'));top.prepend(identity);
+const identity=document.createElement('div');identity.className='musubu-identity';identity.append(document.querySelector('.brand'));top.prepend(identity);
 function hero(){const japan=window.MUSUBU_REGION.current==='fukuoka';photo.src=japan?'assets/ohori.png':'assets/tapjeongho.jpg';photo.alt=t(japan?'heroPhotoFukuoka':'heroPhotoNonsan');}
 const reviewRoot=document.querySelector('.community-reviews'),heading=reviewRoot.querySelector('h2'),bar=document.createElement('div');bar.className='review-page-heading';heading.before(bar);bar.append(heading);
 const write=document.createElement('button');write.type='button';write.className='community-button write-review';write.id='writePlaceReview';bar.append(write);

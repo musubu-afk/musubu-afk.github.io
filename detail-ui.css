@@ -221,3 +221,56 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
   grid-row:2;
   align-self:start;
 }
+
+/* Shop-only detail: match the existing tourist detail header and hero. */
+#shopDialog.p2-dialog{background:white;width:min(980px,calc(100% - 28px));max-width:none;margin:auto;border-radius:24px}
+#shopDialog .sheet-scroll{--shop-gutter:clamp(8px,1.6vw,18px);padding:0 var(--shop-gutter) 14px;scroll-behavior:auto}
+#shopDialog .p2-detail>.p2-hero{display:block;width:calc(100% + var(--shop-gutter) + var(--shop-gutter));max-width:none;margin:0 calc(-1 * var(--shop-gutter));height:auto;aspect-ratio:3.2/1;object-fit:cover;object-position:center;border-radius:0 0 15px 15px}
+#shopDialog .p2-title{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:0;margin:6px 0 2px;align-items:center}
+#shopDialog #detailName{grid-column:2;text-align:center;color:#164c2e;font-size:clamp(30px,2.4vw,34px);line-height:1.25;margin:0;overflow-wrap:anywhere}
+#shopDialog .p2-title .ux-bookmark{grid-column:3;width:44px;height:44px;border:0;background:transparent;box-shadow:none;color:#185433}
+#shopDialog .ux-bookmark svg{width:32px;height:32px}
+#shopDialog .p2-chips,#shopDialog .p2-meta{justify-content:center}
+#shopDialog .p2-chips span{background:#e7f1e3;color:#194e2c;font-weight:700}
+#shopDialog .p2-intro{display:block;width:100%;max-width:none;text-align:left;overflow:visible;white-space:normal;word-break:normal;overflow-wrap:break-word;font-size:18px;line-height:1.65;color:#202922;margin:9px 0}
+#shopDialog .p2-shop-demo{margin:6px 0 10px;font-size:13px;color:#63756a;line-height:1.5}
+#shopDialog #detailPhotoNote{font-size:12px;text-align:center;margin:6px 0;color:#63756a}
+#shopDialog #shopHeartStatus:empty{display:none}
+#shopDialog .p2-actions{margin-top:10px}
+#shopDialog .p2-actions .p2-button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px;border:1px solid #34704a;border-radius:99px;background:white;color:#195431;font-weight:700;text-align:center}
+#shopDialog #writeShopReview{border-radius:99px;background:#285b43;color:white}
+#shopDialog #closeDetail{display:grid;place-items:center;border:0;background:transparent;color:#214d31;box-shadow:none;padding:0}
+#shopDialog #closeDetail svg{width:24px;height:24px}
+#shopDialog .p2-shop-tabs{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;background:white;border-bottom:1px solid #dce7df;margin:18px 0 0;padding:0}
+#shopDialog .p2-shop-tabs [role=tab]{min-width:0;min-height:48px;border:0;border-bottom:3px solid transparent;border-radius:0;background:white;color:#64766c;font:inherit;font-weight:600;padding:8px 4px;cursor:pointer}
+#shopDialog .p2-shop-tabs [aria-selected=true]{border-bottom-color:#285b43;color:#285b43;font-weight:800}
+#shopDialog .p2-shop-panel{min-width:0;padding:14px 4px 6px;color:#202922}
+#shopDialog .p2-shop-panel .shop-info{grid-template-columns:minmax(86px,120px) minmax(0,1fr);gap:14px 10px;margin:0 0 12px;padding:5px 0 12px;border:0;font-size:16px;align-items:start}
+#shopDialog .p2-shop-panel dt{display:flex;align-items:center;gap:7px;color:#61776a;font-size:14px}
+#shopDialog .p2-shop-panel dt svg{width:20px;height:20px;flex:none;color:#285b43}
+#shopDialog .p2-shop-panel dd{min-width:0;overflow-wrap:anywhere}
+#shopDialog .p2-shop-official{display:inline-flex;align-items:center;min-height:44px;margin:4px 0;color:#285b43;font-size:14px}
+#shopDialog .p2-shop-panel .product-list li{font-size:16px;padding:15px 0;align-items:center}
+#shopDialog .p2-shop-panel .product-list b{color:#285b43}
+#shopDialog .p2-shop-panel .p2-gallery{margin-top:12px}
+#shopDialog .p2-shop-review-note{color:#63756a;font-size:13px;margin:8px 0 12px}
+#shopDialog .p2-shop-review-note summary{cursor:pointer;min-height:32px;line-height:32px}
+#shopDialog .p2-shop-review-note p{margin:0;line-height:1.6}
+#shopDialog .p2-shop-obsolete-preview{display:none!important}
+#shopDialog #reviewList:not(.p2-shop-all-reviews)>.review-entry:nth-of-type(n+4){display:none}
+#shopDialog .p2-shop-write{width:100%;background:#285b43;color:white;margin:12px 0 0;border-radius:12px;font-weight:700}
+#shopDialog #detailReviews{scroll-margin-top:62px}
+#shopDialog #reviewForm{scroll-margin-top:62px;margin-top:16px}
+#shopDialog .p2-shop-panel .p2-button:focus-visible{outline:2px solid #285b43;outline-offset:2px}
+@media(max-width:600px){
+ #shopDialog.p2-dialog{width:calc(100% - 12px);border-radius:20px}
+ #shopDialog .sheet-scroll{--shop-gutter:6px}
+ #shopDialog .p2-detail>.p2-hero{aspect-ratio:2.15/1}
+ #shopDialog #detailName{font-size:25px}
+ #shopDialog .p2-intro{font-size:16px}
+ #shopDialog .ux-bookmark svg{width:27px;height:27px}
+ #shopDialog .p2-actions .p2-button{flex-direction:row;font-size:12px}
+ #shopDialog .p2-shop-panel .shop-info{grid-template-columns:84px minmax(0,1fr);font-size:14px}
+ #shopDialog .p2-shop-panel .product-list li{font-size:14px}
+ #shopDialog .p2-shop-tabs [role=tab]{font-size:14px}
+}

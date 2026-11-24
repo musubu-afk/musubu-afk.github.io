@@ -74,6 +74,36 @@ $('placeToShops').onclick=()=>{
  window.MUSUBU_SCREENS.go('shops');
 };
 async function loadCounts(){if(!db)return;const {data,error}=await db.rpc('place_reaction_counts');if(error)throw error;counts=new Map(places.map(p=>[p.id,0]));(data||[]).forEach(r=>counts.set(r.place_id,Number(r.likes)));draw();preview();likeButton();}
+// Optional static photo package for the six approved Nonsan attractions.
+const nonsanPhotoSlugs = Object.freeze({
+ '312e55ba-196c-4bc1-ad86-5f5bc5328cf3':'gwanchoksa',
+ 'd6d73807-2a85-43d4-b148-72ad484f0d36':'gaetaesa',
+ 'ff718453-06a2-494b-930c-23d4b6a68e6a':'gyeonhwon-tomb',
+ 'ae611a9c-ec22-4fd6-8d3d-5e89fe473b58':'ssanggyesa',
+ '2887ef08-b1a8-4ac4-94fc-c4e742d22337':'sunshine-land',
+ 'eabd6699-3528-42f6-865a-fb583cab7a2e':'onbit-forest'
+});
+async function attachNonsanPhotos(rows){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),3500);
+ try{
+  const response=await fetch('assets/nonsan-photos/manifest.json',{cache:'no-store',signal:controller.signal});
+  if(!response.ok)return;
+  const manifest=await response.json();
+  const candidates=rows.filter(p=>p.region==='nonsan'&&p.kind==='official'&&Object.hasOwn(nonsanPhotoSlugs,p.id));
+  await Promise.all(candidates.map(async p=>{
+   const entry=manifest[p.id],slug=nonsanPhotoSlugs[p.id];
+   const paths=[1,2,3].map(n=>'assets/nonsan-photos/'+slug+'-'+n+'.jpg');
+   if(!entry||!Array.isArray(entry.photos)||entry.photos.length!==3||!paths.every((path,i)=>path===entry.photos[i]))return;
+   try{
+    const checks=await Promise.all(paths.map(path=>fetch(path,{method:'HEAD',signal:controller.signal})));
+    if(!checks.every(r=>r.ok&&/^image\//i.test(r.headers.get('content-type')||'')))return;
+    p.image_url=paths[0];p.photos=paths;
+   }catch{/* Keep the existing photos if the package is incomplete. */}
+  }));
+ }catch{/* Missing or unavailable package must not break the existing site. */}
+ finally{clearTimeout(timer);}
+}
 async function load(){
  const version=++loadVersion;text('mapStatus','mapLoading');$('refreshPlaces').disabled=true;
  try{
@@ -82,7 +112,7 @@ async function load(){
    db.from('places').select('id,region,latitude,longitude,name,kind,category,reason,tip,language,story_key,translations,is_example,address,address_original,pin_color,created_at,status,image_url,route_points,distance_m,duration_minutes').eq('status','approved').order('created_at',{ascending:false}).limit(1000),
    db.from('tour_regions').select('*')]);
   if(a.error||b.error)throw a.error||b.error;if(version!==loadVersion)return;
-  places=a.data;if(window.MUSUBU_COMMUNITY)await window.MUSUBU_COMMUNITY.decorate(places);for(const r of b.data)C.regions[r.id]=r;
+  const nextPlaces=a.data;await attachNonsanPhotos(nextPlaces);if(version!==loadVersion)return;places=nextPlaces;if(window.MUSUBU_COMMUNITY)await window.MUSUBU_COMMUNITY.decorate(places);for(const r of b.data)C.regions[r.id]=r;
   if(selected){selected=places.find(p=>p.id===selected.id)||null;if(!selected){$('mapPreview').hidden=true;if($('placeDialog').open)$('placeDialog').close();}}
   draw();text('mapStatus','mapCount',{count:shownPlaces().length});await loadCounts();document.dispatchEvent(new Event('musubu:places-loaded'));
  }catch{if(version===loadVersion)text('mapStatus','mapLoadError');}

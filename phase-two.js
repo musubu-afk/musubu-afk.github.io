@@ -47,15 +47,60 @@ class Detail {
   this.more.after(this.manage);
  }
  this.topHeart.classList.add('ux-bookmark');this.expand.remove();this.all.remove();this.bottom.remove();
- if(shop){this.more.querySelector('.detail-actions').hidden=true;this.more.querySelector('.cover-wrap').hidden=true;$('detailCategory').hidden=true;$('detailStats').hidden=true;}this.nativeHeart.classList.add('p2-original-heart');
+ if(shop)this.setupShopTabs();this.nativeHeart.classList.add('p2-original-heart');
  new MutationObserver(()=>this.syncHeart()).observe(this.nativeHeart,{attributes:true,childList:true,subtree:true});
  new MutationObserver(()=>this.updateStats()).observe(this.preview,{attributes:true,attributeFilter:['hidden'],subtree:true,childList:true});
- this.dialog.addEventListener('close',()=>{this.more.open=false;this.audioSlot?.querySelector('audio')?.pause();});
+ this.dialog.addEventListener('close',()=>{this.more.open=false;this.audioSlot?.querySelector('audio')?.pause();if(this.shop){this.selectShopTab('info');this.setAllShopReviews(false);$('reviewForm').hidden=true;}});
+ }
+ setupShopTabs(){
+ const content=this.more.querySelector('.detail-content'),info=$('detailAddress').parentElement,menu=$('detailProducts'),menuTitle=menu.previousElementSibling,review=$('detailReviews'),demo=content.querySelector('[data-i18n=linksNotice]');
+ this.shopDemo=demo;demo.classList.add('p2-business-notice','p2-shop-demo');demo.removeAttribute('data-i18n');this.intro.after(demo);
+ this.shopHeartStatus=$('shopHeartStatus');this.heading.after(this.shopHeartStatus);
+ this.more.hidden=true;this.gallery.remove();this.reviews.remove();
+ this.shopTabs=make('div','p2-shop-tabs');this.shopTabs.setAttribute('role','tablist');
+ this.shopPanels={};this.shopTabButtons={};
+ for(const [key,label] of [['info','p2ShopTabInfo'],['menu','p2ShopTabMenu'],['reviews','p2ShopTabReviews']]){
+  const tab=button(label,()=>this.selectShopTab(key));tab.id='shop-tab-'+key;tab.setAttribute('role','tab');tab.setAttribute('aria-controls','shop-panel-'+key);this.shopTabs.append(tab);this.shopTabButtons[key]=tab;
+  const panel=make('section','p2-shop-panel');panel.id='shop-panel-'+key;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',tab.id);this.shopPanels[key]=panel;
+  tab.addEventListener('keydown',e=>{const keys=Object.keys(this.shopTabButtons),i=keys.indexOf(key);let next;if(e.key==='ArrowRight')next=keys[(i+1)%keys.length];else if(e.key==='ArrowLeft')next=keys[(i+keys.length-1)%keys.length];else if(e.key==='Home')next=keys[0];else if(e.key==='End')next=keys[keys.length-1];else return;e.preventDefault();this.selectShopTab(next);this.shopTabButtons[next].focus();});
+ }
+ const infoPaths={address:'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0',hours:'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2',phone:'M5 3h4l2 5-3 2c2 4 4 6 8 8l2-3 5 2v4c-1 2-4 2-7 1C8 19 3 13 2 6 2 4 3 3 5 3Z'};
+ for(const dt of info.querySelectorAll('dt')){
+  const key=dt.dataset.i18n, label=make('span');label.dataset.i18n=key;label.textContent=t(key);delete dt.dataset.i18n;
+  const svg=U.icon('pin');svg.querySelector('path').setAttribute('d',infoPaths[key]||infoPaths.address);dt.replaceChildren(svg,label);
+ }
+ this.copyAddress=button('p2CopyAddress',async()=>{try{await navigator.clipboard.writeText($('detailAddress').textContent);this.copyStatus.textContent=t('p2AddressCopied');}catch{this.copyStatus.textContent=t('p2CopyManual')+' '+$('detailAddress').textContent;}});
+ this.copyStatus=make('p','p2-status');this.copyStatus.setAttribute('role','status');
+ const official=$('officialLink');official.classList.add('p2-shop-official');
+ this.shopPanels.info.append(info,this.copyAddress,this.copyStatus,$('stayInfo'),$('stayDemo'),official,this.gallery);
+ this.menuEmpty=make('p','notice');this.menuEmpty.dataset.i18n='p2MenuEmpty';this.shopPanels.menu.append(menuTitle,menu,this.menuEmpty);
+ this.preview.hidden=true;this.preview.classList.add('p2-shop-obsolete-preview');
+ const fullHeading=$('reviewList').previousElementSibling;if(fullHeading?.dataset.i18n==='allReviews')fullHeading.hidden=true;
+ this.reviewNotice=review.querySelector('[data-i18n=reviewsNotice]');const notes=make('details','p2-shop-review-note'),noteTitle=make('summary');noteTitle.dataset.i18n='p2ReviewCriteria';notes.append(noteTitle,this.reviewNotice);review.querySelector('.review-heading').after(notes);
+ this.reviewAll=button('allReviews',()=>this.setAllShopReviews(!this.shopAllReviews));$('retryReviews').after(this.reviewAll);
+ this.reviewWrite=button('writeReview',()=>{this.openShopReviewForm();$('reviewForm').scrollIntoView({block:'start',behavior:'smooth'});$('reviewText').focus({preventScroll:true});});this.reviewWrite.classList.add('p2-shop-write');$('reviewForm').before(this.reviewWrite);
+ this.shopPanels.reviews.append(review);$('reviewForm').hidden=true;
+ this.root.append(this.shopTabs,...Object.values(this.shopPanels));this.selectShopTab('info');this.setAllShopReviews(false);
+ new MutationObserver(()=>this.updateShopReviewCount()).observe($('reviewList'),{childList:true,subtree:true});
+ I.apply(this.root);
+ }
+ selectShopTab(key){if(!this.shopPanels?.[key])return;this.shopActiveTab=key;for(const [id,panel] of Object.entries(this.shopPanels)){const active=id===key;panel.hidden=!active;const tab=this.shopTabButtons[id];tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}}
+ setAllShopReviews(on){this.shopAllReviews=on;$('reviewList').classList.toggle('p2-shop-all-reviews',on);this.updateShopReviewCount();}
+ updateShopReviewCount(){if(!this.reviewAll)return;this.reviewAll.hidden=$('reviewList').querySelectorAll('.review-entry').length<=3;const key=this.shopAllReviews?'p2RecentOnly':'allReviews';this.reviewAll.dataset.p2label=key;this.reviewAll.querySelector('span').textContent=t(key);this.reviewAll.setAttribute('aria-label',t(key));this.reviewAll.setAttribute('aria-expanded',String(this.shopAllReviews));}
+ openShopReviewForm(){this.selectShopTab('reviews');$('reviewForm').hidden=false;}
+ renderShopTabs(p,v){
+ this.shopDemo.hidden=!p.is_demo;this.shopDemo.textContent=t('p2DemoInfo');
+ const note=$('detailPhotoNote');if(note)this.hero.after(note);
+ this.copyAddress.hidden=!v.address||p.is_demo;this.copyStatus.textContent='';
+ for(const id of ['detailAddress','detailPhone']){const n=$(id);n.hidden=n.previousElementSibling.hidden=!n.textContent.trim();}
+ const hours=$('detailHours');hours.hidden=hours.previousElementSibling.hidden=p.category==='stay'||!hours.textContent.trim();
+ const menu=$('detailProducts'),showMenu=p.category!=='stay'&&menu.children.length>0;menu.hidden=menu.previousElementSibling.hidden=!showMenu;this.menuEmpty.hidden=showMenu;this.menuEmpty.textContent=t('p2MenuEmpty');
+ this.gallery.hidden=photos(p).length<2;this.shopTabs.setAttribute('aria-label',t('p2ShopTabInfo'));this.updateShopReviewCount();I.apply(this.root);
  }
  syncHeart(){const on=this.nativeHeart.getAttribute('aria-pressed')==='true';for(const b of [this.topHeart,this.bottomHeart]){b.disabled=this.nativeHeart.disabled;b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',t(on?'favoriteSaved':'favoriteAdd'));b.replaceChildren(U.icon('bookmark'));if(b!==this.topHeart)b.append(document.createTextNode(t(on?'favoriteSaved':'favoriteAdd')));}}
- showReviews(){if(this.shop){this.more.open=true;$('detailReviews').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});$('reviewsHeading').focus({preventScroll:true});}else $('communityActions').querySelector('button:last-child').click();}
+ showReviews(){if(this.shop){this.selectShopTab('reviews');$('detailReviews').scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});$('reviewsHeading').focus({preventScroll:true});}else $('communityActions').querySelector('button:last-child').click();}
  updateStats(){if(!this.p)return;const rows=stats.filter(r=>r.place_id===this.p.id);const raw=this.shop?A.summary(this.p.shop_id):rows.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):this.preview.querySelector('.review-preview-stats').textContent;this.rating.textContent=U.stats(raw);this.rating.title=raw;if(!this.shop)this.rating.hidden=!rows.length&&(!raw||this.preview.hidden);this.empty.hidden=this.emptyTitle.hidden=!this.preview.hidden;}
- render(p){this.p=p;if(this.shop){const notice=this.more.querySelector('[data-i18n=linksNotice],.p2-business-notice');notice.removeAttribute('data-i18n');notice.classList.add('p2-business-notice');notice.hidden=!p.is_demo;notice.textContent=t('p2DemoInfo');}const v=this.shop?I.shopView(p):X.view(p);this.name=v.name;this.status.textContent='';this.moreTitle.textContent=t(this.shop?'p2ShopInfo':'p2StoryInfo');this.root.querySelectorAll('[data-p2label]').forEach(b=>{const label=t(b.dataset.p2label);const s=b.querySelector('span');if(s)s.textContent=label;b.setAttribute('aria-label',label);});this.directions.querySelector('span').textContent=t('p2Directions');this.directions.setAttribute('aria-label',t('p2Directions'));this.directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.latitude+','+p.longitude);this.directions.title=t(this.shop?'p2DemoRoute':'p2Directions');
+ render(p){this.p=p;const v=this.shop?I.shopView(p):X.view(p);this.name=v.name;this.status.textContent='';this.moreTitle.textContent=t(this.shop?'p2ShopInfo':'p2StoryInfo');this.root.querySelectorAll('[data-p2label]').forEach(b=>{const label=t(b.dataset.p2label);const s=b.querySelector('span');if(s)s.textContent=label;b.setAttribute('aria-label',label);});this.directions.querySelector('span').textContent=t('p2Directions');this.directions.setAttribute('aria-label',t('p2Directions'));this.directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.latitude+','+p.longitude);this.directions.title=t(this.shop?'p2DemoRoute':'p2Directions');
  if(!this.shop){
   const player=this.players.get('story-'+p.story_key);
   if(this.audioSlot.firstChild!==player){this.audioSlot.querySelector('audio')?.pause();this.audioSlot.replaceChildren(...(player?[player]:[]));}
@@ -68,7 +113,7 @@ class Detail {
  this.chips.replaceChildren(make('span','',t(category(p))));if(this.shop||window.MUSUBU_PHASE_THREE_MODEL.business(p))this.chips.append(make('span','',t(window.MUSUBU_PHASE_THREE_MODEL.origin(p))));if(p.is_demo)this.chips.append(make('span','',t('phaseDemoShop')));else if(p.is_example)this.chips.append(make('span','',t('phaseDemo')));
  const raw=window.MUSUBU_LOCATION.label(p);this.dist.replaceChildren(U.icon('pin'),document.createTextNode(U.distance(raw)));this.dist.title=raw;this.dist.setAttribute('aria-label',raw);
  const story=p.story_key&&$('story-'+p.story_key);this.intro.textContent=this.shop?v.description:(story?.querySelector('p')?.textContent||v.reason||'');this.galleryHeading.textContent=t('p2Photos')+' ('+pics.length+')';this.thumbs.replaceChildren();for(const src of pics){const b=button('p2PhotoOpen',()=>viewPhoto(src,v.name));b.replaceChildren();const im=make('img');im.src=src;im.alt=v.name;im.loading='lazy';b.append(im);this.thumbs.append(b);}if(!pics.length)this.thumbs.append(make('p','notice',t('discoverNoPhoto')));
- this.emptyTitle.textContent=t('recentReviews');this.empty.textContent=t('p2NoReviews');this.syncHeart();this.updateStats();
+ this.emptyTitle.textContent=t('recentReviews');this.empty.textContent=t('p2NoReviews');if(this.shop)this.renderShopTabs(p,v);this.syncHeart();this.updateStats();
  }
  showMap(){const p=this.p;this.dialog.close();window.MUSUBU_DISCOVERY.selectSource(this.shop?'shops':'places');window.MUSUBU_SCREENS.go('story');document.querySelector('#discovery .text-button').click();if(this.shop){X.map?.panTo([p.latitude,p.longitude]);X.map?.eachLayer(layer=>{const ll=layer.getLatLng?.();if(ll&&Math.abs(ll.lat-p.latitude)<1e-7&&Math.abs(ll.lng-p.longitude)<1e-7)layer.openPopup?.();});}else X.choose(p);const back=$('mapBrowseBack'),original=back.onclick;back.textContent='‹ '+t('p2BackDetail');back.onclick=()=>{back.onclick=original;this.shop?A.openShop(p):X.openDetail();};}
  async sharePlace(){const url=new URL(location.href);url.searchParams.set('region',this.p.region);url.searchParams.set('lang',I.lang);url.searchParams.delete('place');url.searchParams.delete('shop');url.searchParams.set(this.shop?'shop':'place',this.shop?this.p.shop_id:this.p.id);url.hash='story';try{if(navigator.share)await navigator.share({title:this.name,text:this.name,url:url.href});else{await navigator.clipboard.writeText(url.href);this.status.textContent=t('p2Copied');}}catch(e){if(e.name==='AbortError')return;this.status.replaceChildren(make('span','',t('p2CopyManual')));const input=make('input');input.value=url.href;input.readOnly=true;input.setAttribute('aria-label',t('p2Share'));this.status.append(input);input.select();}}
@@ -76,8 +121,9 @@ class Detail {
 const place=new Detail(false),shop=new Detail(true);
 function shopGlobe(){document.querySelectorAll('#shopDialog .globe-button,#placeDialog .globe-button').forEach(globe=>globe.replaceChildren(U.icon('globe')));document.querySelector('.hero .musubu-sakura')?.remove();}
 document.addEventListener('DOMContentLoaded',shopGlobe);shopGlobe();
-$('writeShopReview').addEventListener('click',()=>{shop.more.open=true;},true);
-$('showReviews').addEventListener('click',()=>{shop.more.open=true;},true);
+$('writeShopReview').addEventListener('click',()=>shop.openShopReviewForm(),true);
+$('showReviews').addEventListener('click',()=>shop.selectShopTab('reviews'),true);
+$('openReview').addEventListener('click',()=>{if($('shopDialog').open)shop.openShopReviewForm();});
 function refresh(){if(place.p)place.render(place.p);if(shop.p)shop.render(shop.p);close.querySelector('span').textContent=t('mapClose');close.setAttribute('aria-label',t('mapClose'));}
 document.addEventListener('musubu:place-detail',e=>queueMicrotask(()=>place.render(e.detail.place)));
 document.addEventListener('musubu:shop-detail',e=>queueMicrotask(()=>shop.render(e.detail.shop)));

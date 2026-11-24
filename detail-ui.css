@@ -113,3 +113,111 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
  #placeDialog .ux-bookmark svg{width:27px;height:27px}
  #placeDialog .place-scroll{padding:3px 6px 10px}
 }
+
+/* Targeted follow-up: readable event copy, clean story audio, full-width place hero. */
+.ux-travel-copy::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse 75% 62% at 8% 100%,rgba(0,0,0,.29) 0%,rgba(0,0,0,.16) 35%,rgba(0,0,0,0) 100%);
+}
+.ux-travel-copy :is(h3,.ux-travel-date) {
+  position:relative;
+  text-shadow:0 1px 2px rgba(0,0,0,.94),0 2px 5px rgba(0,0,0,.68),0 0 8px rgba(0,0,0,.35);
+  background:transparent;
+  box-shadow:none;
+}
+.ux-travel-copy .ux-travel-date {font-weight:600}
+.ux-travel-copy .ux-travel-date svg {filter:drop-shadow(0 1px 2px rgba(0,0,0,.85))}
+@media(max-width:600px) {
+  .ux-travel-copy::before {
+    background:radial-gradient(ellipse 100% 65% at 8% 100%,rgba(0,0,0,.30) 0%,rgba(0,0,0,.16) 35%,rgba(0,0,0,0) 100%);
+  }
+}
+
+/* Preserve the text padding; only the leading hero reaches the scroll area's edges. */
+#placeDialog .place-scroll {
+  --place-content-gutter:clamp(8px,1.6vw,18px);
+  padding-top:0;
+  padding-inline:var(--place-content-gutter);
+}
+#placeDialog .p2-detail > .p2-hero {
+  display:block;
+  width:calc(100% + var(--place-content-gutter) + var(--place-content-gutter));
+  max-width:none;
+  margin:0 calc(-1 * var(--place-content-gutter));
+  height:auto;
+  object-fit:cover;
+  object-position:center;
+  border-radius:0 0 15px 15px;
+}
+@media(max-width:600px) {
+  #placeDialog .place-scroll {--place-content-gutter:6px}
+}
+
+/* Separate the time labels from the shared horizontal control axis. */
+#placeDialog .story-controls {
+  grid-template-columns:44px minmax(0,1fr) 44px;
+  grid-template-rows:44px auto;
+  align-items:center;
+  row-gap:0;
+}
+#placeDialog .story-controls > .listenBtn {
+  grid-column:1;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  min-height:44px;
+  height:44px;
+  line-height:0;
+  gap:0;
+}
+#placeDialog .story-controls > .story-seek {
+  grid-column:2;
+  grid-row:1;
+  align-self:center;
+  -webkit-appearance:none;
+  appearance:none;
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  height:44px;
+  min-height:0;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  cursor:pointer;
+}
+#placeDialog .story-controls > .story-seek:focus-visible {
+  outline:2px solid #285b43;
+  outline-offset:2px;
+}
+#placeDialog .story-controls > .story-volume {
+  grid-column:3;
+  grid-row:1;
+  align-self:center;
+  width:44px;
+  height:44px;
+}
+#placeDialog .story-volume > button {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  min-height:44px;
+  height:44px;
+  line-height:0;
+}
+#placeDialog .story-volume > button svg {display:block;flex:none}
+#placeDialog .story-controls > .story-times {
+  grid-column:2;
+  grid-row:2;
+  align-self:start;
+}

@@ -124,7 +124,6 @@ function travelCard(f){
  copy.append(el('h3','',ja?f.title_ja:f.title_ko));
  function bannerFact(shape,cls,value){const row=el('p',cls);row.append(window.MUSUBU_PHASE_ONE.icon(shape),el('span','',value));copy.append(row);}
  if(f.start_date)bannerFact('calendar','ux-travel-date',travelDates(f).replaceAll('-', '.'));
- if(f.venue_ko)bannerFact('pin','ux-travel-venue',ja?(f.address_ja||f.venue_ja):(f.address_ko||f.venue_ko));
 
  const trigger=el('button','travel-detail-trigger');
  trigger.type='button';trigger.setAttribute('aria-label',ja?f.title_ja:f.title_ko);

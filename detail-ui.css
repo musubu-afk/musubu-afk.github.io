@@ -28,8 +28,8 @@ dialog.ux-settings {
 }
 .travel-detail[open] {display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
 .travel-detail .festival-close {position:absolute;top:2px;right:2px;z-index:2}
-.festival-media {display:grid;place-items:center;position:relative;overflow:hidden;align-self:center;aspect-ratio:1;width:100%;border-radius:20px}
-.festival-media .festival-detail-image {display:block;width:100%;height:auto;object-fit:contain}
+.festival-media {display:grid;place-items:center;position:relative;overflow:hidden;align-self:stretch;aspect-ratio:1;min-height:0;width:100%;border-radius:20px}
+.festival-media .festival-detail-image {position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 .travel-detail .festival-info {min-width:0;align-self:center;padding:42px 24px 24px;text-align:center;color:#153f29;word-break:keep-all;overflow-wrap:anywhere}
 .festival-info h2 {margin:0 0 8px;padding:0;font-size:clamp(21px,1.8vw,26px);line-height:1.35;text-wrap:pretty}
 .festival-info .festival-subtitle {display:inline-block;background:#204c32;color:white;border-radius:99px;padding:4px 15px;margin-bottom:12px;font-weight:700;font-size:15px}
@@ -54,15 +54,15 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
 }
 
 #placeDialog{background:white;width:min(980px,calc(100% - 28px));margin:auto}
-#placeDialog .p2-hero{height:clamp(145px,20vw,245px);aspect-ratio:auto;object-position:center}
+#placeDialog .p2-hero{height:auto;aspect-ratio:3.2/1;object-position:center}
 #placeDialog .p2-title{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:0;margin:6px 0 2px;align-items:center}
-#placeDialog #placeDetailTitle{grid-column:2;text-align:center;color:#164c2e;font-size:clamp(24px,2.5vw,36px);line-height:1.25}
+#placeDialog #placeDetailTitle{grid-column:2;text-align:center;color:#164c2e;font-size:clamp(30px,2.4vw,34px);line-height:1.25}
 #placeDialog .p2-title .ux-bookmark{grid-column:3;width:44px;height:44px;border:0;background:transparent;box-shadow:none;color:#185433}
 #placeDialog .p2-chips{justify-content:center}
 #placeDialog .p2-chips span{background:#e7f1e3;color:#194e2c;font-weight:700}
 #placeDialog .p2-distance,#placeDialog .p2-meta:has(>span:first-child[hidden]){display:none}
 #placeDialog .p2-meta{justify-content:center}
-#placeDialog .p2-intro{display:block;text-align:start;overflow:visible;white-space:normal;font-size:clamp(17px,1.5vw,21px);line-height:1.65;color:#202922;margin:9px 0}
+#placeDialog .p2-intro{display:block;width:100%;max-width:none;text-align:left;overflow:visible;white-space:normal;word-break:normal;overflow-wrap:break-word;font-size:18px;line-height:1.65;color:#202922;margin:9px 0}
 #placeDialog .detail-audio .audioBox{margin:12px 0;padding:8px 12px;background:#edf5e8;border:0;border-radius:14px}
 #placeDialog .detail-audio strong{display:block;text-align:center;color:#205432;font-size:18px}
 #placeDialog .detail-audio :is(.listenBtn,p){display:none}
@@ -77,6 +77,39 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
 #placeDialog .p2-gallery,#placeDialog .p2-recent{margin-top:12px}
 @media(max-width:600px){
  #placeDialog{width:calc(100% - 12px);border-radius:20px}
- #placeDialog .p2-hero{height:auto;aspect-ratio:2/1}
+ #placeDialog .p2-hero{height:auto;aspect-ratio:2.15/1}
  #placeDialog .p2-actions .p2-button{flex-direction:row}
+}
+
+#placeDialog .place-scroll{padding:4px clamp(8px,1.6vw,18px) 14px}
+#placeDialog .place-head{align-items:center}
+#placeDialog #writeDetailReview{border-radius:99px;background:#285b43;color:white}
+#placeDialog [data-close-place]{display:grid;place-items:center;border:0;background:transparent;color:#214d31;box-shadow:none}
+#placeDialog .ux-bookmark svg{width:32px;height:32px}
+#placeDialog .p2-actions .p2-button{border-radius:99px}
+#placeDialog .p2-thumbs button{border-radius:12px}
+#placeDialog .detail-audio .audioBox{padding:10px 14px 14px}
+#placeDialog .detail-audio strong{font-size:17px;margin:0}
+#placeDialog .story-controls{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;column-gap:8px;color:#235333}
+#placeDialog .story-controls button{display:grid;place-items:center;background:none;border:0;color:inherit;box-shadow:none;margin:0;padding:0;min-width:44px;height:44px;cursor:pointer}
+#placeDialog .story-controls .listenBtn{font-size:0}
+#placeDialog .listenBtn::before{content:'';border:9px solid transparent;border-left:15px solid currentColor;border-right:0}
+#placeDialog .listenBtn[data-i18n=playing]::before{width:12px;height:17px;border:0;border-inline:4px solid currentColor;box-sizing:border-box}
+#placeDialog .story-seek{appearance:none;width:100%;height:44px;margin:0;background:transparent;cursor:pointer}
+.story-seek::-webkit-slider-runnable-track{height:5px;border-radius:9px;background:linear-gradient(to right,#285b43 var(--played,0%),#bccdc0 0)}
+.story-seek::-moz-range-track{height:5px;border-radius:9px;background:#bccdc0}
+.story-seek::-moz-range-progress{height:5px;border-radius:9px;background:#285b43}
+.story-seek::-webkit-slider-thumb{appearance:none;width:10px;height:10px;margin-top:-2.5px;border-radius:50%;background:#285b43}
+#placeDialog .story-times{grid-column:2;display:flex;justify-content:space-between;font-size:13px;font-variant-numeric:tabular-nums;line-height:1}
+#placeDialog .story-volume{position:relative}
+.story-volume svg{width:25px;height:25px;stroke:currentColor;stroke-width:2;fill:none}
+.story-volume .volume-panel{position:absolute;right:0;bottom:100%;z-index:2;display:flex;align-items:center;gap:4px;padding:4px 10px;background:white;border:1px solid #bbcfbd;border-radius:12px}
+.story-volume input{width:90px;accent-color:#285b43}
+#placeDialog .story-controls ~ audio{display:none}
+#placeDialog .audioBox .status[data-i18n=audioError],#placeDialog .audioBox .status[data-i18n=audioBlocked]{display:block}
+@media(max-width:600px){
+ #placeDialog #placeDetailTitle{font-size:25px}
+ #placeDialog .p2-intro{font-size:16px}
+ #placeDialog .ux-bookmark svg{width:27px;height:27px}
+ #placeDialog .place-scroll{padding:3px 6px 10px}
 }

@@ -278,3 +278,20 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
 /* Shop detail only: main-page language and distance controls are unchanged. */
 #shopDialog .sheet-header .language-switch,#shopDialog .sheet-header .globe-button,#shopDialog .p2-distance{display:none!important}
 #shopDialog .p2-meta:has(>span:first-child[hidden]){display:none}
+
+#shopDialog .p2-shop-management{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:10px;margin:24px 0 4px}
+#shopDialog .p2-shop-management .p2-button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 6px;border:1px solid #34704a;border-radius:12px;background:white;color:#195431;font:inherit;font-size:14px;font-weight:700;text-align:center;cursor:pointer}
+#shopDialog .p2-shop-management svg{width:19px;height:19px;flex:none}
+.p2-shop-change-dialog{box-sizing:border-box;width:min(560px,calc(100% - 24px));max-height:88dvh;border:1px solid #dce7df;border-radius:20px;padding:0;background:white;color:#202922;overflow:auto}
+.p2-shop-change-dialog::backdrop{background:#132e2477}
+.p2-change-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:white;border-bottom:1px solid #dce7df;z-index:1}
+.p2-change-head h2{font-size:20px;margin:0}
+.p2-change-close{width:44px;height:44px;border:0;background:white;color:#335743;display:grid;place-items:center;cursor:pointer}
+.p2-change-close svg{width:24px;height:24px}
+.p2-change-form{display:grid;gap:12px;padding:18px 20px}
+.p2-change-form label{display:grid;gap:6px;font-weight:600}
+.p2-change-form :is(input,textarea){box-sizing:border-box;width:100%;padding:10px;border:1px solid #cbd9cf;border-radius:10px;font:inherit;color:inherit;background:white}
+.p2-change-submit{min-height:44px;border:0;border-radius:12px;background:#335743;color:white;font:inherit;font-weight:700;cursor:pointer}
+.p2-change-submit:disabled{opacity:.6}
+.p2-change-status{margin:0;color:#335743}
+@media(max-width:600px){#shopDialog .p2-shop-management .p2-button{font-size:12px;gap:4px;padding:6px 3px}.p2-change-head,.p2-change-form{padding:14px}}

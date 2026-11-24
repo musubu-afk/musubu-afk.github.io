@@ -23,7 +23,7 @@ const placeCategories=[['all','discoverAll'],['history','phaseHistory'],['nature
 const shopCategories=[['all','discoverAll'],['meal','phaseMeal'],['dessert','phaseDessert'],['gift','phaseGift'],['stay','phaseStay']];
 const newCategories=[['all','discoverAll'],['attractions','uxNewAttractions'],['businesses','uxNewBusinesses']];
 const savedCategory=['saved','uxBookmarks'];
-const listCategories=()=>source==='new'?newCategories:[...(source==='shops'?shopCategories:placeCategories),savedCategory];
+const listCategories=()=>{if(source==='new')return newCategories;const base=source==='shops'?shopCategories:placeCategories;return [base[0],savedCategory,...base.slice(1)];};
 const categories=[['all','discoverAll'],['history','discoverHistory'],['nature','discoverNature'],['walk','discoverWalk'],['local','mapCategory_local'],['meal','category_meal'],['dessert','category_dessert'],['gift','category_gift'],['stay','category_stay'],['saved','discoverSaved']];
 function group(p){if(M.business(p))return p.category;if(p.story_key==='donam')return 'history';if(['walk','photo'].includes(p.category))return 'walk';return ['scenery','rest'].includes(p.category)?'nature':'local';}
 function newEligible(p){return M.userPlace(p)&&!M.testPlace(p);}

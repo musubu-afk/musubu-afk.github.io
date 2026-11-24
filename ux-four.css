@@ -172,3 +172,6 @@ body #discovery .discovery-card>.ux-bookmark svg,body .p3-results .discovery-car
 body #discovery .discovery-card>.ux-bookmark[aria-pressed=true] svg,body .p3-results .discovery-card>.ux-bookmark[aria-pressed=true] svg{fill:var(--musubu-primary);stroke:#fff;stroke-width:1.6}
 body #discovery .discovery-card>.ux-bookmark[data-photo=false] svg,body .p3-results .discovery-card>.ux-bookmark[data-photo=false] svg{filter:none}
 body #discovery .discovery-card>.ux-bookmark:focus-visible,body .p3-results .discovery-card>.ux-bookmark:focus-visible{outline:2px solid var(--musubu-primary);outline-offset:-2px}
+
+/* The saved gallery contains saved cards only; recommendations remain on other filters. */
+body:is([data-browse-view=story],[data-browse-view=discover])[data-discovery-filter=saved] .p3-preview{display:none!important}

@@ -89,8 +89,58 @@ class Detail {
  const fullHeading=$('reviewList').previousElementSibling;if(fullHeading?.dataset.i18n==='allReviews')fullHeading.hidden=true;
  this.reviewNotice=review.querySelector('[data-i18n=reviewsNotice]');const notes=make('details','p2-shop-review-note'),noteTitle=make('summary');noteTitle.dataset.i18n='p2ReviewCriteria';notes.append(noteTitle,this.reviewNotice);review.querySelector('.review-heading').after(notes);
  this.shopPanels.reviews.append(review);$('reviewForm').hidden=true;
+ this.setupShopManagement();
  this.selectShopTab('info');
  I.apply(this.root);
+ }
+ setupShopManagement(){
+  const bar=make('section','place-management p2-shop-management');
+  for(const [kind,key] of [['edit','p2ManageEdit'],['delete','p2ManageDelete']]){
+   const b=button(key,()=>this.openShopChange(kind));b.prepend(managementIcon(kind));bar.append(b);
+  }
+  this.root.append(bar);
+ }
+ openShopChange(kind){
+  const p=this.p;if(!p?.shop_id)return;
+  if(!this.changeDialog){
+   this.changeDialog=make('dialog','p2-shop-change-dialog');this.changeDialog.setAttribute('aria-labelledby','p2-shop-change-title');document.body.append(this.changeDialog);
+  }
+  const dialog=this.changeDialog,v=I.shopView(p),lang=I.lang,editing=kind==='edit';
+  dialog.replaceChildren();
+  const head=make('div','p2-change-head'),title=make('h2','',t(editing?'p2ManageEdit':'p2ManageDelete'));title.id='p2-shop-change-title';
+  const closeBtn=make('button','p2-change-close');closeBtn.type='button';closeBtn.setAttribute('aria-label',t('mapClose'));closeBtn.append(U.icon('close'));closeBtn.onclick=()=>dialog.close();head.append(title,closeBtn);
+  const form=make('form','p2-change-form');form.append(make('strong','p2-change-target',v.name),make('p','notice',t('p2ManageNotice')));
+  const fields=new Map(),original=new Map();
+  const addField=(key,label,value,max,multi=false)=>{
+   const wrap=make('label'),input=make(multi?'textarea':'input');input.name=key;input.maxLength=max;input.value=String(value??'');if(multi)input.rows=3;
+   wrap.append(make('span','',t(label)),input);form.append(wrap);fields.set(key,input);original.set(key,input.value);
+  };
+  if(editing){
+   addField('name','p2ManageName',v.name,80);
+   addField('description','p2ManageDescription',v.description,1200,true);
+   addField('address','address',v.address,300);
+   addField('business_hours','hours',v.business_hours,300);
+   addField('phone','phone',v.phone,100);
+  }
+  const reasonLabel=make('label'),reason=make('textarea');reason.required=true;reason.minLength=5;reason.maxLength=1000;reason.rows=4;reasonLabel.append(make('span','',t(editing?'p2ManageReason':'mapDeleteReason')),reason);form.append(reasonLabel);
+  const submit=make('button','p2-change-submit',t('p2ManageSend'));submit.type='submit';
+  const status=make('p','p2-change-status');status.setAttribute('role','status');form.append(submit,status);dialog.append(head,form);
+  let pending=false,sent=false;
+  form.onsubmit=async e=>{
+   e.preventDefault();if(pending||sent)return;const changes={};
+   for(const [key,input] of fields){const value=input.value.trim();if(value!==original.get(key).trim())changes[key]=value;}
+   if(editing&&!Object.keys(changes).length){status.textContent=t('p2ManageNoChange');return;}
+   if(editing&&Object.hasOwn(changes,'name')&&changes.name.length<2){status.textContent=t('p2ManageNameInvalid');return;}
+   if(reason.value.trim().length<5){status.textContent=t('p2ManageReasonInvalid');return;}
+   pending=true;submit.disabled=true;closeBtn.disabled=true;status.textContent='';
+   try{
+    const {error}=await X.db.from('shop_change_requests').insert({shop_id:p.shop_id,request_type:kind,proposed_changes:changes,reason:reason.value.trim(),language:lang});
+    if(error)throw error;sent=true;status.textContent=t('p2ManageSent');form.querySelectorAll('input,textarea').forEach(n=>n.disabled=true);
+   }catch{status.textContent=t('mapSaveError');}
+   finally{pending=false;submit.disabled=sent;closeBtn.disabled=false;}
+  };
+  dialog.oncancel=e=>{if(pending)e.preventDefault();};
+  dialog.showModal();
  }
  selectShopTab(key){if(!this.shopPanels?.[key])return;this.shopActiveTab=key;for(const [id,panel] of Object.entries(this.shopPanels)){const active=id===key;panel.hidden=!active;const tab=this.shopTabButtons[id];tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}}
  openShopReviewForm(){this.selectShopTab('reviews');$('reviewForm').hidden=false;}

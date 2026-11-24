@@ -64,6 +64,8 @@ class Detail {
   const panel=make('section','p2-shop-panel');panel.id='shop-panel-'+key;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',tab.id);this.shopPanels[key]=panel;
   tab.addEventListener('keydown',e=>{const keys=Object.keys(this.shopTabButtons),i=keys.indexOf(key);let next;if(e.key==='ArrowRight')next=keys[(i+1)%keys.length];else if(e.key==='ArrowLeft')next=keys[(i+keys.length-1)%keys.length];else if(e.key==='Home')next=keys[0];else if(e.key==='End')next=keys[keys.length-1];else return;e.preventDefault();this.selectShopTab(next);this.shopTabButtons[next].focus();});
  }
+ // Mount all tab panels before moving ID-addressable nodes out of the original dialog.
+ this.root.append(this.shopTabs,...Object.values(this.shopPanels));
  const infoPaths={address:'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0',hours:'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2',phone:'M5 3h4l2 5-3 2c2 4 4 6 8 8l2-3 5 2v4c-1 2-4 2-7 1C8 19 3 13 2 6 2 4 3 3 5 3Z'};
  for(const dt of info.querySelectorAll('dt')){
   const key=dt.dataset.i18n, label=make('span');label.dataset.i18n=key;label.textContent=t(key);delete dt.dataset.i18n;
@@ -80,7 +82,7 @@ class Detail {
  this.reviewAll=button('allReviews',()=>this.setAllShopReviews(!this.shopAllReviews));$('retryReviews').after(this.reviewAll);
  this.reviewWrite=button('writeReview',()=>{this.openShopReviewForm();$('reviewForm').scrollIntoView({block:'start',behavior:'smooth'});$('reviewText').focus({preventScroll:true});});this.reviewWrite.classList.add('p2-shop-write');$('reviewForm').before(this.reviewWrite);
  this.shopPanels.reviews.append(review);$('reviewForm').hidden=true;
- this.root.append(this.shopTabs,...Object.values(this.shopPanels));this.selectShopTab('info');this.setAllShopReviews(false);
+ this.selectShopTab('info');this.setAllShopReviews(false);
  new MutationObserver(()=>this.updateShopReviewCount()).observe($('reviewList'),{childList:true,subtree:true});
  I.apply(this.root);
  }

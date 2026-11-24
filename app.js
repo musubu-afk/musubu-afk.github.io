@@ -70,7 +70,7 @@
       const time = document.createElement('time'); time.dateTime = row.created_at;
       time.textContent = new Intl.DateTimeFormat(I.locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(new Date(row.created_at));
       const body = document.createElement('p'); body.textContent = row.review_text;
-      header.append(rating, time); article.append(header, body); $('reviewList').append(article);
+      header.append(rating, time); article.append(header, body, window.MUSUBU_REVIEW_PHOTOS.gallery(row,'reviews',true)); $('reviewList').append(article);
     });
   }
   async function refreshReviews() {
@@ -78,7 +78,7 @@
     const shopId = activeShop.shop_id, version = ++requestVersion;
     try {
       const [{ data, error }] = await Promise.all([
-        client.from('reviews').select('id,shop_id,rating,review_text,created_at').eq('shop_id', shopId).order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20),
+        client.from('reviews').select('id,shop_id,rating,review_text,created_at,photo_paths').eq('shop_id', shopId).order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20),
         loadStats()
       ]);
       if (error) throw error;
@@ -195,12 +195,14 @@
     pending = true; $('submitReview').disabled = true; msg('submitReview', 'saving');
     msg('submitStatus', 'savingMessage'); $('submitStatus').classList.remove('error');
     try {
-      let { data, error } = await client.from('reviews').insert(payload).select('id,shop_id,rating,review_text,created_at').single();
+      payload.photo_paths=await window.MUSUBU_REVIEW_PHOTOS.form('reviewForm').paths();
+      let { data, error } = await window.MUSUBU_EXPLORE.db.from('reviews').insert(payload).select('id,shop_id,rating,review_text,created_at').single();
       if (error?.code === '23505') {
         const previous = await client.from('reviews').select('id,shop_id,rating,review_text,created_at').eq('request_id', payload.request_id).single();
         data = previous.data; error = previous.error;
       }
       if (error || !data?.id) throw error || new Error('저장 확인 실패');
+      window.MUSUBU_REVIEW_PHOTOS.remember('reviews',data.id);
       activateVoucher(data, shop); lastSubmission = null;
       if (activeShop?.shop_id === shop.shop_id) {
         msg('submitStatus', 'saveSuccess');

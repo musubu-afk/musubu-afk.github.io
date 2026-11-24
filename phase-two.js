@@ -11,6 +11,9 @@ function managementIcon(kind){
 }
 function button(key,fn,shape){const b=make('button','p2-button');b.type='button';b.dataset.p2label=key;if(shape)b.append(icon(shape));b.append(make('span','',t(key)));b.setAttribute('aria-label',t(key));b.onclick=fn;return b;}
 function photos(p){const story=p.story_key&&$('story-'+p.story_key);return [...new Set([p.image_url,p.photo_url,...(Array.isArray(p.photos)?p.photos.filter(x=>typeof x==='string'):[]),...(story?[...story.querySelectorAll('img')].map(x=>x.getAttribute('src')):[])].filter(x=>typeof x==='string'&&/^(https?:\/\/|assets\/)/.test(x)))];}
+/* Individual photo attribution for KOGL type 1 public works. */
+const placePhotoCredits=new Map([["https://devin.aks.ac.kr/image/90948966-f1fd-477a-9633-0cba2c6b29d0?preset=orig",{"title":"논산 관촉사 석등 후측면","source":"https://encykorea.aks.ac.kr/Article/E0005025"}],["https://devin.aks.ac.kr/image/f0630c16-4390-41df-9057-81cd46c51f8c?preset=orig",{"title":"논산 개태사 전경","source":"https://encykorea.aks.ac.kr/Article/E0001741"}],["https://devin.aks.ac.kr/image/41d7931f-93fb-41a3-8c56-272ec8f92713?preset=orig",{"title":"논산 쌍계사 대웅전 정측면","source":"https://encykorea.aks.ac.kr/Article/E0034081"}]]);
+function setPlacePhotoCredit(node,src){const credit=placePhotoCredits.get(src);node.hidden=!credit;if(!credit){node.replaceChildren();return;}const link=make('a');link.href=credit.source;link.target='_blank';link.rel='noopener noreferrer';link.textContent='['+credit.title+'] 한국민족문화대백과사전 (한국학중앙연구원 · 공공누리 제1유형)';node.replaceChildren(link);}
 function category(p){return (p.shop_id||window.MUSUBU_PHASE_THREE_MODEL.business(p))?'phase'+({meal:'Meal',dessert:'Dessert',gift:'Gift',stay:'Stay'}[p.category]||'Discover'):p.story_key==='donam'?'phaseHistory':['walk','photo'].includes(p.category)?'phaseWalk':['scenery','rest'].includes(p.category)?'phaseNature':'phaseExperience';}
 const viewer=make('dialog','p2-viewer');const close=button('mapClose',()=>viewer.close());const full=make('img');viewer.append(close,full);document.body.append(viewer);
 function viewPhotos(pics,name){viewer.querySelectorAll('img').forEach(n=>n.remove());for(const src of pics){const im=make('img');im.src=src;im.alt=name;viewer.append(im);}viewer.showModal();}
@@ -25,6 +28,7 @@ class Detail {
  this.bottom=make('div','p2-bottom');this.bottomHeart=button('favoriteAdd',()=>this.nativeHeart.click());this.bottom.append(this.bottomHeart,button('p2Reviews',()=>this.showReviews()));
  this.root.append(this.hero,this.noPhoto,this.heading,this.chips,this.meta,this.intro,this.expand,this.actions,this.status,this.gallery,this.reviews,this.bottom);this.scroll.append(this.root,this.more);
  if(!shop){
+  this.photoCredit=make('small','place-photo-credit');this.photoCredit.hidden=true;this.photoCredit.style.cssText='display:block;font-size:11px;line-height:1.5;color:#54675d;margin:5px 0;text-align:right;overflow-wrap:anywhere';this.hero.after(this.photoCredit);
   this.players=new Map();
   this.audioSlot=make('div','detail-audio');this.intro.after(this.audioSlot);
   for(const article of $('officialStories').querySelectorAll('.destination-story')){
@@ -106,7 +110,7 @@ class Detail {
   this.edit.querySelector('span').textContent=editLabel;
   this.edit.setAttribute('aria-label',editLabel);
  }
- const pics=photos(p);this.galleryAll.hidden=!pics.length;this.hero.hidden=!pics.length;this.noPhoto.hidden=!!pics.length;this.noPhoto.textContent=t('discoverNoPhoto');if(pics.length){this.hero.src=pics[0];this.hero.alt=v.name;this.hero.onerror=()=>{this.hero.hidden=true;this.noPhoto.hidden=false;};}
+ const pics=photos(p);if(this.photoCredit)setPlacePhotoCredit(this.photoCredit,pics[0]);this.galleryAll.hidden=!pics.length;this.hero.hidden=!pics.length;this.noPhoto.hidden=!!pics.length;this.noPhoto.textContent=t('discoverNoPhoto');if(pics.length){this.hero.src=pics[0];this.hero.alt=v.name;this.hero.onerror=()=>{this.hero.hidden=true;this.noPhoto.hidden=false;};}
  this.chips.replaceChildren(make('span','',t(category(p))));if(this.shop||window.MUSUBU_PHASE_THREE_MODEL.business(p))this.chips.append(make('span','',t(window.MUSUBU_PHASE_THREE_MODEL.origin(p))));if(p.is_demo)this.chips.append(make('span','',t('phaseDemoShop')));else if(p.is_example)this.chips.append(make('span','',t('phaseDemo')));
  const raw=window.MUSUBU_LOCATION.label(p);this.dist.replaceChildren(U.icon('pin'),document.createTextNode(U.distance(raw)));this.dist.title=raw;this.dist.setAttribute('aria-label',raw);
  const story=p.story_key&&$('story-'+p.story_key);this.intro.textContent=this.shop?v.description:(story?.querySelector('p')?.textContent||v.reason||'');this.galleryHeading.textContent=t('p2Photos')+' ('+pics.length+')';this.thumbs.replaceChildren();for(const src of pics){const b=button('p2PhotoOpen',()=>viewPhoto(src,v.name));b.replaceChildren();const im=make('img');im.src=src;im.alt=v.name;im.loading='lazy';b.append(im);this.thumbs.append(b);}if(!pics.length)this.thumbs.append(make('p','notice',t('discoverNoPhoto')));

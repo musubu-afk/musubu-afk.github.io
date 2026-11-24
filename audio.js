@@ -73,7 +73,7 @@ p.refresh();
 message(p,'audioLoading');
 sync(p);
 }
-players.forEach(p => {
+function initPlayer(p) {
 p.refresh=buildControls(p);
 p.audio.addEventListener('loadedmetadata',()=>message(p,'audioLoaded'));
 p.audio.addEventListener('error',()=>message(p,'audioError'));
@@ -85,6 +85,10 @@ if(!p.audio.paused){p.audio.pause();return;}
 p.audio.play().catch(()=>message(p,'audioBlocked'));
 });
 source(p);
-});
+}
+players.forEach(initPlayer);
+const newStories=new Map([["312e55ba-196c-4bc1-ad86-5f5bc5328cf3","gwanchoksa"],["d6d73807-2a85-43d4-b148-72ad484f0d36","gaetaesa"],["ff718453-06a2-494b-930c-23d4b6a68e6a","gyeonhwon-tomb"],["ae611a9c-ec22-4fd6-8d3d-5e89fe473b58","ssanggyesa"],["2887ef08-b1a8-4ac4-94fc-c4e742d22337","sunshine-land"],["eabd6699-3528-42f6-865a-fb583cab7a2e","onbit-forest"]]);
+const additional=new Map();
+window.MUSUBU_STORY_AUDIO={get(place){const slug=place.region==='nonsan'&&place.kind==='official'&&newStories.get(place.id);if(!slug)return null;if(additional.has(slug))return additional.get(slug);const box=document.createElement('div');box.className='audioBox';const title=document.createElement('strong');title.dataset.i18n='storyAudioTitle';const button=document.createElement('button');button.type='button';button.className='listenBtn';button.dataset.i18n='play';const audio=document.createElement('audio');audio.preload='metadata';const status=document.createElement('p');status.className='status';status.setAttribute('role','status');box.append(title,button,audio,status);const p={audio,button,status,place:slug};players.push(p);initPlayer(p);additional.set(slug,box);return box;}};
 document.addEventListener('musubu:languagechange',()=>players.forEach(source));
 })();

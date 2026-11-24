@@ -108,7 +108,7 @@ class Detail {
  updateStats(){if(!this.p)return;const rows=stats.filter(r=>r.place_id===this.p.id);const raw=this.shop?A.summary(this.p.shop_id):rows.length?t('stats',{rating:(rows.reduce((n,r)=>n+Number(r.rating),0)/rows.length).toFixed(1),count:rows.length}):this.preview.querySelector('.review-preview-stats').textContent;this.rating.textContent=U.stats(raw);this.rating.title=raw;if(!this.shop)this.rating.hidden=!rows.length&&(!raw||this.preview.hidden);this.empty.hidden=this.emptyTitle.hidden=!this.preview.hidden;}
  render(p){this.p=p;const v=this.shop?I.shopView(p):X.view(p);this.name=v.name;this.status.textContent='';this.moreTitle.textContent=t(this.shop?'p2ShopInfo':'p2StoryInfo');this.root.querySelectorAll('[data-p2label]').forEach(b=>{const label=t(b.dataset.p2label);const s=b.querySelector('span');if(s)s.textContent=label;b.setAttribute('aria-label',label);});this.directions.querySelector('span').textContent=t('p2Directions');this.directions.setAttribute('aria-label',t('p2Directions'));this.directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.latitude+','+p.longitude);this.directions.title=t(this.shop?'p2DemoRoute':'p2Directions');
  if(!this.shop){
-  const player=this.players.get('story-'+p.story_key);
+  const player=this.players.get('story-'+p.story_key)||window.MUSUBU_STORY_AUDIO?.get(p);
   if(this.audioSlot.firstChild!==player){this.audioSlot.querySelector('audio')?.pause();this.audioSlot.replaceChildren(...(player?[player]:[]));}
   this.audioSlot.hidden=!player;
   const editLabel=I.lang==='ja'?'スポット情報を編集':'장소 정보 수정';

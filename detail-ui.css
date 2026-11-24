@@ -65,7 +65,7 @@ html[lang=ja] .travel-detail .festival-info {word-break:normal;line-break:strict
 #placeDialog .p2-intro{display:block;width:100%;max-width:none;text-align:left;overflow:visible;white-space:normal;word-break:normal;overflow-wrap:break-word;font-size:18px;line-height:1.65;color:#202922;margin:9px 0}
 #placeDialog .detail-audio .audioBox{margin:12px 0;padding:8px 12px;background:#edf5e8;border:0;border-radius:14px}
 #placeDialog .detail-audio strong{display:block;text-align:center;color:#205432;font-size:18px}
-#placeDialog .detail-audio :is(.listenBtn,p){display:none}
+#placeDialog .detail-audio p{display:none}
 #placeDialog .detail-audio audio{display:block;width:100%;margin:0}
 #placeDialog audio::-webkit-media-controls-panel{background:#edf5e8}
 #placeDialog .p2-actions{margin-top:10px}

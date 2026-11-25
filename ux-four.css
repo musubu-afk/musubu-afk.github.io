@@ -106,7 +106,7 @@ body:is([data-browse-view=story],[data-browse-view=discover],[data-browse-view=b
 body:is([data-browse-view=story],[data-browse-view=discover],[data-browse-view=bookmarks]) #discovery .discovery-filters{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:8px;padding:3px 0 12px}
 body:is([data-browse-view=story],[data-browse-view=discover],[data-browse-view=bookmarks]) #discovery .discovery-filters button{flex-shrink:0;white-space:nowrap;min-height:40px}
 /* Compact story gallery; other browsing screens keep their existing styles. */
-body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon],[data-browse-view=bookmarks]) .brand-home,body[data-browse-view=story] .ux-story-intro{display:none!important}
+body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon],[data-browse-view=bookmarks],[data-browse-view=review]) .brand-home,body[data-browse-view=story] .ux-story-intro{display:none!important}
 body[data-browse-view=story] .browse-title{margin:4px 0 14px}
 body:is([data-browse-view=story],[data-browse-view=new],[data-browse-view=discover],[data-browse-view=coupon],[data-browse-view=bookmarks]) .hero-top{justify-content:space-between}
 .ux-menu-trigger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border:0;background:white;color:var(--musubu-primary);border-radius:10px}

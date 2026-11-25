@@ -60,8 +60,6 @@ function picker(host,initial=[]){
  },clear(){version++;entries.forEach(e=>e.preview&&URL.revokeObjectURL(e.preview));entries.length=0;status.textContent='';draw();}};
 }
 function form(id){return pickers.get(document.getElementById(id));}
-function remember(kind,id){try{localStorage.setItem('musubu.review-owner.'+kind+'.'+id,'1');}catch{}}
-function owned(kind,id){try{return !!localStorage.getItem('musubu.review-owner.'+kind+'.'+id);}catch{return false;}}
 function gallery(row,kind,allowEdit=false){
  const paths=row.photo_paths||[],wrap=node('div','review-attachments');
  async function view(index){
@@ -71,14 +69,6 @@ function gallery(row,kind,allowEdit=false){
   document.body.append(d);d.onclose=()=>d.remove();paint();d.showModal();
  }
  paths.forEach((path,i)=>{const b=btn('',()=>view(i)),im=node('img');im.loading='lazy';im.alt=tr('view')+' '+(i+1);b.append(im);wrap.append(b);url(path).then(s=>im.src=s).catch(()=>{});});
- if(allowEdit&&owned(kind,row.id))wrap.append(btn(tr('edit'),()=>{
-  const dialog=node('dialog','rp-edit'),end=btn(tr('close'),()=>dialog.close()),save=btn(tr('done'),async()=>{
-   save.disabled=end.disabled=true;
-   try{const photos=await pick.paths();const {error}=await X().db.rpc('edit_review_photos',{kind,review_id:row.id,previous:paths,photos});if(error)throw error;
-    row.photo_paths=photos;wrap.replaceWith(gallery(row,kind,true));document.dispatchEvent(new Event('musubu:place-reviews-updated'));dialog.close();
-   }catch{err.textContent=tr('fail');}finally{save.disabled=end.disabled=false;}
-  }),err=node('p');err.setAttribute('role','status');dialog.append(end,save,err);document.body.append(dialog);const pick=picker(save,paths);dialog.oncancel=e=>{if(save.disabled)e.preventDefault();};dialog.onclose=()=>{pick.clear();dialog.remove();};dialog.showModal();
- }));
  return wrap;
 }
 function install(f){
@@ -89,10 +79,12 @@ function install(f){
  const heading=node('h3'),name=node('p','rp-place-name');heading.dataset.i18n='writeReview';f.prepend(heading,name);
  function names(){name.textContent=shop?document.getElementById('detailName').textContent:document.querySelector('#reviewPlace option:checked')?.textContent||'';}
  new MutationObserver(names).observe(shop?document.getElementById('detailName'):document.getElementById('reviewPlace'),{childList:true,subtree:true,characterData:true});document.getElementById('reviewPlace').addEventListener('change',names);names();
+ const cancel=btn('',()=>{f.hidden=true;document.getElementById(shop?'writeShopReview':'writePlaceReview')?.focus();});
+ f.append(cancel);
  const pick=picker(f.querySelector('[type=submit]'));pickers.set(f,pick);f.addEventListener('reset',()=>pick.clear());
- function labels(){legend.textContent=I.t('rating');heading.textContent=I.t('writeReview');const label=f.querySelector('label[for$="Text"]');if(label){delete label.dataset.i18n;label.textContent=tr('text');}pick.draw();names();}
+ function labels(){cancel.textContent=tr('close');legend.textContent=I.t('rating');heading.textContent=I.t('writeReview');const label=f.querySelector('label[for$="Text"]');if(label){delete label.dataset.i18n;label.textContent=tr('text');}pick.draw();names();}
  labels();document.addEventListener('musubu:languagechange',labels);
 }
-window.MUSUBU_REVIEW_PHOTOS={form,gallery,remember};
+window.MUSUBU_REVIEW_PHOTOS={form,gallery,picker};
 document.addEventListener('DOMContentLoaded',()=>['reviewForm','placeReviewForm'].forEach(id=>install(document.getElementById(id))));
 })();

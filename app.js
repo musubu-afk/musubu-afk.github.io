@@ -59,20 +59,9 @@
   }
   function renderReviews(rows) {
     cachedRows = rows; document.dispatchEvent(new CustomEvent('musubu:shop-reviews',{detail:{shopId:activeShop?.shop_id,rows}})); I.clear($('reviewList'));
-    if (!rows.length) {
-      const empty = document.createElement('p'); empty.className = 'review-empty'; empty.textContent = t('emptyReviews');
-      $('reviewList').append(empty); return;
-    }
-    rows.forEach(row => {
-      const article = document.createElement('article'); article.className = 'review-entry'; article.dataset.reviewId = row.id;
-      const header = document.createElement('header');
-      const rating = document.createElement('b'); rating.textContent = t('ratingValue',{stars:'★'.repeat(row.rating),rating:row.rating});
-      const time = document.createElement('time'); time.dateTime = row.created_at;
-      time.textContent = new Intl.DateTimeFormat(I.locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(new Date(row.created_at));
-      const body = document.createElement('p'); body.textContent = row.review_text;
-      header.append(rating, time); article.append(header, body, window.MUSUBU_REVIEW_PHOTOS.gallery(row,'reviews',true)); $('reviewList').append(article);
-    });
+    window.MUSUBU_REVIEW_CARDS.list($('reviewList'),rows,'reviews');
   }
+  document.addEventListener('musubu:review-changed',refreshReviews);
   async function refreshReviews() {
     if (!client || !activeShop) return;
     const shopId = activeShop.shop_id, version = ++requestVersion;
@@ -101,7 +90,7 @@
     }
     msg('liveStatus', 'connecting'); $('liveStatus').classList.remove('connected');
     channel = client.channel('reviews-' + shopId + '-' + crypto.randomUUID())
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reviews', filter: 'shop_id=eq.' + shopId }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reviews', filter: 'shop_id=eq.' + shopId }, () => {
         if (activeShop?.shop_id === shopId) refreshReviews();
       })
       .subscribe(status => {
@@ -196,13 +185,13 @@
     msg('submitStatus', 'savingMessage'); $('submitStatus').classList.remove('error');
     try {
       payload.photo_paths=await window.MUSUBU_REVIEW_PHOTOS.form('reviewForm').paths();
-      let { data, error } = await window.MUSUBU_EXPLORE.db.from('reviews').insert(payload).select('id,shop_id,rating,review_text,created_at').single();
+      let { data, error } = await window.MUSUBU_REVIEW_CARDS.authorize(window.MUSUBU_EXPLORE.db.from('reviews').insert(payload).select('id,shop_id,rating,review_text,created_at').single());
       if (error?.code === '23505') {
         const previous = await client.from('reviews').select('id,shop_id,rating,review_text,created_at').eq('request_id', payload.request_id).single();
         data = previous.data; error = previous.error;
       }
       if (error || !data?.id) throw error || new Error('저장 확인 실패');
-      window.MUSUBU_REVIEW_PHOTOS.remember('reviews',data.id);
+      window.MUSUBU_REVIEW_CARDS.changed();
       activateVoucher(data, shop); lastSubmission = null;
       if (activeShop?.shop_id === shop.shop_id) {
         msg('submitStatus', 'saveSuccess');

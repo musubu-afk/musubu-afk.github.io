@@ -49,7 +49,7 @@ function picker(host,initial=[]){
   catch{status.textContent=tr('bad');}finally{busy=false;draw();}
  };
  draw();
- return {draw,area,async paths(){
+ return {draw,area,get count(){return entries.length;},get busy(){return busy;},async paths(){
   if(busy)throw Error(tr('processing'));
   busy=true;draw();const token=version;
   try{for(const [i,e] of entries.entries()){if(e.path)continue;status.textContent=tr('upload')+' '+(i+1)+'/'+entries.length;
@@ -65,8 +65,10 @@ function gallery(row,kind,allowEdit=false){
  async function view(index){
   const d=node('dialog','rp-viewer'),im=node('img');let current=index;
   function paint(){const path=paths[current];im.removeAttribute('src');im.alt=tr('view')+' '+(current+1)+'/'+paths.length;url(path).then(src=>{if(paths[current]===path)im.src=src;}).catch(()=>{});}
-  d.append(btn(tr('close'),()=>d.close()),im);if(paths.length>1){for(const [label,delta] of [['‹',-1],['›',1]])d.append(btn(label,()=>{current=(current+delta+paths.length)%paths.length;paint();}));}
-  document.body.append(d);d.onclose=()=>d.remove();paint();d.showModal();
+  const origin=document.activeElement,head=node('div','rp-viewer-head'),close=btn('',()=>d.close());
+  close.className='rp-viewer-close';close.setAttribute('aria-label',tr('close'));close.append(window.MUSUBU_PHASE_ONE.icon('close'));head.append(close);d.setAttribute('aria-label',tr('view'));d.append(head,im);
+  if(paths.length>1){const nav=node('div','rp-viewer-nav');for(const [label,delta] of [['‹',-1],['›',1]]){const b=btn(label,()=>{current=(current+delta+paths.length)%paths.length;paint();});b.setAttribute('aria-label',I.lang==='ja'?(delta<0?'前の写真':'次の写真'):(delta<0?'이전 사진':'다음 사진'));nav.append(b);}d.append(nav);}
+  document.body.append(d);d.onclose=()=>{d.remove();if(origin?.isConnected)origin.focus({preventScroll:true});};paint();d.showModal();
  }
  paths.forEach((path,i)=>{const b=btn('',()=>view(i)),im=node('img');im.loading='lazy';im.alt=tr('view')+' '+(i+1);b.append(im);wrap.append(b);url(path).then(s=>im.src=s).catch(()=>{});});
  return wrap;
@@ -79,12 +81,12 @@ function install(f){
  const heading=node('h3'),name=node('p','rp-place-name');heading.dataset.i18n='writeReview';f.prepend(heading,name);
  function names(){name.textContent=shop?document.getElementById('detailName').textContent:document.querySelector('#reviewPlace option:checked')?.textContent||'';}
  new MutationObserver(names).observe(shop?document.getElementById('detailName'):document.getElementById('reviewPlace'),{childList:true,subtree:true,characterData:true});document.getElementById('reviewPlace').addEventListener('change',names);names();
- const cancel=btn('',()=>{f.hidden=true;document.getElementById(shop?'writeShopReview':'writePlaceReview')?.focus();});
- f.append(cancel);
  const pick=picker(f.querySelector('[type=submit]'));pickers.set(f,pick);f.addEventListener('reset',()=>pick.clear());
- function labels(){cancel.textContent=tr('close');legend.textContent=I.t('rating');heading.textContent=I.t('writeReview');const label=f.querySelector('label[for$="Text"]');if(label){delete label.dataset.i18n;label.textContent=tr('text');}pick.draw();names();}
+ function labels(){legend.textContent=I.t('rating');heading.textContent=I.t('writeReview');const label=f.querySelector('label[for$="Text"]');if(label){delete label.dataset.i18n;label.textContent=tr('text');}pick.draw();names();}
  labels();document.addEventListener('musubu:languagechange',labels);
 }
-window.MUSUBU_REVIEW_PHOTOS={form,gallery,picker};
+function canLeave(id){const f=document.getElementById(id),p=form(id);if(!f||f.hidden)return true;if(p?.busy)return false;const dirty=!!f.querySelector('textarea')?.value.trim()||!!p?.count||[...f.querySelectorAll('.rp-stars input')].some(n=>n.checked!==n.defaultChecked);if(!dirty)return true;return confirm(I.lang==='ja'?'入力中のクチコミを破棄しますか？':'작성 중인 후기를 취소하고 이동할까요?');}
+function discard(id){const f=document.getElementById(id);if(f&&!f.hidden){f.reset();f.hidden=true;}}
+window.MUSUBU_REVIEW_PHOTOS={form,gallery,picker,canLeave,discard};
 document.addEventListener('DOMContentLoaded',()=>['reviewForm','placeReviewForm'].forEach(id=>install(document.getElementById(id))));
 })();

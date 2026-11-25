@@ -201,3 +201,6 @@ body[data-browse-view=bookmarks] #discovery .discovery-cards>.notice{grid-column
 
 body[data-browse-view=review] .hero-top .ux-menu-trigger{display:flex}body[data-browse-view=review] .hero-top{justify-content:space-between}
 #shopDialog .ux-shop-review-menu:not([hidden]){display:flex;flex:0 0 44px}#shopDialog .ux-shop-review-menu[hidden]{display:none!important}
+
+/* Review header: hide the complete brand wrapper, not the navigation controls. */
+body[data-browse-view=review] .hero-top :is(.musubu-identity,.brand-home,.brand){display:none!important}

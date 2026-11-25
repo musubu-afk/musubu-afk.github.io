@@ -17,3 +17,11 @@
 #reviewList,#placeReviewList{display:block;min-width:0;max-width:100%}
 .visitor-review-dialog{box-sizing:border-box;width:min(94vw,520px);max-height:90dvh;border:0;border-radius:16px;padding:20px}.visitor-review-dialog h3{display:inline-block;margin:0 1rem 1rem 0}.visitor-review-dialog form{display:grid;gap:.7rem}.visitor-review-dialog textarea{min-height:7rem;width:100%;box-sizing:border-box}
 .community-reviews:has(#placeReviewForm:not([hidden])) #writePlaceReview,#shopDialog:has(#shop-panel-reviews:not([hidden]) #reviewForm:not([hidden])) :is(#writeShopReview,#openReview){display:none}
+
+/* Match the existing detail popup close control and preserve photo aspect ratio. */
+.rp-viewer{margin:auto;width:fit-content;max-width:min(94vw,980px);max-height:94dvh;padding:0 12px 12px;border-radius:22px;background:white;overflow:auto}
+.rp-viewer-head{display:flex;justify-content:flex-end;align-items:center;padding:4px 0}
+.rp-viewer .rp-viewer-close{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;background:transparent;border:0;box-shadow:none;color:#214d31}
+.rp-viewer-close svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rp-viewer img{width:auto;height:auto;max-width:min(calc(94vw - 24px),956px);max-height:calc(88dvh - 96px);object-fit:contain;display:block;margin:auto;border-radius:10px}
+.rp-viewer-nav{display:flex;justify-content:center;gap:12px;padding-top:8px}.rp-viewer-nav button{width:44px;height:44px;border:1px solid #d6e2d8;border-radius:12px;background:white;font-size:26px}

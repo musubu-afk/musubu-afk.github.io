@@ -41,16 +41,25 @@
   menu.innerHTML='<div class="ux-menu-head"><h2 id="uxMenuTitle" data-i18n="phaseMenu"></h2><button type="button" data-i18n="mapClose"></button></div>';
   const menuTrigger=document.createElement('button');menuTrigger.type='button';menuTrigger.className='ux-menu-trigger';menuTrigger.setAttribute('aria-haspopup','dialog');menuTrigger.setAttribute('aria-controls',menu.id);
   const lines=document.createElement('span');lines.className='ux-menu-lines';lines.setAttribute('aria-hidden','true');menuTrigger.append(lines);top.prepend(menuTrigger);document.body.append(menu);
-  menuTrigger.onclick=()=>menu.showModal();menu.querySelector('button').onclick=()=>menu.close();
+  menuTrigger.onclick=()=>{menuLayout();menu.showModal();};menu.querySelector('button').onclick=()=>menu.close();
   menu.addEventListener('click',e=>{if(e.target===menu||e.target.closest('[data-phase-menu]'))menu.close();});
   const homeMenu=document.createElement('button');homeMenu.type='button';homeMenu.dataset.phaseMenu='home';const homeLabel=document.createElement('span');homeLabel.dataset.i18n='uiHome';homeMenu.append(window.MUSUBU_PHASE_ONE.icon('home'),homeLabel);homeMenu.onclick=()=>window.MUSUBU_UI.go('home');nav.prepend(homeMenu);
-  function menuLayout(){const view=document.body.dataset.browseView;const subpage=['story','new','discover','coupon','bookmarks'].includes(view);homeMenu.hidden=!subpage;if(subpage)menu.append(nav);else {menu.close();navAnchor.after(nav);if(view==='home'){const preview=document.querySelector('.p3-preview');if(preview)nav.after(preview);}}nav.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.phaseMenu===view?'page':'false')));}
+  const shopDialog=document.getElementById('shopDialog'),shopPanel=document.getElementById('shop-panel-reviews'),shopForm=document.getElementById('reviewForm');
+  const shopTrigger=menuTrigger.cloneNode(true);shopTrigger.classList.add('ux-shop-review-menu');shopTrigger.hidden=true;shopTrigger.onclick=()=>{menuLayout();menu.showModal();};
+  shopDialog.querySelector('.sheet-header').prepend(shopTrigger);
+  function shopReviewOpen(){return !!(shopDialog.open&&shopPanel&&!shopPanel.hidden);}
+  function menuLayout(){const view=document.body.dataset.browseView,shopReview=shopReviewOpen();const subpage=shopReview||['story','new','discover','coupon','bookmarks','review'].includes(view);shopTrigger.hidden=!shopReview;homeMenu.hidden=!subpage;if(subpage){if(nav.parentElement!==menu)menu.append(nav);}else {menu.close();navAnchor.after(nav);if(view==='home'){const preview=document.querySelector('.p3-preview');if(preview)nav.after(preview);}}const active=window.MUSUBU_UI.menuView();nav.querySelectorAll('[data-phase-menu]').forEach(b=>b.setAttribute('aria-current',b.dataset.phaseMenu===active?'page':'false'));}
+  const observer=new MutationObserver(menuLayout);observer.observe(shopDialog,{attributes:true,attributeFilter:['open']});if(shopPanel)observer.observe(shopPanel,{attributes:true,attributeFilter:['hidden']});
+  shopDialog.addEventListener('close',menuLayout);
+  menu.addEventListener('click',e=>{const b=e.target.closest('[data-phase-menu]');if(!b||!shopReviewOpen())return;const P=window.MUSUBU_REVIEW_PHOTOS;if(P&&!P.canLeave('reviewForm')){e.preventDefault();e.stopImmediatePropagation();return;}P?.discard('reviewForm');menu.close();shopDialog.close();},true);
+  shopDialog.addEventListener('click',e=>{if(!shopReviewOpen()||!e.target.closest('#closeDetail,[role=tab]')||shopForm.hidden)return;const P=window.MUSUBU_REVIEW_PHOTOS;if(P&&!P.canLeave('reviewForm')){e.preventDefault();e.stopImmediatePropagation();}else P?.discard('reviewForm');},true);
+  shopDialog.addEventListener('cancel',e=>{if(!shopReviewOpen()||shopForm.hidden)return;const P=window.MUSUBU_REVIEW_PHOTOS;if(P&&!P.canLeave('reviewForm'))e.preventDefault();else P?.discard('reviewForm');});
   document.addEventListener('musubu:browse-view',menuLayout);menuLayout();
   qr.addEventListener('click',e=>{if(!['story','new','discover','coupon','bookmarks'].includes(document.body.dataset.browseView))return;const popup=window.open(qr.href,'musubu-qr','popup,width=560,height=720');if(popup)e.preventDefault();});
   function labels(){
    const name=window.MUSUBU_MAP_CONFIG.regions[R.current][I.lang==='ja'?'name_ja':'name_ko'];
    trigger.replaceChildren(window.MUSUBU_PHASE_ONE.icon('globe'));
-   const text=document.createElement('span');text.textContent=name+' · '+(I.lang==='ja'?'日本語':I.lang==='ko'?'한국어':'English')+' ▾';trigger.append(text);trigger.setAttribute('aria-label',I.t('uxSettings'));qr.setAttribute('aria-label',I.t('qrButton'));I.apply(dialog);I.apply(menu);menuTrigger.setAttribute('aria-label',I.t('phaseMenu'));
+   const text=document.createElement('span');text.textContent=name+' · '+(I.lang==='ja'?'日本語':I.lang==='ko'?'한국어':'English')+' ▾';trigger.append(text);trigger.setAttribute('aria-label',I.t('uxSettings'));qr.setAttribute('aria-label',I.t('qrButton'));I.apply(dialog);I.apply(menu);menuTrigger.setAttribute('aria-label',I.t('phaseMenu'));shopTrigger.setAttribute('aria-label',I.t('phaseMenu'));
   }
   ['musubu:languagechange','musubu:regionchange'].forEach(event=>document.addEventListener(event,labels));labels();
  });

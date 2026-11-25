@@ -198,3 +198,6 @@ body[data-browse-view=bookmarks] :is(.ux-story-actions,.ux-story-intro,.ux-new-i
 body[data-browse-view=bookmarks] #discovery>.discovery-filters:not([hidden]):not(.p3-tabs){display:flex!important}
 body[data-browse-view=bookmarks] #discovery .discovery-cards>.notice{grid-column:1/-1;text-align:center;padding:24px 12px}
 @media(max-width:600px){body[data-browse-view=home] .app .phase-navigation{gap:5px}body[data-browse-view=home] .app .phase-navigation button{padding:8px 1px;min-height:64px;font-size:11px;gap:4px;line-height:1.3;overflow-wrap:anywhere}body[data-browse-view=home] .app .phase-navigation svg{width:23px;height:23px;flex:none}}
+
+body[data-browse-view=review] .hero-top .ux-menu-trigger{display:flex}body[data-browse-view=review] .hero-top{justify-content:space-between}
+#shopDialog .ux-shop-review-menu:not([hidden]){display:flex;flex:0 0 44px}#shopDialog .ux-shop-review-menu[hidden]{display:none!important}

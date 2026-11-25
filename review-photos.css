@@ -14,6 +14,14 @@
 .visitor-review-card footer{margin-top:auto;align-items:baseline;flex-wrap:wrap}.visitor-review-card footer div{margin-inline-start:auto}
 .visitor-review-card footer button,.visitor-review-nav button{background:none;color:#365b46;border:0;min-height:36px;padding:4px;cursor:pointer}.visitor-review-card summary{cursor:pointer}.visitor-review-nav{display:flex;align-items:center;justify-content:center;gap:12px}.visitor-review-nav[hidden]{display:none}
 .visitor-review-card .review-attachments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.visitor-review-card .review-attachments button:has(img){width:100%}
+/* Size the gallery to the actual number of attached photos. */
+.review-attachments:not(:empty){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
+.review-attachments:empty{display:none}
+.review-attachments:has(>button:only-child){grid-template-columns:minmax(0,1fr)}
+.review-attachments:has(>button:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+.review-attachments>button:has(img){display:block;width:100%;max-width:none;min-width:0;padding:0;border:0;background:none}
+.review-attachments>button:only-child>img{aspect-ratio:4/3;object-fit:cover}
+.review-attachments>button:not(:only-child)>img{aspect-ratio:1;object-fit:cover}
 #reviewList,#placeReviewList{display:block;min-width:0;max-width:100%}
 .visitor-review-dialog{box-sizing:border-box;width:min(94vw,520px);max-height:90dvh;border:0;border-radius:16px;padding:20px}.visitor-review-dialog h3{display:inline-block;margin:0 1rem 1rem 0}.visitor-review-dialog form{display:grid;gap:.7rem}.visitor-review-dialog textarea{min-height:7rem;width:100%;box-sizing:border-box}
 .community-reviews:has(#placeReviewForm:not([hidden])) #writePlaceReview,#shopDialog:has(#shop-panel-reviews:not([hidden]) #reviewForm:not([hidden])) :is(#writeShopReview,#openReview){display:none}
@@ -25,3 +33,15 @@
 .rp-viewer-close svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rp-viewer img{width:auto;height:auto;max-width:min(calc(94vw - 24px),956px);max-height:calc(88dvh - 96px);object-fit:contain;display:block;margin:auto;border-radius:10px}
 .rp-viewer-nav{display:flex;justify-content:center;gap:12px;padding-top:8px}.rp-viewer-nav button{width:44px;height:44px;border:1px solid #d6e2d8;border-radius:12px;background:white;font-size:26px}
+
+/* Review composition panel: white inputs on a soft green card. */
+#placeReviewForm:not([hidden]),#reviewForm:not([hidden]){box-sizing:border-box;width:100%;max-width:40rem;margin:1.25rem auto 1.5rem;padding:clamp(14px,3vw,28px);background:#F1F6F0;border:1px solid #D4E2D6;border-radius:20px;color:#345849}
+#shopDialog #reviewForm:not([hidden]){margin:16px auto 24px}
+#placeReviewForm[hidden],#reviewForm[hidden]{display:none!important}
+#placeReviewForm h3,#reviewForm h3{margin:0 0 .55rem;color:#345844}
+#placeReviewForm .rp-place-name,#reviewForm .rp-place-name{margin:.3rem auto .65rem}
+#placeReviewForm .rp-stars,#reviewForm .rp-stars{margin:.5rem auto .75rem}
+#placeReviewForm textarea,#reviewForm textarea{background:#fff;color:#263c32;border:1px solid #C8D8CA;border-radius:12px}
+#placeReviewForm .rp-add,#reviewForm .rp-add{background:#fff;border-color:#A9BDAA}
+#placeReviewForm .submit,#reviewForm .submit{background:#285849;color:white;border:0;border-radius:12px}
+@media(max-width:600px){#placeReviewForm:not([hidden]),#reviewForm:not([hidden]){padding:14px;border-radius:16px;margin:1rem auto 1.25rem}}

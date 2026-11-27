@@ -1,3 +1,3 @@
-# Nonsan attraction photos
+# Nonsan photo licenses
 
-Upload the 18 JPEG files and manifest.json from the prepared MUSUBU photo package here in one commit. The site uses each attraction's three photos only after all three files are available. The manifest records their source as identified in the supplied PDF. Existing images are retained if files are missing.
+Individual photo credits and license links: [photo-credits.json](photo-credits.json). Third-party photos retain their individual licenses, not the site's software license. Six no-derivatives photos from the supplied review were excluded to preserve the existing cover UI without license conflicts. Published files are resized/re-encoded; CSS may crop.

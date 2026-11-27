@@ -83,26 +83,17 @@ const nonsanPhotoSlugs = Object.freeze({
  '2887ef08-b1a8-4ac4-94fc-c4e742d22337':'sunshine-land',
  'eabd6699-3528-42f6-865a-fb583cab7a2e':'onbit-forest'
 });
+const licensedNonsanPhotoManifest = {"d6d73807-2a85-43d4-b148-72ad484f0d36": {"photos": ["assets/nonsan-photos/gaetaesa-1.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}, "312e55ba-196c-4bc1-ad86-5f5bc5328cf3": {"photos": ["assets/nonsan-photos/gwanchoksa-1.jpg", "assets/nonsan-photos/gwanchoksa-2.jpg", "assets/nonsan-photos/gwanchoksa-3.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}, "ff718453-06a2-494b-930c-23d4b6a68e6a": {"photos": ["assets/nonsan-photos/gyeonhwon-tomb-1.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}, "eabd6699-3528-42f6-865a-fb583cab7a2e": {"photos": ["assets/nonsan-photos/onbit-forest-1.jpg", "assets/nonsan-photos/onbit-forest-2.jpg", "assets/nonsan-photos/onbit-forest-3.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}, "ae611a9c-ec22-4fd6-8d3d-5e89fe473b58": {"photos": ["assets/nonsan-photos/ssanggyesa-1.jpg", "assets/nonsan-photos/ssanggyesa-2.jpg", "assets/nonsan-photos/ssanggyesa-3.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}, "2887ef08-b1a8-4ac4-94fc-c4e742d22337": {"photos": ["assets/nonsan-photos/sunshine-land-1.jpg", "assets/nonsan-photos/sunshine-land-2.jpg", "assets/nonsan-photos/sunshine-land-3.jpg"], "source": "See photo-credits.json for individual source, creator, license and changes."}};
 async function attachNonsanPhotos(rows){
- const controller=new AbortController();
- const timer=setTimeout(()=>controller.abort(),3500);
- try{
-  const response=await fetch('assets/nonsan-photos/manifest.json',{cache:'no-store',signal:controller.signal});
-  if(!response.ok)return;
-  const manifest=await response.json();
-  const candidates=rows.filter(p=>p.region==='nonsan'&&p.kind==='official'&&Object.hasOwn(nonsanPhotoSlugs,p.id));
-  await Promise.all(candidates.map(async p=>{
-   const entry=manifest[p.id],slug=nonsanPhotoSlugs[p.id];
-   const paths=[1,2,3].map(n=>'assets/nonsan-photos/'+slug+'-'+n+'.jpg');
-   if(!entry||!Array.isArray(entry.photos)||entry.photos.length!==3||!paths.every((path,i)=>path===entry.photos[i]))return;
-   try{
-    const checks=await Promise.all(paths.map(path=>fetch(path,{method:'HEAD',signal:controller.signal})));
-    if(!checks.every(r=>r.ok&&/^image\//i.test(r.headers.get('content-type')||'')))return;
-    p.image_url=paths[0];p.photos=paths;
-   }catch{/* Keep the existing photos if the package is incomplete. */}
-  }));
- }catch{/* Missing or unavailable package must not break the existing site. */}
- finally{clearTimeout(timer);}
+ for(const p of rows){
+  if(p.region!=='nonsan'||p.kind!=='official')continue;
+  const entry=licensedNonsanPhotoManifest[p.id];
+  if(entry){p.image_url=entry.photos[0];p.photos=entry.photos.slice();p.photo_url=null;}
+  else if(p.story_key==='donam'||p.story_key==='tapjeong'){
+   const path=p.story_key==='donam'?'assets/donam-seowon.jpg':'assets/tapjeongho.jpg';
+   p.image_url=path;p.photos=[path];p.photo_url=null;
+  }
+ }
 }
 async function load(){
  const version=++loadVersion;text('mapStatus','mapLoading');$('refreshPlaces').disabled=true;

@@ -33,3 +33,12 @@
 #placeDialog .p2-gallery-actions .p2-credit-toggle{font-size:12px;color:#54675d;padding-inline:4px}
 #placeDialog .place-photo-credit{font-size:11px;line-height:1.65;color:#54675d;text-align:right;overflow-wrap:anywhere;margin:0 0 8px}
 @media(max-width:430px){#placeDialog .p2-gallery-actions{gap:2px}#placeDialog .p2-gallery-actions .p2-credit-toggle{font-size:11px;padding-inline:2px}#placeDialog .p2-gallery-actions .p2-button{padding-inline:4px}}
+
+/* Fit the photo viewer to the image, not to the length of its attribution. */
+.p2-viewer{--viewer-photo-height:max(120px,calc(94dvh - 112px));box-sizing:border-box;width:max-content;max-width:94vw;max-height:94dvh;padding:12px;overflow:auto;margin:auto}
+.p2-viewer>.p2-viewer-head{margin-bottom:6px}
+.p2-viewer .p2-viewer-photo{box-sizing:border-box;width:min(calc(94vw - 24px),calc(var(--viewer-photo-height) * var(--photo-ratio,1.5)));max-width:100%;min-width:0;margin:0 auto}
+.p2-viewer .p2-viewer-photo+.p2-viewer-photo{margin-top:12px}
+.p2-viewer .p2-viewer-photo>img{display:block;width:100%;height:auto;max-width:100%;max-height:none;object-fit:contain;margin:0 auto}
+.p2-viewer .p2-viewer-photo>.licensed-photo-viewer-credit{box-sizing:border-box;width:100%;max-width:100%;min-width:0;font-size:11px;line-height:1.5;color:inherit;text-align:center;margin:5px 0 0;overflow-wrap:anywhere}
+@media(max-width:430px){.p2-viewer{--viewer-photo-height:max(120px,calc(94dvh - 124px));padding:8px;max-width:96vw}.p2-viewer .p2-viewer-photo{width:min(calc(96vw - 16px),calc(var(--viewer-photo-height) * var(--photo-ratio,1.5)))}}

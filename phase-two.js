@@ -37,7 +37,20 @@ function galleryPhotos(p,pics){
 }
 function category(p){return (p.shop_id||window.MUSUBU_PHASE_THREE_MODEL.business(p))?'phase'+({meal:'Meal',dessert:'Dessert',gift:'Gift',stay:'Stay'}[p.category]||'Discover'):p.story_key==='donam'?'phaseHistory':['walk','photo'].includes(p.category)?'phaseWalk':['scenery','rest'].includes(p.category)?'phaseNature':'phaseExperience';}
 const viewer=make('dialog','p2-viewer');const viewerHead=make('div','p2-viewer-head');const close=make('button','p2-viewer-close');close.type='button';close.setAttribute('aria-label',t('mapClose'));close.title=t('mapClose');close.append(U.icon('close'));close.onclick=()=>viewer.close();viewerHead.append(close);viewer.append(viewerHead);document.body.append(viewer);
-function viewPhotos(pics,name){viewer.querySelectorAll('img,.licensed-photo-viewer-credit').forEach(n=>n.remove());for(const src of pics){const im=make('img');im.src=src;im.alt=name;viewer.append(im);const line=creditLine(src);if(line){line.className='licensed-photo-viewer-credit';line.style.cssText='font-size:11px;color:inherit;text-align:center;margin:4px 0 12px;overflow-wrap:anywhere';viewer.append(line);}}viewer.showModal();viewer.scrollTop=0;}
+function viewPhotos(pics,name){
+ viewer.querySelectorAll('.p2-viewer-photo').forEach(n=>n.remove());
+ for(const src of pics){
+  const frame=make('figure','p2-viewer-photo');
+  const im=make('img');im.alt=name;
+  const fit=()=>{if(im.naturalWidth>0&&im.naturalHeight>0)frame.style.setProperty('--photo-ratio',String(im.naturalWidth/im.naturalHeight));};
+  im.addEventListener('load',fit);
+  frame.append(im);
+  const line=creditLine(src);
+  if(line){const caption=make('figcaption','licensed-photo-viewer-credit');caption.append(...line.childNodes);frame.append(caption);}
+  viewer.append(frame);im.src=src;if(im.complete)fit();
+ }
+ viewer.showModal();viewer.scrollTop=0;
+}
 function viewPhoto(src,name){viewPhotos([src],name);}
 class Detail {
  constructor(shop){this.shop=shop;this.dialog=$(shop?'shopDialog':'placeDialog');this.scroll=this.dialog.querySelector(shop?'.sheet-scroll':'.place-scroll');this.nativeHeart=$(shop?'shopHeart':'detailLike');this.title=$(shop?'detailName':'placeDetailTitle');this.dialog.classList.add('p2-dialog');

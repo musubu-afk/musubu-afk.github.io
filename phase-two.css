@@ -27,12 +27,16 @@
 .p2-viewer .p2-viewer-close{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;margin:0;border:0;background:transparent;color:#214d31;box-shadow:none;border-radius:0;cursor:pointer}
 .p2-viewer .p2-viewer-close svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .p2-viewer .p2-viewer-close:focus-visible{outline:2px solid #214d31;outline-offset:2px}
-#placeDialog .p2-gallery-head{flex-wrap:wrap;gap:4px}
-#placeDialog .p2-gallery-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-left:auto;min-width:0}
-#placeDialog .p2-gallery-actions .p2-button{white-space:nowrap}
-#placeDialog .p2-gallery-actions .p2-credit-toggle{font-size:12px;color:#54675d;padding-inline:4px}
-#placeDialog .place-photo-credit{font-size:11px;line-height:1.65;color:#54675d;text-align:right;overflow-wrap:anywhere;margin:0 0 8px}
-@media(max-width:430px){#placeDialog .p2-gallery-actions{gap:2px}#placeDialog .p2-gallery-actions .p2-credit-toggle{font-size:11px;padding-inline:2px}#placeDialog .p2-gallery-actions .p2-button{padding-inline:4px}}
+#placeDialog .p2-gallery-head{flex-wrap:nowrap;gap:8px}
+#placeDialog .p2-gallery-title{display:flex;align-items:center;justify-content:flex-start;flex:1 1 auto;min-width:0;gap:10px}
+#placeDialog .p2-gallery-title>h3{flex:0 0 auto;white-space:nowrap}
+#placeDialog .p2-gallery-head>.p2-button{flex:none;white-space:nowrap;margin-left:auto}
+#placeDialog .p2-gallery-title .p2-credit-toggle{min-width:0;flex:0 1 auto;font-size:12px;line-height:1.35;color:#54675d;padding-inline:2px;gap:4px;text-align:left;white-space:normal}
+#placeDialog .p2-credit-toggle .p2-credit-label{min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+#placeDialog .p2-credit-toggle svg{flex:0 0 14px;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+#placeDialog .place-photo-credit{font-size:11px;line-height:1.65;color:#54675d;text-align:left;overflow-wrap:anywhere;margin:0 0 8px;padding:8px 10px;border-radius:8px;background:#f4f7f4}
+@media(max-width:430px){#placeDialog .p2-gallery-head{gap:4px}#placeDialog .p2-gallery-title{gap:5px}#placeDialog .p2-gallery-title .p2-credit-toggle{font-size:11px;gap:3px;padding-inline:1px}#placeDialog .p2-gallery-head>.p2-button{padding-inline:4px}#placeDialog .p2-credit-toggle svg{flex-basis:12px;width:12px;height:12px}}
+@media(max-width:350px){#placeDialog .p2-gallery-title{flex-wrap:wrap;column-gap:4px;row-gap:0}#placeDialog .p2-gallery-title .p2-credit-toggle{min-height:28px}}
 
 /* Fit the photo viewer to the image, not to the length of its attribution. */
 .p2-viewer{--viewer-photo-height:max(120px,calc(94dvh - 112px));box-sizing:border-box;width:max-content;max-width:94vw;max-height:94dvh;padding:12px;overflow:auto;margin:auto}

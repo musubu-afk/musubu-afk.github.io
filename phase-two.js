@@ -24,7 +24,7 @@ function setPlacePhotoCredit(node,pics,toggle){
  const lines=list.map(creditLine).filter(Boolean);
  if(!lines.length){const c=placePhotoCredits.get(list[0]);if(c)lines.push(creditLink(c.source,'['+c.title+'] 한국민족문화대백과사전 (한국학중앙연구원 · 공공누리 제1유형)'));}
  const label=I.lang==='ja'?'写真の出典・ライセンス':I.lang==='en'?'Photo credits & license':'사진 출처 및 이용조건';
- toggle.textContent=label;toggle.setAttribute('aria-label',label);
+ toggle.querySelector('.p2-credit-label').textContent=label;toggle.setAttribute('aria-label',label);
  toggle.hidden=!lines.length;
  node.hidden=!lines.length||!wasOpen;
  toggle.setAttribute('aria-expanded',String(!node.hidden));
@@ -65,7 +65,11 @@ class Detail {
   this.photoCredit=make('div','place-photo-credit');this.photoCredit.id='placePhotoCreditPanel';this.photoCredit.hidden=true;
   this.photoCreditToggle=make('button','p2-button p2-credit-toggle');this.photoCreditToggle.type='button';this.photoCreditToggle.hidden=true;this.photoCreditToggle.setAttribute('aria-controls',this.photoCredit.id);this.photoCreditToggle.setAttribute('aria-expanded','false');
   this.photoCreditToggle.onclick=()=>{this.photoCredit.hidden=!this.photoCredit.hidden;this.photoCreditToggle.setAttribute('aria-expanded',String(!this.photoCredit.hidden));};
-  const galleryActions=make('div','p2-gallery-actions');galleryActions.append(this.photoCreditToggle,this.galleryAll);galleryHead.append(galleryActions);
+  const creditIcon=document.createElementNS('http://www.w3.org/2000/svg','svg');creditIcon.setAttribute('viewBox','0 0 24 24');creditIcon.setAttribute('aria-hidden','true');creditIcon.setAttribute('focusable','false');
+  const creditCircle=document.createElementNS(creditIcon.namespaceURI,'circle');creditCircle.setAttribute('cx','12');creditCircle.setAttribute('cy','12');creditCircle.setAttribute('r','9');
+  const creditPath=document.createElementNS(creditIcon.namespaceURI,'path');creditPath.setAttribute('d','M12 11v5 M12 8h.01');creditIcon.append(creditCircle,creditPath);
+  this.photoCreditToggle.append(creditIcon,make('span','p2-credit-label'));
+  const galleryTitle=make('div','p2-gallery-title');galleryTitle.append(this.galleryHeading,this.photoCreditToggle);galleryHead.prepend(galleryTitle);
   this.gallery.insertBefore(this.photoCredit,this.thumbs);
   this.players=new Map();
   this.audioSlot=make('div','detail-audio');this.intro.after(this.audioSlot);
